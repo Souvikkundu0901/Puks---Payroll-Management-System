@@ -33,6 +33,7 @@ Defaults D1–D25 in PRD §5 apply unless changed below. Record every change her
 | Date | Decision | Reason |
 |---|---|---|
 | 2026-10-26 | Java 25 retained (no fallback to Java 21) | Toolchain verified and builds cleanly with Spring Boot 4.1.2 and javac release 25 |
+| 2026-10-26 | TDD + Security Agent Red Teaming + Code Minimization | User mandate: strict TDD (unit + integration tests first), minimize code footprint, act as security adversary after each feature to find/report bugs, and do not fix reported bugs without user instructions |
 
 ## Open questions for the frontend author (answers change a default, not the architecture)
 1. **Completion %** (D1): approved ÷ tasks due in month, or weighted by estimated hours?

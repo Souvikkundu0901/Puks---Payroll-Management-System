@@ -1,7 +1,9 @@
 package com.octopyder.payroll.config;
 
+import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.MediaType;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -10,6 +12,7 @@ import org.springframework.security.config.annotation.web.configurers.AbstractHt
 import org.springframework.security.config.annotation.web.configurers.HeadersConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 @Configuration
 @EnableWebSecurity
@@ -27,6 +30,12 @@ public class SecurityConfig {
         "base-uri 'self'; " +
         "frame-ancestors 'none'";
 
+    private final JwtAuthenticationFilter jwtAuthenticationFilter;
+
+    public SecurityConfig(JwtAuthenticationFilter jwtAuthenticationFilter) {
+        this.jwtAuthenticationFilter = jwtAuthenticationFilter;
+    }
+
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
@@ -41,6 +50,22 @@ public class SecurityConfig {
                 )
                 .contentSecurityPolicy(csp -> csp.policyDirectives(CSP_POLICY))
             )
+            .exceptionHandling(exceptions -> exceptions
+                .authenticationEntryPoint((request, response, authException) -> {
+                    response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+                    response.setContentType(MediaType.APPLICATION_PROBLEM_JSON_VALUE);
+                    response.getWriter().write("""
+                        {"status":401,"code":"UNAUTHORIZED","detail":"Full authentication is required to access this resource"}
+                    """);
+                })
+                .accessDeniedHandler((request, response, accessDeniedException) -> {
+                    response.setStatus(HttpServletResponse.SC_FORBIDDEN);
+                    response.setContentType(MediaType.APPLICATION_PROBLEM_JSON_VALUE);
+                    response.getWriter().write("""
+                        {"status":403,"code":"FORBIDDEN","detail":"Access is denied"}
+                    """);
+                })
+            )
             .authorizeHttpRequests(auth -> auth
                 .requestMatchers(
                     "/",
@@ -48,14 +73,25 @@ public class SecurityConfig {
                     "/admin/**",
                     "/employee/**",
                     "/manager/**",
+                    "/js/**",
+                    "/css/**",
                     "/*.html",
                     "/*.pdf",
                     "/*.txt",
                     "/favicon.ico"
                 ).permitAll()
-                .requestMatchers("/actuator/health", "/actuator/health/**").permitAll()
+                .requestMatchers(
+                    "/actuator/health",
+                    "/actuator/health/**",
+                    "/api/v1/auth/login",
+                    "/api/v1/auth/refresh",
+                    "/api/v1/auth/forgot-password",
+                    "/api/v1/auth/reset-password",
+                    "/api/v1/backups/webhook"
+                ).permitAll()
                 .anyRequest().authenticated()
-            );
+            )
+            .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
     }

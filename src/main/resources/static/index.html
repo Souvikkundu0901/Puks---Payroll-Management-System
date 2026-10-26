@@ -538,6 +538,8 @@
                         <p class="text-muted small">Create a free account or log in to get started using Payroll</p>
                     </div>
 
+                    <div id="loginAlert" class="alert alert-danger d-none py-2 small" role="alert"></div>
+
                     <form id="loginForm">
 
                         <!-- Email Input -->
@@ -552,10 +554,10 @@
                             <label for="password"><i class="bi bi-lock me-2 text-muted"></i>Password</label>
                         </div>
 
-                        <!-- Role Selection -->
+                        <!-- Role Selection (Visual hint only per specification) -->
                         <div class="form-floating mb-4">
-                            <select class="form-select" id="role" aria-label="Select User Role" required>
-                                <option value="" disabled selected>Select your role...</option>
+                            <select class="form-select" id="role" aria-label="Select User Role">
+                                <option value="" selected>Auto-detect from account</option>
                                 <option value="admin">Admin</option>
                                 <option value="manager">Manager</option>
                                 <option value="employee">Employee</option>
@@ -575,7 +577,7 @@
                         </div>
 
                         <!-- Submit Button -->
-                        <button type="submit" class="btn btn-theme w-100 mb-3">
+                        <button type="submit" class="btn btn-theme w-100 mb-3" id="btnLogin">
                             Log in
                         </button>
 
@@ -586,20 +588,61 @@
         </div>
     </div>
 
+    <!-- Change Password Modal for Must Change Password -->
+    <div class="modal fade" id="changePasswordModal" tabindex="-1" data-bs-backdrop="static" data-bs-keyboard="false" aria-labelledby="changePasswordModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content border-0 shadow">
+                <div class="modal-header border-0 pb-0">
+                    <h5 class="modal-title fw-bold" id="changePasswordModalLabel">Change Temporary Password</h5>
+                </div>
+                <div class="modal-body">
+                    <p class="text-muted small">Your account was provisioned with a temporary password. You must set a permanent password before continuing.</p>
+                    <div id="changePasswordAlert" class="alert alert-danger d-none py-2 small" role="alert"></div>
+                    <form id="changePasswordForm">
+                        <div class="form-floating mb-3">
+                            <input type="password" class="form-control" id="currentPassword" placeholder="Current Password" required>
+                            <label for="currentPassword"><i class="bi bi-key me-2 text-muted"></i>Current Password</label>
+                        </div>
+                        <div class="form-floating mb-3">
+                            <input type="password" class="form-control" id="newPassword" placeholder="New Password" required>
+                            <label for="newPassword"><i class="bi bi-shield-lock me-2 text-muted"></i>New Password</label>
+                            <div class="form-text small">Min 8 chars, with uppercase, lowercase, number, and special character.</div>
+                        </div>
+                        <div class="form-floating mb-4">
+                            <input type="password" class="form-control" id="confirmPassword" placeholder="Confirm Password" required>
+                            <label for="confirmPassword"><i class="bi bi-check-circle me-2 text-muted"></i>Confirm New Password</label>
+                        </div>
+                        <button type="submit" class="btn btn-theme w-100" id="btnUpdatePassword">
+                            Update Password & Continue
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- Bootstrap JS Bundle -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="js/api.js"></script>
+    <script src="js/auth.js"></script>
 
     <!-- UI Theme Switcher Logic -->
     <script>
         const themeSelector = document.getElementById('themeSelector');
         
-        document.addEventListener('DOMContentLoaded', () => {
+        document.addEventListener('DOMContentLoaded', async () => {
             const savedTheme = localStorage.getItem('payrollTheme');
             if (savedTheme) {
                 themeSelector.value = savedTheme;
                 if (savedTheme !== 'default') {
                     document.body.classList.add(savedTheme);
                 }
+            }
+
+            // Auto-redirect if already authenticated
+            const user = await Auth.initUser();
+            if (user && !user.mustChangePassword) {
+                window.location.href = Auth.getDashboardUrl(user.role);
             }
         });
 
@@ -615,23 +658,76 @@
         });
     </script>
 
-    <!-- Frontend Routing Logic -->
+    <!-- Auth Logic -->
     <script>
-        document.getElementById('loginForm').addEventListener('submit', function (event) {
+        let pendingUser = null;
+        let changePasswordModal = null;
+
+        document.getElementById('loginForm').addEventListener('submit', async function (event) {
             event.preventDefault();
-            const role = document.getElementById('role').value;
-            switch (role) {
-                case 'admin':
-                    window.location.href = 'admin/dashboard.html';
-                    break;
-                case 'manager':
-                    window.location.href = 'manager/dashboard.html';
-                    break;
-                case 'employee':
-                    window.location.href = 'employee/dashboard.html';
-                    break;
-                default:
-                    alert('Please select a valid role to continue.');
+            const alertEl = document.getElementById('loginAlert');
+            alertEl.classList.add('d-none');
+            alertEl.textContent = '';
+
+            const email = document.getElementById('email').value.trim();
+            const password = document.getElementById('password').value;
+            const rememberMe = document.getElementById('rememberMe').checked;
+            const btn = document.getElementById('btnLogin');
+
+            btn.disabled = true;
+            btn.textContent = 'Logging in...';
+
+            try {
+                const response = await Auth.login(email, password, rememberMe);
+                const user = response.user;
+
+                if (user.mustChangePassword) {
+                    pendingUser = user;
+                    document.getElementById('currentPassword').value = password;
+                    changePasswordModal = new bootstrap.Modal(document.getElementById('changePasswordModal'));
+                    changePasswordModal.show();
+                } else {
+                    window.location.href = Auth.getDashboardUrl(user.role);
+                }
+            } catch (err) {
+                alertEl.textContent = err.problem && err.problem.detail ? err.problem.detail : err.message;
+                alertEl.classList.remove('d-none');
+            } finally {
+                btn.disabled = false;
+                btn.textContent = 'Log in';
+            }
+        });
+
+        document.getElementById('changePasswordForm').addEventListener('submit', async function (event) {
+            event.preventDefault();
+            const alertEl = document.getElementById('changePasswordAlert');
+            alertEl.classList.add('d-none');
+            alertEl.textContent = '';
+
+            const currentPassword = document.getElementById('currentPassword').value;
+            const newPassword = document.getElementById('newPassword').value;
+            const confirmPassword = document.getElementById('confirmPassword').value;
+
+            if (newPassword !== confirmPassword) {
+                alertEl.textContent = 'Passwords do not match.';
+                alertEl.classList.remove('d-none');
+                return;
+            }
+
+            const btn = document.getElementById('btnUpdatePassword');
+            btn.disabled = true;
+            btn.textContent = 'Updating...';
+
+            try {
+                await Auth.changePassword(currentPassword, newPassword);
+                const targetUrl = Auth.getDashboardUrl(pendingUser ? pendingUser.role : 'EMPLOYEE');
+                window.location.href = targetUrl;
+            } catch (err) {
+                alertEl.textContent = err.problem && err.problem.detail ? err.problem.detail : err.message;
+                alertEl.classList.remove('d-none');
+            } finally {
+                btn.disabled = false;
+                btn.textContent = 'Update Password & Continue';
             }
         });
     </script>

@@ -83,3 +83,10 @@
 
 ## 10. When unsure
 Ask one short, specific question and offer a default. Prefer a small safe choice over a clever one. Never claim a test passed without running it, and never say "done" with items unticked.
+
+## 11. Workflow, TDD, Code Minimization & Security Agent Role
+- **TDD Mandatory:** Every feature must follow Test-Driven Development (TDD). Write unit and integration tests first before implementing functionality.
+- **Comprehensive Testing:** Every feature requires both unit tests and integration tests (MockMvc + Testcontainers PostgreSQL).
+- **Code Minimization:** Keep code minimal, concise, and focused. Avoid unnecessary abstractions, boilerplate, or overengineering.
+- **Security Agent Red-Teaming:** Immediately after completing any feature, switch into the role of a dedicated security agent / adversary. Actively attempt to break the implementation (probing IDOR, token lifecycle, auth bypasses, edge cases, input validation, concurrency/races).
+- **No Unprompted Fixes:** Report all discovered bugs, security gaps, and flaws clearly to the user. **Do NOT fix them without explicit instructions from the user.**

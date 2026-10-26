@@ -180,6 +180,10 @@
         body.theme-animation .card-custom:hover, body.theme-animation .manager-mobile-card:hover, body.theme-animation .emp-mobile-card:hover { transform: translateY(-4px); box-shadow: 0 10px 20px rgba(0,0,0,0.06); }
         body.theme-animation .mobile-kpi-card:hover { transform: translateY(-2px); box-shadow: 0 6px 12px rgba(0,0,0,0.05); }
     </style>
+    <!-- Auth & Role Guard -->
+    <script src="../js/api.js"></script>
+    <script src="../js/auth.js"></script>
+    <script>Auth.require("ADMIN");</script>
 </head>
 
 <body class="theme-default">
@@ -284,25 +288,25 @@
                     <div class="col-md-3">
                         <div class="card-custom text-center border-bottom border-primary border-3">
                             <span class="text-muted small d-block mb-1">👨‍💼 Total Managers</span>
-                            <h3 class="fw-bold text-dark mb-0">12</h3>
+                            <h3 class="fw-bold text-dark mb-0" id="kpiTotalManagers">0</h3>
                         </div>
                     </div>
                     <div class="col-md-3">
                         <div class="card-custom text-center border-bottom border-success border-3">
                             <span class="text-muted small d-block mb-1">👥 Employees Managed</span>
-                            <h3 class="fw-bold text-success mb-0">125</h3>
+                            <h3 class="fw-bold text-success mb-0" id="kpiManagedEmployees">0</h3>
                         </div>
                     </div>
                     <div class="col-md-3">
                         <div class="card-custom text-center border-bottom border-info border-3">
                             <span class="text-muted small d-block mb-1">📊 Average Team Size</span>
-                            <h3 class="fw-bold text-info mb-0">10 <span class="fs-6">Emp</span></h3>
+                            <h3 class="fw-bold text-info mb-0" id="kpiAvgTeamSize">0 <span class="fs-6">Emp</span></h3>
                         </div>
                     </div>
                     <div class="col-md-3">
                         <div class="card-custom text-center border-bottom border-warning border-3">
                             <span class="text-muted small d-block mb-1">🏢 Departments</span>
-                            <h3 class="fw-bold text-warning mb-0">5</h3>
+                            <h3 class="fw-bold text-warning mb-0" id="kpiDepartments">0</h3>
                         </div>
                     </div>
                 </div>
@@ -312,47 +316,26 @@
                     
                     <!-- Search & Filter Row -->
                     <div class="row g-2 mb-4 align-items-center">
-                        <div class="col-md-3">
+                        <div class="col-md-5">
                             <div class="input-group">
                                 <span class="input-group-text bg-transparent border-end-0"><i class="bi bi-search"></i></span>
-                                <input type="text" class="form-control border-start-0 ps-0" placeholder="Manager Name, ID, Email...">
+                                <input type="text" class="form-control border-start-0 ps-0" id="managerSearchInput" placeholder="Search manager name, code, email...">
                             </div>
                         </div>
-                        <div class="col-md-2">
-                            <select class="form-select text-muted">
-                                <option selected>Department</option>
-                                <option>IT</option>
-                                <option>HR</option>
-                                <option>Finance</option>
+                        <div class="col-md-3">
+                            <select class="form-select text-muted" id="managerDeptFilter">
+                                <option value="" selected>All Departments</option>
                             </select>
                         </div>
-                        <div class="col-md-2">
-                            <select class="form-select text-muted">
-                                <option selected>Status</option>
-                                <option>Active</option>
-                                <option>On Leave</option>
-                                <option>Inactive</option>
-                                <option>Resigned</option>
-                            </select>
-                        </div>
-                        <div class="col-md-2">
-                            <select class="form-select text-muted">
-                                <option selected>Experience</option>
-                                <option>1-3 Years</option>
-                                <option>3-5 Years</option>
-                                <option>5+ Years</option>
-                            </select>
-                        </div>
-                        <div class="col-md-2">
-                            <select class="form-select text-muted">
-                                <option selected>Team Size</option>
-                                <option>1-5 Emp</option>
-                                <option>5-10 Emp</option>
-                                <option>10+ Emp</option>
+                        <div class="col-md-3">
+                            <select class="form-select text-muted" id="managerStatusFilter">
+                                <option value="" selected>All Statuses</option>
+                                <option value="ACTIVE">Active</option>
+                                <option value="INACTIVE">Inactive</option>
                             </select>
                         </div>
                         <div class="col-md-1 text-end">
-                            <button class="btn btn-light text-muted w-100" title="Reset Filters"><i class="bi bi-arrow-counterclockwise"></i></button>
+                            <button class="btn btn-light text-muted w-100" id="btnResetManagerFilters" title="Reset Filters"><i class="bi bi-arrow-counterclockwise"></i></button>
                         </div>
                     </div>
 
@@ -639,134 +622,57 @@
                     <form id="addManagerForm">
                         <h6 class="fw-bold text-primary mb-3 border-bottom pb-2">Personal Details</h6>
                         <div class="row g-3 mb-4">
-                            <div class="col-md-4"><label class="form-label small">Manager ID</label><input type="text" class="form-control" value="MGR003" readonly></div>
-                            <div class="col-md-4"><label class="form-label small">First Name</label><input type="text" class="form-control" required></div>
-                            <div class="col-md-4"><label class="form-label small">Last Name</label><input type="text" class="form-control" required></div>
-                            <div class="col-md-4"><label class="form-label small">Gender</label><select class="form-select"><option>Male</option><option>Female</option><option>Other</option></select></div>
-                            <div class="col-md-4"><label class="form-label small">DOB</label><input type="date" class="form-control"></div>
-                            <div class="col-md-4"><label class="form-label small">Phone</label><input type="tel" class="form-control"></div>
-                            <div class="col-md-6"><label class="form-label small">Email</label><input type="email" class="form-control" required></div>
-                            <div class="col-md-6"><label class="form-label small">Address</label><input type="text" class="form-control"></div>
+                            <div class="col-md-6"><label class="form-label small">First Name *</label><input type="text" class="form-control" id="addMgrFirstName" required></div>
+                            <div class="col-md-6"><label class="form-label small">Last Name *</label><input type="text" class="form-control" id="addMgrLastName" required></div>
+                            <div class="col-md-6"><label class="form-label small">Email *</label><input type="email" class="form-control" id="addMgrEmail" required></div>
+                            <div class="col-md-6"><label class="form-label small">Phone</label><input type="tel" class="form-control" id="addMgrPhone"></div>
                         </div>
 
                         <h6 class="fw-bold text-primary mb-3 border-bottom pb-2">Professional Details</h6>
                         <div class="row g-3 mb-4">
-                            <div class="col-md-4"><label class="form-label small">Department</label><select class="form-select"><option>IT</option><option>HR</option><option>Finance</option></select></div>
-                            <div class="col-md-4"><label class="form-label small">Designation</label><input type="text" class="form-control" value="Senior Manager"></div>
-                            <div class="col-md-4"><label class="form-label small">Joining Date</label><input type="date" class="form-control"></div>
-                            <div class="col-md-6"><label class="form-label small">Experience</label><input type="text" class="form-control" placeholder="e.g. 5 Years"></div>
-                            <div class="col-md-6"><label class="form-label small">Salary (Base)</label><input type="number" class="form-control"></div>
+                            <div class="col-md-6"><label class="form-label small">Department</label><select class="form-select" id="addMgrDept"><option value="">Select Department</option></select></div>
+                            <div class="col-md-6"><label class="form-label small">Designation *</label><input type="text" class="form-control" id="addMgrDesignation" value="Manager" required></div>
                         </div>
-
-                        <h6 class="fw-bold text-primary mb-3 border-bottom pb-2">Account Details</h6>
-                        <div class="row g-3 mb-2">
-                            <div class="col-md-4"><label class="form-label small">Username</label><input type="text" class="form-control" required></div>
-                            <div class="col-md-4"><label class="form-label small">Password</label><input type="password" class="form-control" required></div>
-                            <div class="col-md-4"><label class="form-label small">Role</label><select class="form-select" disabled><option selected>Manager</option></select></div>
+                        <div class="modal-footer bg-light pt-3 border-top -mx-4 -mb-4">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                            <button type="submit" class="btn btn-primary px-4">Create Manager</button>
                         </div>
                     </form>
-                </div>
-                <div class="modal-footer bg-light">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                    <button type="button" class="btn btn-outline-secondary">Reset</button>
-                    <button type="button" class="btn btn-primary px-4" onclick="handleAction('Manager Added Successfully', '#addManagerModal')">Save</button>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- STEP 7: Edit Manager Modal (Reusing structure, changing title) -->
-    <div class="modal fade" id="editManagerModal" tabindex="-1" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered modal-lg">
-            <div class="modal-content border-0 shadow">
-                <div class="modal-header">
-                    <h5 class="modal-title fw-bold">Update Manager</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                </div>
-                <div class="modal-body p-4">
-                    <form>
-                        <div class="row g-3 mb-4">
-                            <div class="col-md-6"><label class="form-label small">First Name</label><input type="text" class="form-control" value="Rahul"></div>
-                            <div class="col-md-6"><label class="form-label small">Last Name</label><input type="text" class="form-control" value="Sharma"></div>
-                            <div class="col-md-6"><label class="form-label small">Department</label><select class="form-select"><option selected>IT</option><option>HR</option></select></div>
-                            <div class="col-md-6"><label class="form-label small">Experience</label><input type="text" class="form-control" value="5 Years"></div>
-                        </div>
-                    </form>
-                </div>
-                <div class="modal-footer bg-light">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                    <button type="button" class="btn btn-primary px-4" onclick="handleAction('Manager Updated Successfully', '#editManagerModal')">Update</button>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- STEP 8: Assign Employees Modal (Advanced UX) -->
+    <!-- STEP 8: Assign Employees Modal -->
     <div class="modal fade" id="assignEmployeesModal" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered modal-md">
             <div class="modal-content border-0 shadow">
                 <div class="modal-header bg-light">
                     <div>
                         <h5 class="modal-title fw-bold mb-0">Assign Employees</h5>
-                        <small class="text-muted">Manager: <strong class="text-dark">Rahul Sharma</strong></small>
+                        <small class="text-muted">Manager: <strong class="text-dark" id="assignMgrName">Manager Name</strong></small>
                     </div>
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body p-4">
-                    <!-- Search inside modal -->
+                    <input type="hidden" id="assignMgrId">
                     <div class="input-group mb-3">
                         <span class="input-group-text bg-transparent"><i class="bi bi-search"></i></span>
-                        <input type="text" class="form-control border-start-0" placeholder="Search Employee...">
+                        <input type="text" class="form-control border-start-0" id="assignEmpSearch" placeholder="Filter employee list...">
                     </div>
                     
-                    <!-- Checklist -->
-                    <div class="d-flex flex-column gap-2 mb-4" style="max-height: 250px; overflow-y: auto;">
-                        <div class="form-check d-flex align-items-center">
-                            <input class="form-check-input emp-assign-cb" type="checkbox" id="empCheck1" checked onchange="updateAssignCount()">
-                            <label class="form-check-label assign-check-label ms-2 d-flex justify-content-between" for="empCheck1">
-                                <span><img src="https://i.pravatar.cc/150?img=12" class="avatar-sm me-2" style="width:25px;height:25px;"> Amit Kumar</span>
-                                <span class="badge bg-light text-dark">IT</span>
-                            </label>
-                        </div>
-                        <div class="form-check d-flex align-items-center">
-                            <input class="form-check-input emp-assign-cb" type="checkbox" id="empCheck2" checked onchange="updateAssignCount()">
-                            <label class="form-check-label assign-check-label ms-2 d-flex justify-content-between" for="empCheck2">
-                                <span><img src="https://i.pravatar.cc/150?img=9" class="avatar-sm me-2" style="width:25px;height:25px;"> Priya Singh</span>
-                                <span class="badge bg-light text-dark">IT</span>
-                            </label>
-                        </div>
-                        <div class="form-check d-flex align-items-center">
-                            <input class="form-check-input emp-assign-cb" type="checkbox" id="empCheck3" checked onchange="updateAssignCount()">
-                            <label class="form-check-label assign-check-label ms-2 d-flex justify-content-between" for="empCheck3">
-                                <span><img src="https://i.pravatar.cc/150?img=3" class="avatar-sm me-2" style="width:25px;height:25px;"> Riya Das</span>
-                                <span class="badge bg-light text-dark">HR</span>
-                            </label>
-                        </div>
-                        <div class="form-check d-flex align-items-center">
-                            <input class="form-check-input emp-assign-cb" type="checkbox" id="empCheck4" onchange="updateAssignCount()">
-                            <label class="form-check-label assign-check-label ms-2 d-flex justify-content-between" for="empCheck4">
-                                <span><img src="https://i.pravatar.cc/150?img=14" class="avatar-sm me-2" style="width:25px;height:25px;"> Mohit Kumar</span>
-                                <span class="badge bg-light text-dark">Finance</span>
-                            </label>
-                        </div>
-                        <div class="form-check d-flex align-items-center">
-                            <input class="form-check-input emp-assign-cb" type="checkbox" id="empCheck5" onchange="updateAssignCount()">
-                            <label class="form-check-label assign-check-label ms-2 d-flex justify-content-between" for="empCheck5">
-                                <span><img src="https://i.pravatar.cc/150?img=16" class="avatar-sm me-2" style="width:25px;height:25px;"> Vivek</span>
-                                <span class="badge bg-light text-dark">IT</span>
-                            </label>
-                        </div>
+                    <div class="d-flex flex-column gap-2 mb-4" id="assignChecklistContainer" style="max-height: 250px; overflow-y: auto;">
+                        <div class="text-muted small p-2">Loading employees...</div>
                     </div>
 
-                    <!-- Counter -->
                     <div class="d-flex justify-content-between align-items-center bg-light p-3 rounded border">
                         <span class="text-muted fw-medium">Selected</span>
-                        <h5 class="fw-bold text-primary mb-0"><span id="assignCounter">3</span> Employees</h5>
+                        <h5 class="fw-bold text-primary mb-0"><span id="assignCounter">0</span> Employees</h5>
                     </div>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                    <button type="button" class="btn btn-primary px-4" onclick="handleAction('Employees Assigned Successfully', '#assignEmployeesModal')">Save</button>
+                    <button type="button" class="btn btn-primary px-4" id="btnSaveTeamAssignment">Save Team</button>
                 </div>
             </div>
         </div>
@@ -779,23 +685,38 @@
                 <div class="modal-body p-4">
                     <i class="bi bi-exclamation-triangle text-danger display-4 mb-3 d-block"></i>
                     <h5 class="fw-bold mb-2">Delete Manager</h5>
-                    <p class="text-dark fw-bold mb-1" id="delMgrName">Rahul Sharma</p>
+                    <p class="text-dark fw-bold mb-1" id="delMgrName">Manager</p>
+                    <input type="hidden" id="delMgrId">
                     
                     <!-- Conditional Warning UI -->
-                    <div id="delMgrWarning" class="alert alert-warning p-2 small mt-3 mb-4 text-start">
-                        Manager has <strong id="delMgrCount">12 Employees</strong>.<br>
-                        These employees must be reassigned before deletion.
+                    <div id="delMgrWarning" class="alert alert-warning p-2 small mt-3 mb-4 text-start d-none">
+                        Manager has <strong id="delMgrCount">0 Employees</strong>.<br>
+                        These employees must be reassigned before deletion (MANAGER_HAS_TEAM).
                     </div>
                     
-                    <p id="delMgrSafe" class="text-muted small mt-2 mb-4 d-none">This action cannot be undone.</p>
+                    <p id="delMgrSafe" class="text-muted small mt-2 mb-4">This action will soft-delete the manager profile.</p>
 
                     <div class="d-flex gap-2 w-100">
                         <button type="button" class="btn btn-light flex-grow-1" data-bs-dismiss="modal">Cancel</button>
-                        <button type="button" class="btn btn-danger flex-grow-1" id="delMgrBtn" onclick="handleAction('Manager Deleted Successfully', '#deleteManagerModal')">Delete</button>
+                        <button type="button" class="btn btn-danger flex-grow-1" id="delMgrBtn">Delete</button>
                     </div>
-                    
-                    <small id="delMgrHint" class="text-danger d-block mt-2 fw-medium">Please assign employees first.</small>
                 </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- One-Time Temporary Password Display Modal -->
+    <div class="modal fade" id="tempPasswordModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-sm">
+            <div class="modal-content border-0 shadow text-center p-4">
+                <i class="bi bi-shield-lock text-success display-4 mb-2 d-block"></i>
+                <h5 class="fw-bold mb-1" id="tempPassTitle">Temporary Password</h5>
+                <p class="text-muted small mb-3">Copy this one-time password now. It will not be shown again and expires in 7 days.</p>
+                <div class="input-group mb-3">
+                    <input type="text" class="form-control text-center font-monospace fw-bold" id="tempPassValue" readonly>
+                    <button class="btn btn-outline-secondary" type="button" id="btnCopyTempPass" title="Copy"><i class="bi bi-clipboard"></i></button>
+                </div>
+                <button type="button" class="btn btn-primary w-100" data-bs-dismiss="modal">Done</button>
             </div>
         </div>
     </div>
@@ -935,7 +856,7 @@
 
     <!-- UI Logic Script -->
     <script>
-        // 1. Theme Management (Shared Desktop & Mobile)
+        // Theme Management
         const themeSelector = document.getElementById('themeSelector');
         const mobileThemeSelector = document.getElementById('mobileThemeSelector');
 
@@ -960,122 +881,405 @@
         if(themeSelector) themeSelector.addEventListener('change', syncTheme);
         if(mobileThemeSelector) mobileThemeSelector.addEventListener('change', syncTheme);
 
-        // 2. Success Toasts Handling (STEP 15)
-        function showToast(message) {
-            document.getElementById('toastMessage').innerText = message;
+        function showToast(message, isError = false) {
             const toastEl = document.getElementById('successToast');
-            const toast = new bootstrap.Toast(toastEl, { delay: 3000 });
-            toast.show();
-        }
-
-        // Handle Action Buttons in Modals
-        function handleAction(successMessage, modalId) {
-            const modalEl = document.querySelector(modalId);
-            const modal = bootstrap.Modal.getInstance(modalEl);
-            if (modal) { modal.hide(); }
-            
-            setTimeout(() => { showToast(successMessage); }, 400);
-            simulateDataLoad();
-        }
-
-        // 3. Loading State Simulation (STEP 14)
-        function simulateDataLoad() {
-            // Desktop
-            const dTable = document.getElementById('desktopTableContainer');
-            const dLoader = document.getElementById('desktopLoader');
-            const dPag = document.getElementById('desktopPagination');
-            
-            if (dTable && dLoader) {
-                dTable.classList.add('d-none');
-                dPag.classList.add('d-none');
-                dLoader.classList.remove('d-none');
-                setTimeout(() => {
-                    dLoader.classList.add('d-none');
-                    dTable.classList.remove('d-none');
-                    dPag.classList.remove('d-none');
-                }, 800);
-            }
-
-            // Mobile
-            const mCards = document.getElementById('mobileCardsContainer');
-            const mLoader = document.getElementById('mobileLoader');
-            const mBtn = document.getElementById('mobileLoadMore');
-            
-            if (mCards && mLoader) {
-                mCards.classList.add('d-none');
-                mBtn.classList.add('d-none');
-                mLoader.classList.remove('d-none');
-                setTimeout(() => {
-                    mLoader.classList.add('d-none');
-                    mCards.classList.remove('d-none');
-                    mBtn.classList.remove('d-none');
-                }, 800);
+            const msgEl = document.getElementById('toastMessage');
+            if(msgEl) msgEl.textContent = message;
+            if(toastEl) {
+                toastEl.className = 'toast align-items-center text-white border-0 ' + (isError ? 'bg-danger' : 'bg-success');
+                const toast = new bootstrap.Toast(toastEl, { delay: 4000 });
+                toast.show();
             }
         }
 
-        // Mobile Load More Simulation (STEP 11)
-        const loadMoreBtn = document.getElementById('mobileLoadMore');
-        if(loadMoreBtn) {
-            loadMoreBtn.addEventListener('click', function() {
-                const originalText = this.innerHTML;
-                this.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Loading...';
-                this.disabled = true;
-                setTimeout(() => {
-                    this.innerHTML = originalText;
-                    this.disabled = false;
-                    showToast("More managers loaded");
-                }, 1000);
+        // State
+        let allManagers = [];
+        let allEmployees = [];
+        let departments = [];
+
+        async function initPage() {
+            await Promise.all([loadDepartments(), loadEmployees()]);
+            await loadManagers();
+        }
+
+        async function loadDepartments() {
+            try {
+                departments = await API.get('/departments');
+                const filter = document.getElementById('managerDeptFilter');
+                const addSel = document.getElementById('addMgrDept');
+                [filter, addSel].forEach(sel => {
+                    if (!sel) return;
+                    sel.innerHTML = sel.id.includes('Filter') ? '<option value="" selected>All Departments</option>' : '<option value="">Select Department</option>';
+                    departments.forEach(d => {
+                        const opt = document.createElement('option');
+                        opt.value = d.id;
+                        opt.textContent = d.name;
+                        sel.appendChild(opt);
+                    });
+                });
+            } catch(e) {
+                console.error('Failed to load departments', e);
+            }
+        }
+
+        async function loadEmployees() {
+            try {
+                const res = await API.get('/employees?page=0&size=100');
+                allEmployees = res.items || [];
+            } catch(e) {
+                console.error('Failed to load employees for assignment', e);
+            }
+        }
+
+        async function loadManagers() {
+            try {
+                allManagers = await API.get('/managers');
+                filterAndRender();
+            } catch(e) {
+                showToast(e.message || 'Failed to load managers', true);
+            }
+        }
+
+        function filterAndRender() {
+            const search = document.getElementById('managerSearchInput')?.value?.toLowerCase().trim() || '';
+            const deptId = document.getElementById('managerDeptFilter')?.value || '';
+            const status = document.getElementById('managerStatusFilter')?.value || '';
+
+            const filtered = allManagers.filter(m => {
+                const matchSearch = !search || m.name.toLowerCase().includes(search) || m.code.toLowerCase().includes(search) || m.email.toLowerCase().includes(search);
+                const matchDept = !deptId || m.departmentId === deptId;
+                const matchStatus = !status || m.status === status;
+                return matchSearch && matchDept && matchStatus;
+            });
+
+            renderTable(filtered);
+            renderMobileCards(filtered);
+            updateKpis(allManagers);
+        }
+
+        function updateKpis(managers) {
+            const total = managers.length;
+            const managed = managers.reduce((acc, m) => acc + (m.teamMemberCount || 0), 0);
+            const avg = total > 0 ? (managed / total).toFixed(1) : 0;
+            const uniqueDepts = new Set(managers.map(m => m.departmentName).filter(Boolean)).size;
+
+            const tEl = document.getElementById('kpiTotalManagers');
+            const mEl = document.getElementById('kpiManagedEmployees');
+            const aEl = document.getElementById('kpiAvgTeamSize');
+            const dEl = document.getElementById('kpiDepartments');
+
+            if (tEl) tEl.textContent = total;
+            if (mEl) mEl.textContent = managed;
+            if (aEl) aEl.innerHTML = `${avg} <span class="fs-6">Emp</span>`;
+            if (dEl) dEl.textContent = uniqueDepts;
+        }
+
+        function renderTable(managers) {
+            const tbody = document.getElementById('desktopTableBody');
+            const empty = document.getElementById('desktopEmptyState');
+            const cont = document.getElementById('desktopTableContainer');
+            if (!tbody) return;
+            tbody.innerHTML = '';
+
+            if (managers.length === 0) {
+                if (empty) empty.classList.remove('d-none');
+                if (cont) cont.classList.add('d-none');
+                return;
+            }
+
+            if (empty) empty.classList.add('d-none');
+            if (cont) cont.classList.remove('d-none');
+
+            managers.forEach(m => {
+                const tr = document.createElement('tr');
+
+                // Avatar
+                const tdAvatar = document.createElement('td');
+                const img = document.createElement('img');
+                img.src = 'https://ui-avatars.com/api/?name=' + encodeURIComponent(m.name) + '&background=random';
+                img.className = 'avatar-sm rounded-circle';
+                tdAvatar.appendChild(img);
+                tr.appendChild(tdAvatar);
+
+                // Code
+                const tdCode = document.createElement('td');
+                tdCode.className = 'fw-medium';
+                tdCode.textContent = m.code;
+                tr.appendChild(tdCode);
+
+                // Name & Email
+                const tdName = document.createElement('td');
+                const nameDiv = document.createElement('div');
+                nameDiv.className = 'fw-bold';
+                nameDiv.textContent = m.name;
+                const emailSmall = document.createElement('small');
+                emailSmall.className = 'text-muted';
+                emailSmall.textContent = m.email;
+                tdName.appendChild(nameDiv);
+                tdName.appendChild(emailSmall);
+                tr.appendChild(tdName);
+
+                // Department
+                const tdDept = document.createElement('td');
+                tdDept.textContent = m.departmentName || '-';
+                tr.appendChild(tdDept);
+
+                // Employees Count
+                const tdCount = document.createElement('td');
+                const countBadge = document.createElement('span');
+                countBadge.className = 'badge bg-light text-dark border';
+                countBadge.textContent = `${m.teamMemberCount || 0} Emp`;
+                tdCount.appendChild(countBadge);
+                tr.appendChild(tdCount);
+
+                // Joining Date
+                const tdJoin = document.createElement('td');
+                tdJoin.textContent = m.joiningDate || '-';
+                tr.appendChild(tdJoin);
+
+                // Status
+                const tdStatus = document.createElement('td');
+                const badge = document.createElement('span');
+                badge.className = 'badge ' + (m.status === 'ACTIVE' ? 'bg-success bg-opacity-10 text-success border border-success' : 'bg-secondary bg-opacity-10 text-secondary border border-secondary');
+                badge.textContent = m.status === 'ACTIVE' ? 'Active' : 'Inactive';
+                tdStatus.appendChild(badge);
+                tr.appendChild(tdStatus);
+
+                // Actions
+                const tdAction = document.createElement('td');
+                tdAction.className = 'text-end';
+
+                const btnAssign = document.createElement('button');
+                btnAssign.className = 'btn btn-sm btn-light text-info me-1';
+                btnAssign.title = 'Assign Employees';
+                btnAssign.innerHTML = '<i class="bi bi-people"></i>';
+                btnAssign.onclick = () => openAssignModal(m);
+                tdAction.appendChild(btnAssign);
+
+                const btnDel = document.createElement('button');
+                btnDel.className = 'btn btn-sm btn-light text-danger';
+                btnDel.title = 'Delete';
+                btnDel.innerHTML = '<i class="bi bi-trash"></i>';
+                btnDel.onclick = () => openDeleteModal(m.id, m.name, m.teamMemberCount || 0);
+                tdAction.appendChild(btnDel);
+
+                tr.appendChild(tdAction);
+                tbody.appendChild(tr);
             });
         }
 
-        // Assign Employees Logic (STEP 8)
-        function updateAssignCount() {
-            const checkboxes = document.querySelectorAll('.emp-assign-cb');
-            let count = 0;
-            checkboxes.forEach(cb => { if(cb.checked) count++; });
-            document.getElementById('assignCounter').innerText = count;
+        function renderMobileCards(managers) {
+            const container = document.getElementById('mobileCardsContainer');
+            if (!container) return;
+            container.innerHTML = '';
+
+            managers.forEach(m => {
+                const card = document.createElement('div');
+                card.className = 'manager-mobile-card';
+
+                const top = document.createElement('div');
+                top.className = 'd-flex align-items-center gap-3';
+                const img = document.createElement('img');
+                img.src = 'https://ui-avatars.com/api/?name=' + encodeURIComponent(m.name) + '&background=random';
+                img.className = 'avatar-sm rounded-circle';
+                const info = document.createElement('div');
+                const nameH = document.createElement('h6');
+                nameH.className = 'fw-bold mb-0 text-dark';
+                nameH.textContent = m.name;
+                const sub = document.createElement('small');
+                sub.className = 'text-muted';
+                sub.textContent = `${m.code} • ${m.departmentName || 'General'} • ${m.teamMemberCount || 0} Employees`;
+                info.appendChild(nameH);
+                info.appendChild(sub);
+                top.appendChild(img);
+                top.appendChild(info);
+
+                const actions = document.createElement('div');
+                actions.className = 'manager-mobile-card-actions';
+
+                const btnAssign = document.createElement('button');
+                btnAssign.className = 'btn btn-sm btn-light text-info flex-grow-1';
+                btnAssign.innerHTML = '<i class="bi bi-people me-1"></i>Assign Team';
+                btnAssign.onclick = () => openAssignModal(m);
+
+                const btnDel = document.createElement('button');
+                btnDel.className = 'btn btn-sm btn-light text-danger flex-grow-1';
+                btnDel.innerHTML = '<i class="bi bi-trash me-1"></i>Delete';
+                btnDel.onclick = () => openDeleteModal(m.id, m.name, m.teamMemberCount || 0);
+
+                actions.appendChild(btnAssign);
+                actions.appendChild(btnDel);
+
+                card.appendChild(top);
+                card.appendChild(actions);
+                container.appendChild(card);
+            });
         }
 
-        // Remove Employee Confirmation (STEP 9)
-        function confirmRemoveEmployee(empName) {
-            if(confirm(`Remove ${empName} from this manager?`)) {
-                showToast('Manager Removed Successfully');
+        // Add Manager
+        document.getElementById('addManagerForm')?.addEventListener('submit', async function(e) {
+            e.preventDefault();
+            const payload = {
+                name: (document.getElementById('addMgrFirstName').value.trim() + ' ' + document.getElementById('addMgrLastName').value.trim()).trim(),
+                email: document.getElementById('addMgrEmail').value.trim(),
+                phone: document.getElementById('addMgrPhone').value.trim(),
+                departmentId: document.getElementById('addMgrDept').value || null,
+                designation: document.getElementById('addMgrDesignation').value.trim() || 'Manager'
+            };
+
+            try {
+                const res = await API.post('/managers', payload);
+                bootstrap.Modal.getInstance(document.getElementById('addManagerModal'))?.hide();
+                document.getElementById('addManagerForm').reset();
+                showToast('Manager created successfully!');
+
+                document.getElementById('tempPassTitle').textContent = `Created: ${res.code}`;
+                document.getElementById('tempPassValue').value = res.temporaryPassword;
+                new bootstrap.Modal(document.getElementById('tempPasswordModal')).show();
+
+                await loadManagers();
+            } catch(err) {
+                showToast(err.message || 'Failed to create manager', true);
             }
+        });
+
+        // Assign Employees Modal
+        let selectedManagerId = null;
+
+        function openAssignModal(mgr) {
+            selectedManagerId = mgr.id;
+            document.getElementById('assignMgrId').value = mgr.id;
+            document.getElementById('assignMgrName').textContent = `${mgr.name} (${mgr.code})`;
+            renderAssignChecklist();
+            new bootstrap.Modal(document.getElementById('assignEmployeesModal')).show();
         }
 
-        // Delete Manager Security Logic (STEP 10)
-        function openDeleteModal(name, employeeCount) {
-            document.getElementById('delMgrName').innerText = name;
+        function renderAssignChecklist() {
+            const container = document.getElementById('assignChecklistContainer');
+            if (!container) return;
+            container.innerHTML = '';
+
+            const search = document.getElementById('assignEmpSearch')?.value?.toLowerCase().trim() || '';
+
+            let count = 0;
+            allEmployees.forEach(emp => {
+                if (search && !emp.name.toLowerCase().includes(search) && !emp.code.toLowerCase().includes(search)) {
+                    return;
+                }
+
+                const isAssigned = emp.managerId === selectedManagerId;
+                if (isAssigned) count++;
+
+                const row = document.createElement('div');
+                row.className = 'form-check d-flex align-items-center';
+
+                const cb = document.createElement('input');
+                cb.className = 'form-check-input emp-assign-cb';
+                cb.type = 'checkbox';
+                cb.id = 'assignEmp_' + emp.id;
+                cb.value = emp.id;
+                cb.checked = isAssigned;
+                cb.onchange = updateAssignCounter;
+
+                const label = document.createElement('label');
+                label.className = 'form-check-label assign-check-label ms-2 d-flex justify-content-between align-items-center w-100';
+                label.htmlFor = 'assignEmp_' + emp.id;
+
+                const left = document.createElement('span');
+                left.textContent = `${emp.name} (${emp.code})`;
+
+                const right = document.createElement('span');
+                right.className = 'badge bg-light text-dark';
+                right.textContent = emp.departmentName || 'General';
+
+                label.appendChild(left);
+                label.appendChild(right);
+
+                row.appendChild(cb);
+                row.appendChild(label);
+                container.appendChild(row);
+            });
+
+            document.getElementById('assignCounter').textContent = count;
+        }
+
+        function updateAssignCounter() {
+            const checked = document.querySelectorAll('.emp-assign-cb:checked').length;
+            document.getElementById('assignCounter').textContent = checked;
+        }
+
+        document.getElementById('assignEmpSearch')?.addEventListener('input', renderAssignChecklist);
+
+        document.getElementById('btnSaveTeamAssignment')?.addEventListener('click', async function() {
+            if (!selectedManagerId) return;
+            const checkedIds = Array.from(document.querySelectorAll('.emp-assign-cb:checked')).map(cb => cb.value);
+
+            try {
+                await API.post(`/managers/${selectedManagerId}/team`, { employeeIds: checkedIds });
+                bootstrap.Modal.getInstance(document.getElementById('assignEmployeesModal'))?.hide();
+                showToast('Team assignment updated successfully');
+                await Promise.all([loadEmployees(), loadManagers()]);
+            } catch(err) {
+                showToast(err.message || 'Failed to update team assignment', true);
+            }
+        });
+
+        // Delete Manager Modal
+        function openDeleteModal(id, name, employeeCount) {
+            document.getElementById('delMgrId').value = id;
+            document.getElementById('delMgrName').textContent = name;
             const btn = document.getElementById('delMgrBtn');
             const warning = document.getElementById('delMgrWarning');
             const safeTxt = document.getElementById('delMgrSafe');
-            const hint = document.getElementById('delMgrHint');
             
             if (employeeCount > 0) {
-                document.getElementById('delMgrCount').innerText = `${employeeCount} Employees`;
+                document.getElementById('delMgrCount').textContent = `${employeeCount} Employees`;
                 warning.classList.remove('d-none');
                 safeTxt.classList.add('d-none');
-                hint.classList.remove('d-none');
                 btn.disabled = true;
             } else {
                 warning.classList.add('d-none');
                 safeTxt.classList.remove('d-none');
-                hint.classList.add('d-none');
                 btn.disabled = false;
             }
             
-            const modal = new bootstrap.Modal(document.getElementById('deleteManagerModal'));
-            modal.show();
+            new bootstrap.Modal(document.getElementById('deleteManagerModal')).show();
         }
 
-        // Close FAB when modal opens
-        document.querySelectorAll('[data-bs-toggle="modal"]').forEach(btn => {
-            btn.addEventListener('click', () => {
-                const fab = document.getElementById('fab');
-                if(fab) fab.classList.remove('active');
-            });
+        document.getElementById('delMgrBtn')?.addEventListener('click', async function() {
+            const id = document.getElementById('delMgrId').value;
+            try {
+                await API.delete(`/managers/${id}`);
+                bootstrap.Modal.getInstance(document.getElementById('deleteManagerModal'))?.hide();
+                showToast('Manager deleted successfully');
+                await loadManagers();
+            } catch(err) {
+                showToast(err.message || 'Cannot delete manager: MANAGER_HAS_TEAM (employees still assigned)', true);
+            }
         });
 
+        // Clipboard copy for temp pass
+        document.getElementById('btnCopyTempPass')?.addEventListener('click', () => {
+            const val = document.getElementById('tempPassValue')?.value;
+            if (val) {
+                navigator.clipboard.writeText(val);
+                showToast('Temporary password copied to clipboard');
+            }
+        });
+
+        // Search & Filters
+        document.getElementById('managerSearchInput')?.addEventListener('input', filterAndRender);
+        document.getElementById('managerDeptFilter')?.addEventListener('change', filterAndRender);
+        document.getElementById('managerStatusFilter')?.addEventListener('change', filterAndRender);
+        document.getElementById('btnResetManagerFilters')?.addEventListener('click', () => {
+            document.getElementById('managerSearchInput').value = '';
+            document.getElementById('managerDeptFilter').value = '';
+            document.getElementById('managerStatusFilter').value = '';
+            filterAndRender();
+        });
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', initPage);
     </script>
 </body>
 </html>

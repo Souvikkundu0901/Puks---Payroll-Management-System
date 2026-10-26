@@ -468,6 +468,10 @@
         body.theme-dark .btn-light { background-color: #2a2a2a !important; color: #ffffff !important; border-color: #444 !important; }
         body.theme-dark .btn-light:hover { background-color: #3a3a3a !important; }
     </style>
+    <!-- Auth & Role Guard -->
+    <script src="../js/api.js"></script>
+    <script src="../js/auth.js"></script>
+    <script>Auth.require("EMPLOYEE");</script>
 </head>
 <body>
 

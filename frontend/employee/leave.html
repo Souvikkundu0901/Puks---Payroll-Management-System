@@ -533,6 +533,10 @@
         body.theme-dark .cal-weekend { background-color: rgba(255, 255, 255, 0.05); color: #adb5bd; }
         body.theme-dark .cal-today { border-color: #ff5d2a; color: #fff; }
     </style>
+    <!-- Auth & Role Guard -->
+    <script src="../js/api.js"></script>
+    <script src="../js/auth.js"></script>
+    <script>Auth.require("EMPLOYEE");</script>
 </head>
 
 <body>

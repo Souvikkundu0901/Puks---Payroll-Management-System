@@ -234,6 +234,10 @@
         body.theme-animation .card-custom:hover, body.theme-animation .task-mobile-card:hover { transform: translateY(-4px); box-shadow: 0 10px 20px rgba(0,0,0,0.06); }
         body.theme-animation .mobile-kpi-card:hover { transform: translateY(-2px); box-shadow: 0 6px 12px rgba(0,0,0,0.05); }
     </style>
+    <!-- Auth & Role Guard -->
+    <script src="../js/api.js"></script>
+    <script src="../js/auth.js"></script>
+    <script>Auth.require("ADMIN");</script>
 </head>
 
 <body class="theme-default">

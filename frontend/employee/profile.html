@@ -518,6 +518,10 @@
         body.theme-dark .btn-light { background-color: #2a2a2a !important; color: #ffffff !important; border-color: #444 !important; }
         body.theme-dark .btn-light:hover { background-color: #3a3a3a !important; }
     </style>
+    <!-- Auth & Role Guard -->
+    <script src="../js/api.js"></script>
+    <script src="../js/auth.js"></script>
+    <script>Auth.require("EMPLOYEE");</script>
 </head>
 <body>
 
@@ -596,17 +600,16 @@
                 <div class="card dashboard-card border-top border-4 border-danger mb-4 bg-white">
                     <div class="card-body text-center p-4">
                         <div class="profile-img-container mb-3">
-                            <img src="https://ui-avatars.com/api/?name=Naitik+Singh&background=7b5eea&color=fff&size=120" alt="Profile" class="profile-img" id="profileImage">
+                            <img src="https://ui-avatars.com/api/?name=User&background=7b5eea&color=fff&size=120" alt="Profile" class="profile-img" id="profileImage">
                         </div>
-                        <h4 class="fw-bold mb-1 text-dark" id="display-name">Naitik</h4>
-                        <p class="text-muted mb-2">Frontend Developer</p>
-                        <span class="badge bg-success bg-opacity-10 text-success border border-success-subtle mb-4 px-3 py-2">Active Employee</span>
+                        <h4 class="fw-bold mb-1 text-dark" id="display-name">Employee</h4>
+                        <p class="text-muted mb-2" id="display-card-designation">Employee</p>
+                        <span class="badge bg-success bg-opacity-10 text-success border border-success-subtle mb-4 px-3 py-2" id="display-card-status">Active Employee</span>
                         
                         <div class="d-flex flex-column gap-2">
                             <button class="btn btn-danger fw-bold" data-bs-toggle="modal" data-bs-target="#editProfileModal"><i class="bi bi-pencil-square me-2"></i> Edit Profile</button>
                             <button class="btn btn-light border fw-medium text-dark" onclick="document.getElementById('uploadPhotoInput').click()"><i class="bi bi-camera me-2"></i> Upload Photo</button>
-                            <!-- Hidden input for file upload simulation -->
-                            <input type="file" id="uploadPhotoInput" class="d-none" accept="image/*" onchange="uploadPhoto(this)">
+                            <input type="file" id="uploadPhotoInput" class="d-none" accept=".png,.jpg,.jpeg">
                         </div>
 
                         <hr class="my-4 border-secondary-subtle">
@@ -616,21 +619,21 @@
                                 <div class="bg-light p-2 rounded me-3 text-muted border"><i class="bi bi-person-vcard fs-5"></i></div>
                                 <div>
                                     <div class="info-label">Employee ID</div>
-                                    <div class="info-value mb-0">EMP-2026-042</div>
+                                    <div class="info-value mb-0" id="display-card-empcode">EMP-001</div>
                                 </div>
                             </div>
                             <div class="d-flex align-items-center mb-3">
                                 <div class="bg-light p-2 rounded me-3 text-muted border"><i class="bi bi-envelope fs-5"></i></div>
                                 <div>
                                     <div class="info-label">Email Address</div>
-                                    <div class="info-value mb-0" id="display-email">naitik.singh@gmail.com</div>
+                                    <div class="info-value mb-0 text-truncate" id="display-email">employee@octopyder.com</div>
                                 </div>
                             </div>
                             <div class="d-flex align-items-center">
                                 <div class="bg-light p-2 rounded me-3 text-muted border"><i class="bi bi-telephone fs-5"></i></div>
                                 <div>
                                     <div class="info-label">Phone Number</div>
-                                    <div class="info-value mb-0" id="display-phone">+91 98765 43210</div>
+                                    <div class="info-value mb-0" id="display-phone">-</div>
                                 </div>
                             </div>
                         </div>
@@ -645,10 +648,9 @@
                     <div class="card-body">
                         <div class="d-flex flex-wrap gap-2">
                             <span class="badge skill-badge px-3 py-2">Java</span>
-                            <span class="badge skill-badge px-3 py-2">React</span>
                             <span class="badge skill-badge px-3 py-2">Spring Boot</span>
-                            <span class="badge skill-badge px-3 py-2">Communication</span>
-                            <span class="badge skill-badge px-3 py-2">Leadership</span>
+                            <span class="badge skill-badge px-3 py-2">PostgreSQL</span>
+                            <span class="badge skill-badge px-3 py-2">REST API</span>
                         </div>
                     </div>
                 </div>
@@ -680,24 +682,20 @@
                                 <h5 class="fw-bold mb-4 text-dark"><i class="bi bi-person-lines-fill text-danger me-2"></i> Personal Information</h5>
                                 <div class="row bg-light p-4 rounded-3 border mb-4">
                                     <div class="col-md-6 col-lg-4">
-                                        <div class="info-label">Gender</div>
-                                        <div class="info-value">Male</div>
+                                        <div class="info-label">Full Name</div>
+                                        <div class="info-value" id="display-fullname">-</div>
                                     </div>
                                     <div class="col-md-6 col-lg-4">
-                                        <div class="info-label">Date of Birth</div>
-                                        <div class="info-value">15 August 1995</div>
-                                    </div>
-                                    <div class="col-md-6 col-lg-4">
-                                        <div class="info-label">Blood Group</div>
-                                        <div class="info-value">O+</div>
+                                        <div class="info-label">Phone Number</div>
+                                        <div class="info-value" id="display-overview-phone">-</div>
                                     </div>
                                     <div class="col-md-6 col-lg-4">
                                         <div class="info-label">Emergency Contact</div>
-                                        <div class="info-value mb-md-0">+91 91234 56780</div>
+                                        <div class="info-value mb-md-0" id="display-emergency">-</div>
                                     </div>
-                                    <div class="col-md-12 col-lg-8">
+                                    <div class="col-md-12 col-lg-12 mt-2">
                                         <div class="info-label">Residential Address</div>
-                                        <div class="info-value mb-0" id="display-address">Apt 4B, Sunrise Heights, Salt Lake Sector V, Kolkata, West Bengal 700091</div>
+                                        <div class="info-value mb-0" id="display-address">-</div>
                                     </div>
                                 </div>
 
@@ -706,121 +704,46 @@
                                 <div class="row bg-light p-4 rounded-3 border">
                                     <div class="col-md-6 col-lg-4">
                                         <div class="info-label">Department</div>
-                                        <div class="info-value">Engineering</div>
+                                        <div class="info-value" id="display-dept">-</div>
                                     </div>
                                     <div class="col-md-6 col-lg-4">
                                         <div class="info-label">Designation</div>
-                                        <div class="info-value">Frontend Developer</div>
+                                        <div class="info-value" id="display-designation">-</div>
                                     </div>
                                     <div class="col-md-6 col-lg-4">
                                         <div class="info-label">Employment Type</div>
-                                        <div class="info-value">Full-Time (Permanent)</div>
+                                        <div class="info-value" id="display-employment-type">Full-Time (Permanent)</div>
                                     </div>
                                     <div class="col-md-6 col-lg-4">
                                         <div class="info-label">Joining Date</div>
-                                        <div class="info-value mb-lg-0">01 March 2026</div>
+                                        <div class="info-value mb-lg-0" id="display-joining-date">-</div>
                                     </div>
                                     <div class="col-md-6 col-lg-4">
                                         <div class="info-label">Reporting Manager</div>
-                                        <div class="info-value mb-0">Priyanshu Kumar</div>
+                                        <div class="info-value mb-0" id="display-manager">-</div>
                                     </div>
                                     <div class="col-md-6 col-lg-4">
                                         <div class="info-label">Employee Status</div>
-                                        <div class="info-value mb-0"><i class="bi bi-circle-fill text-success small me-1"></i> Active</div>
+                                        <div class="info-value mb-0" id="display-status"><i class="bi bi-circle-fill text-success small me-1"></i> Active</div>
                                     </div>
                                 </div>
                             </div>
 
                             <!-- TAB 2: DOCUMENTS -->
                             <div class="tab-pane fade" id="documents" role="tabpanel">
-                                <h5 class="fw-bold mb-3 text-dark"><i class="bi bi-folder-fill text-danger me-2"></i> My Documents</h5>
-                                <p class="text-muted small mb-4">View and download your official company records and submitted identity proofs.</p>
+                                <div class="d-flex flex-column flex-sm-row justify-content-between align-items-start align-items-sm-center mb-3 gap-2">
+                                    <div>
+                                        <h5 class="fw-bold mb-1 text-dark"><i class="bi bi-folder-fill text-danger me-2"></i> My Documents</h5>
+                                        <p class="text-muted small mb-0">View and download your official company records and submitted proofs.</p>
+                                    </div>
+                                    <div>
+                                        <input type="file" id="empDocFileInput" class="d-none" accept=".pdf,.png,.jpg,.jpeg">
+                                        <button class="btn btn-sm btn-danger fw-bold" onclick="document.getElementById('empDocFileInput').click()"><i class="bi bi-cloud-arrow-up me-1"></i> Upload Document</button>
+                                    </div>
+                                </div>
                                 
-                                <ul class="list-group">
-                                    <!-- Resume -->
-                                    <li class="list-group-item d-flex flex-column flex-sm-row justify-content-between align-items-start align-items-sm-center p-3">
-                                        <div class="d-flex align-items-center mb-3 mb-sm-0 w-100 min-w-0">
-                                            <div class="bg-danger bg-opacity-10 text-danger p-2 rounded me-3 flex-shrink-0"><i class="bi bi-file-earmark-person fs-4"></i></div>
-                                            <div class="text-truncate">
-                                                <h6 class="mb-0 fw-bold text-truncate text-dark">Resume / CV</h6>
-                                                <span class="small text-muted">Updated: 15 Feb 2026</span>
-                                            </div>
-                                        </div>
-                                        <div class="d-flex flex-nowrap gap-2 ms-auto ms-sm-0 flex-shrink-0">
-                                            <button class="btn btn-sm btn-light border" onclick="viewDoc('Resume/CV')"><i class="bi bi-eye"></i></button>
-                                            <button class="btn btn-sm btn-light border" onclick="downloadDoc('Resume/CV')"><i class="bi bi-download"></i></button>
-                                        </div>
-                                    </li>
-                                    <!-- Offer Letter -->
-                                    <li class="list-group-item d-flex flex-column flex-sm-row justify-content-between align-items-start align-items-sm-center p-3">
-                                        <div class="d-flex align-items-center mb-3 mb-sm-0 w-100 min-w-0">
-                                            <div class="bg-primary bg-opacity-10 text-primary p-2 rounded me-3 flex-shrink-0"><i class="bi bi-file-earmark-text fs-4"></i></div>
-                                            <div class="text-truncate">
-                                                <h6 class="mb-0 fw-bold text-truncate text-dark">Offer Letter</h6>
-                                                <span class="small text-muted">Signed: 20 Feb 2026</span>
-                                            </div>
-                                        </div>
-                                        <div class="d-flex flex-nowrap gap-2 ms-auto ms-sm-0 flex-shrink-0">
-                                            <button class="btn btn-sm btn-light border" onclick="viewDoc('Offer Letter')"><i class="bi bi-eye"></i></button>
-                                            <button class="btn btn-sm btn-light border" onclick="downloadDoc('Offer Letter')"><i class="bi bi-download"></i></button>
-                                        </div>
-                                    </li>
-                                    <!-- ID Card -->
-                                    <li class="list-group-item d-flex flex-column flex-sm-row justify-content-between align-items-start align-items-sm-center p-3">
-                                        <div class="d-flex align-items-center mb-3 mb-sm-0 w-100 min-w-0">
-                                            <div class="bg-warning bg-opacity-10 text-warning-emphasis p-2 rounded me-3 flex-shrink-0"><i class="bi bi-person-badge fs-4"></i></div>
-                                            <div class="text-truncate">
-                                                <h6 class="mb-0 fw-bold text-truncate text-dark">Company ID Card</h6>
-                                                <span class="small text-muted">Issued: 01 Mar 2026</span>
-                                            </div>
-                                        </div>
-                                        <div class="d-flex flex-nowrap gap-2 ms-auto ms-sm-0 flex-shrink-0">
-                                            <button class="btn btn-sm btn-light border" onclick="viewDoc('ID Card')"><i class="bi bi-eye"></i></button>
-                                            <button class="btn btn-sm btn-light border" onclick="downloadDoc('ID Card')"><i class="bi bi-download"></i></button>
-                                        </div>
-                                    </li>
-                                    <!-- Certificates -->
-                                    <li class="list-group-item d-flex flex-column flex-sm-row justify-content-between align-items-start align-items-sm-center p-3">
-                                        <div class="d-flex align-items-center mb-3 mb-sm-0 w-100 min-w-0">
-                                            <div class="bg-success bg-opacity-10 text-success p-2 rounded me-3 flex-shrink-0"><i class="bi bi-patch-check fs-4"></i></div>
-                                            <div class="text-truncate">
-                                                <h6 class="mb-0 fw-bold text-truncate text-dark">Educational & Skill Certificates</h6>
-                                                <span class="small text-muted">3 Files Attached</span>
-                                            </div>
-                                        </div>
-                                        <div class="d-flex flex-nowrap gap-2 ms-auto ms-sm-0 flex-shrink-0">
-                                            <button class="btn btn-sm btn-light border" onclick="viewDoc('Certificates')"><i class="bi bi-eye"></i></button>
-                                            <button class="btn btn-sm btn-light border" onclick="downloadDoc('Certificates')"><i class="bi bi-download"></i></button>
-                                        </div>
-                                    </li>
-                                    <!-- PAN -->
-                                    <li class="list-group-item d-flex flex-column flex-sm-row justify-content-between align-items-start align-items-sm-center p-3">
-                                        <div class="d-flex align-items-center mb-3 mb-sm-0 w-100 min-w-0">
-                                            <div class="bg-secondary bg-opacity-10 text-secondary p-2 rounded me-3 flex-shrink-0"><i class="bi bi-credit-card-2-front fs-4"></i></div>
-                                            <div class="text-truncate">
-                                                <h6 class="mb-0 fw-bold text-truncate text-dark">PAN Card</h6>
-                                                <span class="small text-muted">Verified Status: <i class="bi bi-check-circle-fill text-success"></i></span>
-                                            </div>
-                                        </div>
-                                        <div class="d-flex flex-nowrap gap-2 ms-auto ms-sm-0 flex-shrink-0">
-                                            <button class="btn btn-sm btn-light border" onclick="viewDoc('PAN Card')"><i class="bi bi-eye"></i></button>
-                                            <button class="btn btn-sm btn-light border" onclick="downloadDoc('PAN Card')"><i class="bi bi-download"></i></button>
-                                        </div>
-                                    </li>
-                                    <!-- Aadhar -->
-                                    <li class="list-group-item d-flex flex-column flex-sm-row justify-content-between align-items-start align-items-sm-center p-3">
-                                        <div class="d-flex align-items-center mb-3 mb-sm-0 w-100 min-w-0">
-                                            <div class="bg-secondary bg-opacity-10 text-secondary p-2 rounded me-3 flex-shrink-0"><i class="bi bi-fingerprint fs-4"></i></div>
-                                            <div class="text-truncate">
-                                                <h6 class="mb-0 fw-bold text-truncate text-dark">Aadhar Card</h6>
-                                                <span class="small text-muted">Verified Status: <i class="bi bi-check-circle-fill text-success"></i></span>
-                                            </div>
-                                        </div>
-                                        <div class="d-flex flex-nowrap gap-2 ms-auto ms-sm-0 flex-shrink-0">
-                                            <button class="btn btn-sm btn-light border" onclick="viewDoc('Aadhar Card')"><i class="bi bi-eye"></i></button>
-                                            <button class="btn btn-sm btn-light border" onclick="downloadDoc('Aadhar Card')"><i class="bi bi-download"></i></button>
-                                        </div>
-                                    </li>
+                                <ul class="list-group" id="employeeDocumentList">
+                                    <!-- Dynamic Document Items -->
                                 </ul>
                             </div>
 
@@ -828,59 +751,47 @@
                             <div class="tab-pane fade" id="settings" role="tabpanel">
                                 <h5 class="fw-bold mb-4 text-dark"><i class="bi bi-gear-fill text-danger me-2"></i> Account Settings</h5>
                                 
-                                <form onsubmit="event.preventDefault(); alert('Security Settings Updated Successfully!');">
-                                    <!-- Security Settings -->
-                                    <h6 class="fw-bold text-muted mb-3 pb-2 border-bottom border-secondary-subtle">Security</h6>
-                                    
+                                <!-- Security Settings -->
+                                <h6 class="fw-bold text-muted mb-3 pb-2 border-bottom border-secondary-subtle">Security</h6>
+                                
+                                <form id="empSecurityForm">
                                     <div class="row g-3 mb-4">
                                         <div class="col-md-6">
                                             <label class="form-label fw-medium small text-dark">Current Password</label>
-                                            <input type="password" class="form-control" placeholder="••••••••">
+                                            <input type="password" id="empCurrentPassword" class="form-control" required>
                                         </div>
-                                        <div class="col-md-6"></div> <!-- Empty spacer -->
+                                        <div class="col-md-6"></div>
                                         <div class="col-md-6">
                                             <label class="form-label fw-medium small text-dark">New Password</label>
-                                            <input type="password" class="form-control" placeholder="Enter new password">
+                                            <input type="password" id="empNewPassword" class="form-control" required minlength="8" placeholder="At least 8 characters">
                                         </div>
                                         <div class="col-md-6">
                                             <label class="form-label fw-medium small text-dark">Confirm New Password</label>
-                                            <input type="password" class="form-control" placeholder="Confirm new password">
+                                            <input type="password" id="empConfirmPassword" class="form-control" required minlength="8" placeholder="Confirm new password">
                                         </div>
                                     </div>
-                                    
-                                    <div class="d-flex justify-content-between align-items-center bg-light p-3 rounded border mb-5">
-                                        <div>
-                                            <h6 class="fw-bold mb-1 text-dark">Two-Factor Authentication (2FA)</h6>
-                                            <span class="small text-muted">Secure your account with TOTP or SMS verification.</span>
-                                        </div>
-                                        <div class="form-check form-switch fs-4 mb-0">
-                                            <input class="form-check-input" type="checkbox" role="switch" id="2faSwitch" checked>
-                                        </div>
-                                    </div>
-
-                                    <!-- Preferences -->
-                                    <h6 class="fw-bold text-muted mb-3 pb-2 border-bottom border-secondary-subtle">Preferences</h6>
-
-                                    <div class="mb-4">
-                                        <label class="form-label fw-medium small d-block mb-3 text-dark">Notification Preferences</label>
-                                        <div class="form-check mb-2">
-                                            <input class="form-check-input" type="checkbox" id="notifEmail" checked>
-                                            <label class="form-check-label small text-muted" for="notifEmail">Email notifications for tasks and leaves</label>
-                                        </div>
-                                        <div class="form-check mb-2">
-                                            <input class="form-check-input" type="checkbox" id="notifPush" checked>
-                                            <label class="form-check-label small text-muted" for="notifPush">Browser push notifications</label>
-                                        </div>
-                                        <div class="form-check">
-                                            <input class="form-check-input" type="checkbox" id="notifPayroll" checked>
-                                            <label class="form-check-label small text-muted" for="notifPayroll">Payroll processing alerts</label>
-                                        </div>
-                                    </div>
-
-                                    <div class="d-flex justify-content-end pt-3 border-top border-secondary-subtle">
-                                        <button type="submit" class="btn btn-danger fw-bold px-4">Update Security Settings</button>
-                                    </div>
+                                    <button type="submit" class="btn btn-danger fw-bold px-4 mb-4">Update Password</button>
                                 </form>
+
+                                <!-- Preferences -->
+                                <h6 class="fw-bold text-muted mb-3 pb-2 border-bottom border-secondary-subtle">Preferences</h6>
+
+                                <div class="mb-4">
+                                    <label class="form-label fw-medium small d-block mb-3 text-dark">Notification Preferences</label>
+                                    <div class="form-check mb-2">
+                                        <input class="form-check-input" type="checkbox" id="notifEmail" checked>
+                                        <label class="form-check-label small text-muted" for="notifEmail">Email notifications for tasks and leaves</label>
+                                    </div>
+                                    <div class="form-check mb-2">
+                                        <input class="form-check-input" type="checkbox" id="notifPush" checked>
+                                        <label class="form-check-label small text-muted" for="notifPush">Browser push notifications</label>
+                                    </div>
+                                    <div class="form-check mb-3">
+                                        <input class="form-check-input" type="checkbox" id="notifPayroll" checked>
+                                        <label class="form-check-label small text-muted" for="notifPayroll">Payroll processing alerts</label>
+                                    </div>
+                                    <button type="button" class="btn btn-outline-danger fw-bold btn-sm" id="savePrefBtn">Save Preferences</button>
+                                </div>
                             </div>
 
                         </div>
@@ -892,7 +803,7 @@
     </main>
 
     <!-- ============================================== -->
-    <!-- EDIT PROFILE MODAL -->
+    <!-- EDIT PROFILE MODAL (D14: Phone, Address, Emergency Contact, Photo only) -->
     <!-- ============================================== -->
     <div class="modal fade" id="editProfileModal" tabindex="-1" aria-labelledby="editProfileModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
@@ -905,19 +816,25 @@
                     <form id="editProfileForm" onsubmit="saveProfileChanges(event)">
                         <div class="mb-3">
                             <label class="form-label fw-medium small text-dark">Full Name</label>
-                            <input type="text" class="form-control" id="editName" value="Naitik" required>
+                            <input type="text" class="form-control bg-light" id="editName" readonly disabled>
+                            <small class="text-muted" style="font-size: 0.75rem;">Name cannot be edited by employee (per company policy).</small>
                         </div>
                         <div class="mb-3">
                             <label class="form-label fw-medium small text-dark">Email Address</label>
-                            <input type="email" class="form-control" id="editEmail" value="naitik.singh@gmail.com" required>
+                            <input type="email" class="form-control bg-light" id="editEmail" readonly disabled>
+                            <small class="text-muted" style="font-size: 0.75rem;">Official email cannot be edited.</small>
                         </div>
                         <div class="mb-3">
                             <label class="form-label fw-medium small text-dark">Phone Number</label>
-                            <input type="tel" class="form-control" id="editPhone" value="+91 98765 43210" required>
+                            <input type="tel" class="form-control" id="editPhone" required placeholder="+91 9876543210">
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label fw-medium small text-dark">Emergency Contact</label>
+                            <input type="text" class="form-control" id="editEmergency" placeholder="+91 9123456780">
                         </div>
                         <div class="mb-4">
                             <label class="form-label fw-medium small text-dark">Residential Address</label>
-                            <textarea class="form-control" id="editAddress" rows="2" required>Apt 4B, Sunrise Heights, Salt Lake Sector V, Kolkata, West Bengal 700091</textarea>
+                            <textarea class="form-control" id="editAddress" rows="2" required placeholder="Permanent / residential address"></textarea>
                         </div>
                         <div class="d-flex justify-content-end gap-2">
                             <button type="button" class="btn btn-light border" data-bs-dismiss="modal">Cancel</button>
@@ -937,7 +854,7 @@
                     <h5 class="mb-4 fw-bold text-dark">Are you sure you want to logout?</h5>
                     <div class="d-flex justify-content-center gap-3">
                         <button type="button" class="btn btn-light fw-semibold px-4" data-bs-dismiss="modal">Cancel</button>
-                        <a href="../index.html" class="btn btn-danger fw-semibold px-4">Logout</a>
+                        <button type="button" class="btn btn-danger fw-semibold px-4" onclick="Auth.logout()">Logout</button>
                     </div>
                 </div>
             </div>
@@ -949,62 +866,330 @@
     
     <!-- Page Logic -->
     <script>
-        // --- 0. Theme Initializer ---
-        document.addEventListener('DOMContentLoaded', () => {
+        document.addEventListener('DOMContentLoaded', async () => {
             const savedTheme = localStorage.getItem('payrollTheme');
             if (savedTheme && savedTheme !== 'default') {
                 document.body.classList.add(savedTheme);
             }
+            try {
+                await Auth.init();
+                await loadProfile();
+                await loadDocuments();
+                await loadPreferences();
+            } catch (err) {
+                console.error('Initialization error:', err);
+            }
         });
 
-        // 1. Download ID Card Logic
         function downloadIDCard() {
-            alert("Your Employee ID Card is being generated as a PDF. The download will begin shortly.");
+            alert("ID Card download is being generated. This feature will be linked with Phase 5 Reports.");
         }
 
-        // 2. Upload Photo Logic
-        function uploadPhoto(input) {
-            if (input.files && input.files[0]) {
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                    document.getElementById('profileImage').src = e.target.result;
-                    alert("Profile picture updated successfully.");
-                }
-                reader.readAsDataURL(input.files[0]);
+        async function loadProfile() {
+            try {
+                const profile = await API.get('/me/profile');
+                
+                const defaultAvatar = 'https://ui-avatars.com/api/?name=' + encodeURIComponent(profile.fullName || 'User') + '&background=7b5eea&color=fff&size=120';
+                const avatarSrc = profile.avatarUrl || defaultAvatar;
+
+                const profileImg = document.getElementById('profileImage');
+                if (profileImg) profileImg.src = avatarSrc;
+
+                const dispName = document.getElementById('display-name');
+                if (dispName) dispName.textContent = profile.fullName || 'Employee';
+
+                const dispCardDesig = document.getElementById('display-card-designation');
+                if (dispCardDesig) dispCardDesig.textContent = profile.designation || 'Employee';
+
+                const dispCardStatus = document.getElementById('display-card-status');
+                if (dispCardStatus) dispCardStatus.textContent = (profile.status || 'ACTIVE') + ' Employee';
+
+                const dispCardCode = document.getElementById('display-card-empcode');
+                if (dispCardCode) dispCardCode.textContent = profile.employeeCode || 'EMP-001';
+
+                const dispEmail = document.getElementById('display-email');
+                if (dispEmail) dispEmail.textContent = profile.email || '';
+
+                const dispPhone = document.getElementById('display-phone');
+                if (dispPhone) dispPhone.textContent = profile.phone || '-';
+
+                // Overview Tab
+                const dispFullName = document.getElementById('display-fullname');
+                if (dispFullName) dispFullName.textContent = profile.fullName || '-';
+
+                const dispOverviewPhone = document.getElementById('display-overview-phone');
+                if (dispOverviewPhone) dispOverviewPhone.textContent = profile.phone || '-';
+
+                const dispEmergency = document.getElementById('display-emergency');
+                if (dispEmergency) dispEmergency.textContent = profile.emergencyContact || '-';
+
+                const dispAddress = document.getElementById('display-address');
+                if (dispAddress) dispAddress.textContent = profile.address || '-';
+
+                const dispDept = document.getElementById('display-dept');
+                if (dispDept) dispDept.textContent = profile.departmentName || '-';
+
+                const dispDesignation = document.getElementById('display-designation');
+                if (dispDesignation) dispDesignation.textContent = profile.designation || '-';
+
+                const dispJoining = document.getElementById('display-joining-date');
+                if (dispJoining) dispJoining.textContent = profile.joiningDate || '-';
+
+                const dispManager = document.getElementById('display-manager');
+                if (dispManager) dispManager.textContent = profile.managerName || '-';
+
+                const dispStatus = document.getElementById('display-status');
+                if (dispStatus) dispStatus.textContent = profile.status || 'Active';
+
+                // Edit Modal
+                const editName = document.getElementById('editName');
+                if (editName) editName.value = profile.fullName || '';
+
+                const editEmail = document.getElementById('editEmail');
+                if (editEmail) editEmail.value = profile.email || '';
+
+                const editPhone = document.getElementById('editPhone');
+                if (editPhone) editPhone.value = profile.phone || '';
+
+                const editEmergency = document.getElementById('editEmergency');
+                if (editEmergency) editEmergency.value = profile.emergencyContact || '';
+
+                const editAddress = document.getElementById('editAddress');
+                if (editAddress) editAddress.value = profile.address || '';
+            } catch (err) {
+                console.error('Failed to load profile:', err);
             }
         }
 
-        // 3. Edit Profile Form Submit Logic
-        function saveProfileChanges(e) {
+        async function saveProfileChanges(e) {
             e.preventDefault();
-            
-            // Get new values
-            const newName = document.getElementById('editName').value;
-            const newEmail = document.getElementById('editEmail').value;
-            const newPhone = document.getElementById('editPhone').value;
-            const newAddress = document.getElementById('editAddress').value;
+            const phone = document.getElementById('editPhone').value.trim();
+            const emergencyContact = document.getElementById('editEmergency').value.trim();
+            const address = document.getElementById('editAddress').value.trim();
 
-            // Update UI elements dynamically
-            document.getElementById('display-name').innerText = newName;
-            document.getElementById('display-email').innerText = newEmail;
-            document.getElementById('display-phone').innerText = newPhone;
-            document.getElementById('display-address').innerText = newAddress;
-
-            // Close modal
-            const editModal = bootstrap.Modal.getInstance(document.getElementById('editProfileModal'));
-            editModal.hide();
-
-            // Show success message
-            setTimeout(() => { alert("Profile information updated successfully!"); }, 300);
+            try {
+                await API.put('/me/profile', { phone, emergencyContact, address });
+                const editModalEl = document.getElementById('editProfileModal');
+                const editModal = bootstrap.Modal.getInstance(editModalEl);
+                if (editModal) editModal.hide();
+                alert('Profile information updated successfully!');
+                await loadProfile();
+            } catch (err) {
+                alert('Failed to update profile: ' + err.message);
+            }
         }
 
-        // 4. Documents Actions Logic
-        function viewDoc(docName) {
-            alert("Opening secure viewer for: " + docName);
+        // Photo Upload Logic
+        const uploadPhotoInput = document.getElementById('uploadPhotoInput');
+        if (uploadPhotoInput) {
+            uploadPhotoInput.addEventListener('change', async () => {
+                const file = uploadPhotoInput.files[0];
+                if (!file) return;
+                if (file.size > 5 * 1024 * 1024) {
+                    alert('Photo must be 5 MB or smaller.');
+                    return;
+                }
+                try {
+                    const fd = new FormData();
+                    fd.append('file', file);
+                    await API.post('/me/photo', fd);
+                    alert('Profile picture updated successfully.');
+                    await loadProfile();
+                } catch (err) {
+                    alert('Photo upload failed: ' + err.message);
+                } finally {
+                    uploadPhotoInput.value = '';
+                }
+            });
         }
 
-        function downloadDoc(docName) {
-            alert("Initiating secure download for: " + docName + ". Requesting file from server...");
+        // Documents Logic
+        async function loadDocuments() {
+            try {
+                const docs = await API.get('/me/documents');
+                renderDocuments(docs || []);
+            } catch (err) {
+                console.error('Failed to load documents:', err);
+            }
+        }
+
+        function renderDocuments(docs) {
+            const list = document.getElementById('employeeDocumentList');
+            if (!list) return;
+            list.innerHTML = '';
+
+            if (docs.length === 0) {
+                const empty = document.createElement('li');
+                empty.className = 'list-group-item text-muted text-center py-4';
+                empty.textContent = 'No documents uploaded yet. Use the "Upload Document" button above to add documents.';
+                list.appendChild(empty);
+                return;
+            }
+
+            docs.forEach(doc => {
+                const isPdf = (doc.mimeType && doc.mimeType.includes('pdf')) || (doc.fileName && doc.fileName.toLowerCase().endsWith('.pdf'));
+                const iconClass = isPdf ? 'bi-file-earmark-pdf fs-4 text-danger' : 'bi-file-earmark-image fs-4 text-primary';
+
+                const li = document.createElement('li');
+                li.className = 'list-group-item d-flex flex-column flex-sm-row justify-content-between align-items-start align-items-sm-center p-3';
+
+                const left = document.createElement('div');
+                left.className = 'd-flex align-items-center mb-2 mb-sm-0 w-100 min-w-0';
+
+                const iconWrap = document.createElement('div');
+                iconWrap.className = 'bg-light p-2 rounded me-3 flex-shrink-0 border';
+                const icon = document.createElement('i');
+                icon.className = 'bi ' + iconClass;
+                iconWrap.appendChild(icon);
+                left.appendChild(iconWrap);
+
+                const meta = document.createElement('div');
+                meta.className = 'text-truncate';
+
+                const title = document.createElement('h6');
+                title.className = 'mb-0 fw-bold text-truncate text-dark';
+                title.textContent = doc.fileName || doc.docType;
+                meta.appendChild(title);
+
+                const sub = document.createElement('span');
+                sub.className = 'small text-muted';
+                const sizeKb = doc.fileSize ? (doc.fileSize / 1024).toFixed(1) + ' KB' : '';
+                sub.textContent = `${doc.docType}${sizeKb ? ' • ' + sizeKb : ''}`;
+                meta.appendChild(sub);
+
+                if (doc.verified) {
+                    const verifiedSpan = document.createElement('span');
+                    verifiedSpan.className = 'badge bg-success bg-opacity-10 text-success ms-2';
+                    verifiedSpan.textContent = 'Verified';
+                    meta.appendChild(verifiedSpan);
+                }
+
+                left.appendChild(meta);
+                li.appendChild(left);
+
+                const right = document.createElement('div');
+                right.className = 'd-flex flex-nowrap gap-2 ms-auto ms-sm-0 flex-shrink-0';
+
+                const dlBtn = document.createElement('button');
+                dlBtn.className = 'btn btn-sm btn-light border';
+                dlBtn.title = 'Download';
+                dlBtn.innerHTML = '<i class="bi bi-download"></i>';
+                dlBtn.onclick = () => downloadFile(`/api/v1/documents/${doc.id}/download`, doc.fileName);
+                right.appendChild(dlBtn);
+
+                li.appendChild(right);
+                list.appendChild(li);
+            });
+        }
+
+        const empDocFileInput = document.getElementById('empDocFileInput');
+        if (empDocFileInput) {
+            empDocFileInput.addEventListener('change', async () => {
+                const file = empDocFileInput.files[0];
+                if (!file) return;
+                if (file.size > 5 * 1024 * 1024) {
+                    alert('Document must be 5 MB or smaller.');
+                    return;
+                }
+                const docType = prompt('Enter document type (e.g. RESUME, ID_PROOF, OTHER):', 'OTHER') || 'OTHER';
+                try {
+                    const fd = new FormData();
+                    fd.append('file', file);
+                    fd.append('docType', docType.trim().toUpperCase());
+                    await API.post('/me/documents', fd);
+                    alert('Document uploaded successfully.');
+                    await loadDocuments();
+                } catch (err) {
+                    alert('Document upload failed: ' + err.message);
+                } finally {
+                    empDocFileInput.value = '';
+                }
+            });
+        }
+
+        async function downloadFile(url, defaultFilename) {
+            try {
+                const token = API.getToken();
+                const res = await fetch(url, {
+                    headers: token ? { 'Authorization': `Bearer ${token}` } : {},
+                    credentials: 'same-origin'
+                });
+                if (!res.ok) throw new Error('Download failed: ' + res.statusText);
+                const blob = await res.blob();
+                const blobUrl = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = blobUrl;
+                a.download = defaultFilename || 'document';
+                document.body.appendChild(a);
+                a.click();
+                a.remove();
+                window.URL.revokeObjectURL(blobUrl);
+            } catch (err) {
+                alert('Download failed: ' + err.message);
+            }
+        }
+
+        // Security / Change Password Logic
+        const empSecurityForm = document.getElementById('empSecurityForm');
+        if (empSecurityForm) {
+            empSecurityForm.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const currentPassword = document.getElementById('empCurrentPassword').value;
+                const newPassword = document.getElementById('empNewPassword').value;
+                const confirmPassword = document.getElementById('empConfirmPassword').value;
+
+                if (newPassword !== confirmPassword) {
+                    alert('New password and confirmation do not match.');
+                    return;
+                }
+
+                try {
+                    await API.post('/auth/change-password', { currentPassword, newPassword });
+                    empSecurityForm.reset();
+                    alert('Password changed successfully.');
+                } catch (err) {
+                    alert('Failed to change password: ' + err.message);
+                }
+            });
+        }
+
+        // Preferences Logic
+        async function loadPreferences() {
+            try {
+                const prefs = await API.get('/me/preferences');
+                if (prefs) {
+                    const notifEmail = document.getElementById('notifEmail');
+                    if (notifEmail && prefs.notifyEmail !== undefined) notifEmail.checked = prefs.notifyEmail;
+                    const notifPush = document.getElementById('notifPush');
+                    if (notifPush && prefs.notifyPush !== undefined) notifPush.checked = prefs.notifyPush;
+                    const notifPayroll = document.getElementById('notifPayroll');
+                    if (notifPayroll && prefs.notifyPayroll !== undefined) notifPayroll.checked = prefs.notifyPayroll;
+                }
+            } catch (err) {
+                console.error('Failed to load preferences:', err);
+            }
+        }
+
+        const savePrefBtn = document.getElementById('savePrefBtn');
+        if (savePrefBtn) {
+            savePrefBtn.addEventListener('click', async () => {
+                const notifEmail = document.getElementById('notifEmail')?.checked ?? true;
+                const notifPush = document.getElementById('notifPush')?.checked ?? true;
+                const notifPayroll = document.getElementById('notifPayroll')?.checked ?? true;
+                const savedTheme = localStorage.getItem('payrollTheme') || 'default';
+
+                try {
+                    await API.put('/me/preferences', {
+                        theme: savedTheme,
+                        notifyEmail: notifEmail,
+                        notifyPush: notifPush,
+                        notifyPayroll: notifPayroll
+                    });
+                    alert('Preferences saved successfully!');
+                } catch (err) {
+                    alert('Failed to save preferences: ' + err.message);
+                }
+            });
         }
     </script>
 </body>

@@ -38,37 +38,37 @@ Definition of done for **every** phase:
 ## Phase 1 — Auth and security core
 **Scope:** `users` (+ `refresh_tokens`, `audit_logs` with the append-only trigger, minimal `system_settings` with security defaults); bootstrap admin from env (once); `POST /auth/login|refresh|logout`, `GET /auth/me`, `POST /auth/change-password`; BCrypt 12; lockout and Bucket4j rate limit; password policy; refresh rotation and reuse detection; `must_change_password`; `SecurityConfig` with security headers; `CurrentUser` and `TeamScope`; `AuditService` and `@Audited`; `api.js`, `auth.js`; wire `index.html`; add guards to all 20 pages. Also in this phase (later phases depend on them): `users.manager_id`, `users.token_version`, `users.deleted_at`, profile fields returned by `/auth/me` (name, role, code, department, avatar), and a change-password step on `index.html` for `must_change_password`. Refresh rotation has a 20-second grace window so parallel tabs and page navigation do not log the user out. The CSP choice for inline handlers is in ARCHITECTURE §4. Last-admin protection (BR-S4) and the generic login failure message (BR-S9) are built here.
 **Done when:**
-- [ ] Admin can log in. A wrong password five times locks the account (test).
-- [ ] Role comes from the DB. Changing the dropdown to another role changes nothing (test).
-- [ ] Refresh rotation works. Reusing an old refresh token revokes the family (test).
-- [ ] Employee opening an admin URL is redirected, and the API returns 403 (test).
-- [ ] Login success and failure appear in `audit_logs`. UPDATE and DELETE on `audit_logs` fail (test).
-- [ ] Response headers include HSTS, nosniff, frame denial, CSP.
-- [ ] Two parallel refresh calls with the same cookie both succeed (grace window); reuse after the window revokes the family (test).
-- [ ] Offboarding or changing a user's role invalidates their existing access token on the next request (test).
-- [ ] Unknown email, wrong password and locked account return the same message (test).
+- [x] Admin can log in. A wrong password five times locks the account (test).
+- [x] Role comes from the DB. Changing the dropdown to another role changes nothing (test).
+- [x] Refresh rotation works. Reusing an old refresh token revokes the family (test).
+- [x] Employee opening an admin URL is redirected, and the API returns 403 (test).
+- [x] Login success and failure appear in `audit_logs`. UPDATE and DELETE on `audit_logs` fail (test).
+- [x] Response headers include HSTS, nosniff, frame denial, CSP.
+- [x] Two parallel refresh calls with the same cookie both succeed (grace window); reuse after the window revokes the family (test).
+- [x] Offboarding or changing a user's role invalidates their existing access token on the next request (test).
+- [x] Unknown email, wrong password and locked account return the same message (test).
 
 ## Phase 2 — People
 **Scope:** `departments`, `employee_profiles`, `bank_accounts` (encrypted), `employee_deductions`, `employee_documents`; `StorageService` (local + S3); employees CRUD, offboard, reset password (temporary, shown once), soft delete; managers CRUD, assign/remove team, `MANAGER_HAS_TEAM` rule; profile endpoints; document upload and signed download; CSV import/export; employee summary endpoints (tabs return zeros until later phases); auto codes `EMP###`, `MGR###`, `ADM###`.
 **Done when:**
-- [ ] Admin creates an employee and gets a one-time temporary password. First login forces a password change.
-- [ ] Manager sees only own team (test). Employee reads only self (test).
-- [ ] Deleting a manager with a team returns 409. After reassigning the team, delete succeeds.
-- [ ] Offboarded user cannot log in. History remains.
-- [ ] Bank account number is stored encrypted and returned masked (test reads the raw column).
-- [ ] Upload rejects a 6 MB file and a `.exe` (tests). Download needs authorization.
-- [ ] Wired: admin employees, managers, profile; employee profile. Admin employee form gets a Payroll setup tab (bank account, statutory deductions, base salary).
-- [ ] Removing an employee from a team sets `manager_id` to null (BR-O1); deleting a user with payroll records returns 409.
-- [ ] Last active admin cannot be deleted, offboarded or demoted (test).
+- [x] Admin creates an employee and gets a one-time temporary password. First login forces a password change.
+- [x] Manager sees only own team (test). Employee reads only self (test).
+- [x] Deleting a manager with a team returns 409. After reassigning the team, delete succeeds.
+- [x] Offboarded user cannot log in. History remains.
+- [x] Bank account number is stored encrypted and returned masked (test reads the raw column).
+- [x] Upload rejects a 6 MB file and a `.exe` (tests). Download needs authorization.
+- [x] Wired: admin employees, managers, profile; employee profile. Admin employee form gets a Payroll setup tab (bank account, statutory deductions, base salary).
+- [x] Removing an employee from a team sets `manager_id` to null (BR-O1); deleting a user with payroll records returns 409.
+- [x] Last active admin cannot be deleted, offboarded or demoted (test).
 
 ## Phase 3 — Settings and org config
 **Scope:** full `GET/PUT /settings/{group}` with validation (key names exactly as in DESIGN §5, including `security.sessionTimeout`, `payroll.noTasksCountsAs100`, `tasks.employeeSelfAssign`, weekly-off days and the half-day threshold); office-location and holiday sections added to `admin/settings.html`; logo upload; `office_locations` CRUD; `holidays`; `backup_runs` + secured webhook + list; settings cache with invalidation on write; every settings change audited with before and after.
 **Done when:**
-- [ ] Each Settings-page section saves and reloads with the same values.
-- [ ] Invalid values are rejected (negative radius, grace not 15 or 30, bad time).
-- [ ] Changing password min length changes validation immediately (test).
-- [ ] Webhook rejects a missing or wrong secret.
-- [ ] Non-admins get 403 on every settings endpoint.
+- [x] Each Settings-page section saves and reloads with the same values.
+- [x] Invalid values are rejected (negative radius, grace not 15 or 30, bad time).
+- [x] Changing password min length changes validation immediately (test).
+- [x] Webhook rejects a missing or wrong secret.
+- [x] Non-admins get 403 on every settings endpoint.
 
 ## Phase 4 — Tasks (and notifications core)
 **Scope:** `tasks`, `task_activities`, `task_comments`, `task_attachments`; all endpoints in DESIGN §3; status machine (BR-T2 to T4); progress rules; manager-only approval; soft cancel; list filters and `overdue`; `notifications` table with create/list/read; notify on assign, submit, approve, reject.

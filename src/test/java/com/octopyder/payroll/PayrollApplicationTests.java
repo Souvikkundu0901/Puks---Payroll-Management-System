@@ -61,5 +61,29 @@ class PayrollApplicationTests extends BaseIntegrationTest {
         HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
         assertThat(response.statusCode()).isEqualTo(200);
         assertThat(response.body()).contains("Payroll Management System");
+        assertThat(response.body()).contains("changePasswordModal");
+    }
+
+    @Test
+    void frontendStaticAssetsAndRoleGuardsAreServed() throws Exception {
+        mockMvc.perform(get("/js/api.js"))
+            .andExpect(status().isOk())
+            .andExpect(content().string(containsString("refreshToken")));
+
+        mockMvc.perform(get("/js/auth.js"))
+            .andExpect(status().isOk())
+            .andExpect(content().string(containsString("const Auth")));
+
+        mockMvc.perform(get("/admin/dashboard.html"))
+            .andExpect(status().isOk())
+            .andExpect(content().string(containsString("Auth.require(\"ADMIN\");")));
+
+        mockMvc.perform(get("/manager/dashboard.html"))
+            .andExpect(status().isOk())
+            .andExpect(content().string(containsString("Auth.require(\"MANAGER\");")));
+
+        mockMvc.perform(get("/employee/dashboard.html"))
+            .andExpect(status().isOk())
+            .andExpect(content().string(containsString("Auth.require(\"EMPLOYEE\");")));
     }
 }

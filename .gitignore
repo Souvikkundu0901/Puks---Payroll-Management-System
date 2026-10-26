@@ -19,6 +19,10 @@ target/
 *.iml
 *.ipr
 
+# Uploaded storage files
+uploads/
+*.csv
+
 ### NetBeans ###
 /nbproject/private/
 /nbbuild/
