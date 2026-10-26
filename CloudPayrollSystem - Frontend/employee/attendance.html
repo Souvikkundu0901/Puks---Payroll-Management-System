@@ -1,0 +1,951 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Attendance - Octopyder</title>
+    
+    <!-- Google Fonts: Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;900&display=swap" rel="stylesheet">
+    
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    
+    <!-- Bootstrap Icons -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
+    
+    <style>
+        /* =========================================
+           DEFAULT THEME (Matched to Dashboard)
+           ========================================= */
+        :root {
+            --bs-danger: #7b5eea;
+            --bs-danger-rgb: 123, 94, 234;
+            --bg-main: #f4f7fe;
+            --sidebar-bg: #ffffff;
+            --sidebar-text: #a3aed1;
+            --sidebar-active-bg: rgba(123, 94, 234, 0.08);
+            --card-radius: 20px;
+        }
+        
+        .btn-danger {
+            --bs-btn-bg: #7b5eea;
+            --bs-btn-border-color: #7b5eea;
+            --bs-btn-hover-bg: #613beb;
+            --bs-btn-hover-border-color: #613beb;
+            --bs-btn-active-bg: #613beb;
+            --bs-btn-active-border-color: #613beb;
+        }
+        .btn-outline-danger {
+            --bs-btn-color: #7b5eea;
+            --bs-btn-border-color: #7b5eea;
+            --bs-btn-hover-bg: #7b5eea;
+            --bs-btn-hover-border-color: #7b5eea;
+            --bs-btn-active-bg: #7b5eea;
+            --bs-btn-active-border-color: #7b5eea;
+            --bs-btn-active-color: #fff;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-main);
+            color: #2b3674;
+            transition: background-color 0.4s ease, color 0.4s ease;
+        }
+
+        /* --- Desktop Sidebar --- */
+        .sidebar {
+            width: 260px;
+            background: var(--sidebar-bg);
+            color: var(--sidebar-text);
+            position: fixed;
+            top: 0;
+            bottom: 0;
+            left: 0;
+            height: 100dvh;
+            overflow-y: auto;
+            transition: all 0.3s;
+            z-index: 1050;
+            border-right: none;
+            box-shadow: 4px 0 20px rgba(0, 0, 0, 0.03);
+            
+            /* Hide scrollbar for IE, Edge and Firefox */
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+        
+        /* Hide scrollbar for Chrome, Safari and Opera */
+        .sidebar::-webkit-scrollbar {
+            display: none;
+        }
+        
+        .sidebar-brand {
+            padding: 2.5rem 1.5rem 1.5rem;
+            font-size: 1.5rem;
+            font-weight: 800;
+            color: #2b3674;
+            border-bottom: none;
+        }
+
+        .nav-link {
+            color: var(--sidebar-text);
+            padding: 0.8rem 1rem;
+            margin: 0.3rem 1.5rem;
+            border-radius: 12px;
+            font-weight: 600;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+        }
+
+        .nav-link:hover {
+            color: var(--bs-danger);
+            background-color: var(--sidebar-active-bg);
+        }
+        
+        .nav-link.active {
+            color: var(--bs-danger);
+            background-color: var(--sidebar-active-bg);
+            border-left: none;
+        }
+
+        .nav-link i {
+            margin-right: 12px;
+            font-size: 1.25rem;
+        }
+
+        /* --- Main Content Area --- */
+        .main-content {
+            margin-left: 260px;
+            padding: 2rem;
+            transition: all 0.3s;
+        }
+
+        /* --- Card Styling --- */
+        .dashboard-card {
+            border: none;
+            border-radius: var(--card-radius);
+            background: #ffffff;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.02);
+            transition: transform 0.2s ease, background-color 0.4s ease, border 0.4s ease;
+            height: 100%;
+        }
+
+        /* --- Calendar Grid --- */
+        .calendar-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 8px;
+            text-align: center;
+        }
+        .calendar-day-header { font-size: 0.75rem; font-weight: 700; color: #6c757d; padding-bottom: 0.5rem; }
+        .calendar-day {
+            aspect-ratio: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.85rem;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: default;
+            transition: all 0.3s ease;
+        }
+        
+        /* Calendar Status Colors */
+        .cal-present { background-color: #d1e7dd; color: #0f5132; }
+        .cal-absent { background-color: #f8d7da; color: #842029; }
+        .cal-leave { background-color: #fff3cd; color: #664d03; }
+        .cal-holiday { background-color: #e2d9f3; color: #432874; }
+        .cal-weekend { background-color: #e9ecef; color: #6c757d; }
+        .cal-empty { background-color: transparent; color: #adb5bd; }
+
+        /* --- Table Styling --- */
+        .table-custom th {
+            background-color: #f8f9fa;
+            color: #6c757d;
+            font-weight: 600;
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            border-bottom: 1px solid #dee2e6;
+            transition: all 0.3s ease;
+        }
+        .table-custom td {
+            vertical-align: middle;
+            font-size: 0.9rem;
+            color: #495057;
+            padding: 1rem 0.5rem;
+            transition: all 0.3s ease;
+        }
+
+        .mobile-header { display: none; }
+
+        /* =========================================
+           MOBILE VIEW
+           ========================================= */
+        @media (max-width: 991.98px) {
+            .mobile-header {
+                display: flex !important;
+                position: sticky !important;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 70px !important;
+                background: linear-gradient(135deg, #8b6ce8, #613beb);
+                padding: 0 1.5rem !important;
+                color: white;
+                align-items: center !important;
+                justify-content: space-between !important;
+                border-radius: 0 !important;
+                z-index: 1040 !important;
+                box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            }
+            .mobile-header .btn { display: flex !important; align-items: center; justify-content: center; padding: 0.5rem; }
+            
+            #sidebarToggle { display: none !important; }
+
+            .main-content {
+                margin-left: 0;
+                margin-top: 0 !important; 
+                padding: 1rem;
+                padding-bottom: 110px; 
+                position: relative;
+                z-index: 10;
+            }
+            
+            /* Text color corrections for neat layout */
+            .page-header h2 { color: #2b3674 !important; }
+            .page-header p { color: #6c757d !important; opacity: 0.9; }
+
+            .sidebar {
+                transform: translateX(0);
+                position: fixed;
+                top: auto;
+                bottom: 0;
+                width: 100%;
+                height: 85px;
+                background: #ffffff;
+                flex-direction: row !important;
+                border-top-left-radius: 35px;
+                border-top-right-radius: 35px;
+                box-shadow: 0 -5px 25px rgba(0, 0, 0, 0.08);
+                padding: 0 10px;
+                overflow: visible;
+                z-index: 1050;
+            }
+            
+            .sidebar-brand, 
+            .sidebar-close-btn, 
+            .sidebar > .p-3, 
+            .sidebar > .mt-auto {
+                display: none !important;
+            }
+
+            .sidebar .nav {
+                flex-direction: row !important;
+                width: 100%;
+                height: 100%;
+                align-items: center;
+                justify-content: space-around;
+                margin: 0 !important;
+            }
+
+            .sidebar .nav-item { flex: 1; display: flex; justify-content: center; }
+            .sidebar .nav-link {
+                flex-direction: column;
+                margin: 0;
+                padding: 5px;
+                background: transparent !important;
+                font-size: 0; 
+                border: none !important;
+            }
+            .sidebar .nav-link i {
+                margin: 0;
+                font-size: 1.5rem;
+                color: #b0b8d6;
+                transition: color 0.2s;
+            }
+            .sidebar .nav-link.active i { color: var(--bs-danger); }
+
+            /* Central FAB Styling */
+            .sidebar .nav-item:nth-child(3) .nav-link {
+                background: #11142d !important;
+                width: 60px;
+                height: 60px;
+                border-radius: 50%;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                transform: translateY(-25px);
+                box-shadow: 0 8px 20px rgba(17, 20, 45, 0.3);
+                margin: 0 auto;
+            }
+            .sidebar .nav-item:nth-child(3) .nav-link i {
+                color: white;
+                font-size: 1.6rem;
+            }
+
+            /* --- Theme Specific Mobile Layout Overrides --- */
+
+            /* Neumorphism */
+            body.theme-neumorphism .mobile-header { background: #e0e5ec !important; box-shadow: 0 4px 10px rgba(163,177,198,0.3) !important; }
+            body.theme-neumorphism .mobile-header .text-white { color: var(--bs-danger) !important; }
+            body.theme-neumorphism .mobile-header .btn { color: #555 !important; background: #e0e5ec !important; box-shadow: 4px 4px 8px #a3b1c6, -4px -4px 8px #ffffff !important; border: none !important; }
+            body.theme-neumorphism .page-header h2, body.theme-neumorphism .page-header p { color: #333 !important; }
+
+            /* Illustration */
+            body.theme-illustration .mobile-header { background: #fffaf8 !important; border-bottom: 3px dashed #ff5d2a !important; box-shadow: 0 4px 0px rgba(255,93,42,0.1) !important; }
+            body.theme-illustration .mobile-header .text-white { color: #ff5d2a !important; }
+            body.theme-illustration .mobile-header .btn { color: #ff5d2a !important; background: #ffe3d8 !important; border: 2px dashed #ff5d2a !important; box-shadow: 2px 2px 0px rgba(255, 93, 42, 0.2) !important; }
+            body.theme-illustration .sidebar .nav { flex-wrap: nowrap !important; }
+            body.theme-illustration .sidebar .nav-item { flex: 1 1 0 !important; display: flex; justify-content: center; }
+            body.theme-illustration .sidebar .nav-link { width: auto !important; height: auto !important; padding: 5px !important; border: none !important; box-shadow: none !important; background: transparent !important; display: flex; flex-direction: column; align-items: center; justify-content: center; border-radius: 8px !important; transform: none !important; }
+            body.theme-illustration .sidebar .nav-item:nth-child(3) .nav-link { width: auto !important; height: auto !important; transform: none !important; box-shadow: none !important; background: transparent !important; border: none !important; margin: 0 !important; }
+            body.theme-illustration .sidebar .nav-item:nth-child(3) .nav-link i { color: #b0b8d6 !important; }
+            body.theme-illustration .sidebar .nav-link.active i { color: #ff5d2a !important; transform: scale(1.1); }
+            body.theme-illustration .sidebar .nav-link.active { background: #ffe3d8 !important; border: 1px dashed #ff5d2a !important; }
+            body.theme-illustration .page-header h2, body.theme-illustration .page-header p { color: #531603 !important; }
+
+            /* Flat Design */
+            body.theme-flat .mobile-header { background: #7b5eea !important; border-bottom: 2px solid #333 !important; }
+            body.theme-flat .mobile-header .btn { color: #fff !important; background: transparent !important; border: 2px solid #fff !important; border-radius: 0 !important; }
+            body.theme-flat .page-header h2, body.theme-flat .page-header p { color: #333 !important; }
+            body.theme-flat .sidebar { background: #ffffff !important; border-top: 2px solid #333 !important; border-right: none !important; border-radius: 0 !important; }
+            body.theme-flat .sidebar .nav-link i { color: #333 !important; }
+            body.theme-flat .sidebar .nav-link.active i { color: #7b5eea !important; }
+            body.theme-flat .sidebar .nav-item:nth-child(3) .nav-link { background: #333 !important; border: 2px solid #333 !important; border-radius: 0 !important; box-shadow: none !important; }
+            body.theme-flat .sidebar .nav-item:nth-child(3) .nav-link i { color: #fff !important; }
+
+            /* Bauhaus */
+            body.theme-bauhaus .mobile-header { background: #E3000F !important; border-bottom: 4px solid #000 !important; }
+            body.theme-bauhaus .mobile-header .btn { color: #000 !important; background: #fff !important; border: 2px solid #000 !important; border-radius: 0 !important; box-shadow: 2px 2px 0 #000 !important; }
+            body.theme-bauhaus .page-header h2, body.theme-bauhaus .page-header p { color: #000 !important; }
+            body.theme-bauhaus .sidebar { background: #ffffff !important; border-top: 4px solid #000 !important; border-radius: 0 !important; border-right: none !important; }
+            body.theme-bauhaus .sidebar .nav-link i { color: #000 !important; }
+            body.theme-bauhaus .sidebar .nav-link.active i { color: #E3000F !important; }
+            body.theme-bauhaus .sidebar .nav-item:nth-child(3) .nav-link { background: #000 !important; border: 2px solid #000 !important; border-radius: 0 !important; box-shadow: 4px 4px 0 #000 !important; transform: translateY(-20px) !important; }
+            body.theme-bauhaus .sidebar .nav-item:nth-child(3) .nav-link i { color: #fff !important; }
+
+            /* Glassmorphism */
+            body.theme-glassmorphism .mobile-header { background: rgba(255, 255, 255, 0.1) !important; backdrop-filter: blur(10px) !important; border-bottom: 1px solid rgba(255, 255, 255, 0.2) !important; }
+            body.theme-glassmorphism .mobile-header .btn { color: #fff !important; background: rgba(255, 255, 255, 0.1) !important; border: 1px solid rgba(255, 255, 255, 0.2) !important; }
+            body.theme-glassmorphism .page-header h2, body.theme-glassmorphism .page-header p { color: #fff !important; }
+            body.theme-glassmorphism .sidebar { background: rgba(20, 20, 40, 0.8) !important; backdrop-filter: blur(15px) !important; border-top: 1px solid rgba(255, 255, 255, 0.2) !important; }
+            body.theme-glassmorphism .sidebar .nav-link i { color: rgba(255,255,255,0.6) !important; }
+            body.theme-glassmorphism .sidebar .nav-link.active i { color: #fff !important; text-shadow: 0 0 8px rgba(255,255,255,0.8); }
+
+            /* Dark */
+            body.theme-dark .mobile-header { background: #000000 !important; border-bottom: 1px solid #333 !important; }
+            body.theme-dark .mobile-header .btn { color: #fff !important; background: #1a1a1a !important; border: 1px solid #333 !important; }
+            body.theme-dark .page-header h2, body.theme-dark .page-header p { color: #fff !important; }
+            body.theme-dark .sidebar { background: #121212 !important; border-top: 1px solid #333 !important; }
+        }
+
+        /* =========================================
+           1. FLAT DESIGN
+           ========================================= */
+        body.theme-flat .sidebar { background: #7b5eea; border-right: 2px solid #333; box-shadow: none; }
+        body.theme-flat .sidebar-brand { color: #fff; }
+        body.theme-flat .sidebar .nav-link { color: rgba(255, 255, 255, 0.9); border-radius: 0; }
+        body.theme-flat .sidebar .nav-link:hover, body.theme-flat .sidebar .nav-link.active { background: #333; color: #fff; }
+        body.theme-flat .mobile-header { background: #7b5eea; border-bottom: 2px solid #333; border-radius: 0; }
+        body.theme-flat .dashboard-card, body.theme-flat .modal-content, body.theme-flat .badge, body.theme-flat .btn, body.theme-flat .calendar-day, body.theme-flat .alert { border-radius: 0 !important; box-shadow: none !important; }
+        body.theme-flat .dashboard-card, body.theme-flat .modal-content { border: 2px solid #333; }
+        body.theme-flat .table-custom th, body.theme-flat .table-custom td { border-bottom: 2px solid #333; }
+
+        /* Enforces replacement of orange with purple in flat view */
+        body.theme-flat .bg-warning { background-color: #7b5eea !important; }
+        body.theme-flat .bg-warning.bg-opacity-10 { background-color: rgba(123, 94, 234, 0.1) !important; }
+        body.theme-flat .bg-warning.bg-opacity-15 { background-color: rgba(123, 94, 234, 0.15) !important; }
+        body.theme-flat .bg-warning.bg-opacity-25 { background-color: rgba(123, 94, 234, 0.25) !important; }
+        body.theme-flat .text-warning-emphasis, body.theme-flat .text-warning { color: #7b5eea !important; }
+        body.theme-flat .border-warning-subtle, body.theme-flat .border-warning { border-color: #7b5eea !important; }
+        body.theme-flat .alert-warning { background-color: rgba(123, 94, 234, 0.1) !important; color: #7b5eea !important; border-color: #7b5eea !important; }
+
+        /* =========================================
+           2. BAUHAUS STYLE
+           ========================================= */
+        body.theme-bauhaus, body.theme-bauhaus .main-content { background: #FFCC00; }
+        body.theme-bauhaus .sidebar { background: #E3000F; border-right: 4px solid #000; box-shadow: none; }
+        body.theme-bauhaus .sidebar-brand { color: #fff; border-bottom: 4px solid #000; padding-bottom: 2.5rem; margin-bottom: 1rem; }
+        body.theme-bauhaus .sidebar .nav-link { color: #fff; border: 3px solid transparent; border-radius: 0; }
+        body.theme-bauhaus .sidebar .nav-link:hover, body.theme-bauhaus .sidebar .nav-link.active { background: white; color: #000; border: 3px solid #000; box-shadow: 4px 4px 0 #000; transform: translate(-2px, -2px); }
+        body.theme-bauhaus .mobile-header { background: #E3000F; border-bottom: 4px solid #000; border-radius: 0; }
+        body.theme-bauhaus .mobile-header .btn { border: 2px solid #000 !important; border-radius: 0; box-shadow: 2px 2px 0 #000; }
+        body.theme-bauhaus .dashboard-card, body.theme-bauhaus .modal-content { background: white !important; border: 4px solid #000 !important; box-shadow: 8px 8px 0px #000 !important; border-radius: 0; }
+        body.theme-bauhaus .modal-header { background: #E3000F !important; border-bottom: 4px solid #000; }
+        body.theme-bauhaus .btn { border: 2px solid #000; border-radius: 0; }
+        body.theme-bauhaus .badge { border-radius: 0; border: 2px solid #000; }
+        body.theme-bauhaus .calendar-day { border-radius: 0; border: 2px solid #000; }
+        body.theme-bauhaus .table-custom th, body.theme-bauhaus .table-custom td { border: 2px solid #000; }
+        body.theme-bauhaus .bg-light { background-color: white !important; border: 2px solid #000; }
+
+        /* =========================================
+           3. BOLD TYPOGRAPHY
+           ========================================= */
+        body.theme-bold-type .mobile-header { background: #111; color: #fff; border-radius: 0; }
+        body.theme-bold-type h2, body.theme-bold-type h3, body.theme-bold-type h4, body.theme-bold-type h5 { font-weight: 900 !important; letter-spacing: -1px; text-transform: uppercase; }
+        body.theme-bold-type .small, body.theme-bold-type .badge, body.theme-bold-type .table-custom th { font-weight: 800; text-transform: uppercase; letter-spacing: 0.5px; }
+        body.theme-bold-type .calendar-day { font-weight: 800; font-size: 1rem; }
+
+        /* =========================================
+           4. NEUMORPHISM
+           ========================================= */
+        body.theme-neumorphism { background-color: #e0e5ec; }
+        body.theme-neumorphism .sidebar { background: #e0e5ec; color: #333; border-right: none; box-shadow: 6px 0px 12px #a3b1c6; }
+        body.theme-neumorphism .sidebar .nav-link, body.theme-neumorphism .sidebar-brand { color: #555; }
+        body.theme-neumorphism .sidebar .nav-link:hover, body.theme-neumorphism .sidebar .nav-link.active { color: #ff5d2a; background: transparent; box-shadow: inset 4px 4px 8px #a3b1c6, inset -4px -4px 8px #ffffff; }
+        body.theme-neumorphism .mobile-header { background: #e0e5ec; box-shadow: 0 4px 10px rgba(163,177,198,0.3); color: #333; border-radius: 0;}
+        body.theme-neumorphism .mobile-header .text-white { color: #ff5d2a !important; }
+        body.theme-neumorphism .mobile-header .btn { color: #555 !important; border: none; box-shadow: 4px 4px 8px #a3b1c6, -4px -4px 8px #ffffff; background: #e0e5ec; }
+        body.theme-neumorphism .dashboard-card, body.theme-neumorphism .modal-content, body.theme-neumorphism .bg-white { background-color: #e0e5ec !important; border: none !important; box-shadow: 6px 6px 12px #a3b1c6, -6px -6px 12px #ffffff !important; }
+        body.theme-neumorphism .bg-light { background-color: #e0e5ec !important; box-shadow: inset 4px 4px 8px #a3b1c6, inset -4px -4px 8px #ffffff !important; border: none !important; }
+        body.theme-neumorphism .calendar-day { border: none; box-shadow: 3px 3px 6px #a3b1c6, -3px -3px 6px #ffffff; }
+        body.theme-neumorphism .table-custom th { background-color: transparent; border-bottom: 2px solid #d1d9e6; }
+        body.theme-neumorphism .table-custom td { background-color: transparent; border-bottom: 1px solid #d1d9e6; }
+
+        /* =========================================
+           5. GLASSMORPHISM
+           ========================================= */
+        body.theme-glassmorphism { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: #fff; }
+        body.theme-glassmorphism .text-muted, body.theme-glassmorphism .text-dark { color: #f1f1f1 !important; }
+        body.theme-glassmorphism .sidebar { background: rgba(255, 255, 255, 0.1); backdrop-filter: blur(10px); border-right: 1px solid rgba(255, 255, 255, 0.2); box-shadow: none; }
+        body.theme-glassmorphism .sidebar-brand { color: #fff; }
+        body.theme-glassmorphism .sidebar .nav-link { color: rgba(255, 255, 255, 0.7); }
+        body.theme-glassmorphism .sidebar .nav-link:hover, body.theme-glassmorphism .sidebar .nav-link.active { color: #fff; background: rgba(255, 255, 255, 0.2); }
+        body.theme-glassmorphism .mobile-header { background: rgba(255, 255, 255, 0.1); backdrop-filter: blur(10px); border-bottom: 1px solid rgba(255, 255, 255, 0.2); border-radius: 0; }
+        body.theme-glassmorphism .dashboard-card, body.theme-glassmorphism .modal-content, body.theme-glassmorphism .bg-white { background: rgba(255, 255, 255, 0.15) !important; backdrop-filter: blur(15px); border: 1px solid rgba(255, 255, 255, 0.3) !important; box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37) !important; color: #fff !important; }
+        body.theme-glassmorphism .table-custom th, body.theme-glassmorphism .table-custom td { background-color: transparent !important; color: #fff !important; border-bottom: 1px solid rgba(255,255,255,0.2); }
+        body.theme-glassmorphism .bg-light { background: rgba(0, 0, 0, 0.15) !important; color: #fff !important; border: 1px solid rgba(255,255,255,0.2) !important; }
+        body.theme-glassmorphism .modal-header { background: rgba(255, 93, 42, 0.4) !important; border-bottom: 1px solid rgba(255, 255, 255, 0.2); }
+        body.theme-glassmorphism .alert { background: rgba(255, 255, 255, 0.1); border: 1px solid rgba(255, 255, 255, 0.2); color: #fff !important; }
+        body.theme-glassmorphism .badge { background-color: rgba(255,255,255,0.2) !important; border-color: rgba(255,255,255,0.4) !important; color: #fff !important; }
+        body.theme-glassmorphism .btn-light { background: rgba(255,255,255,0.1); color: #fff; border-color: rgba(255,255,255,0.3); }
+        /* Glassmorphism Calendar Highlights */
+        body.theme-glassmorphism .cal-present { background-color: rgba(25, 135, 84, 0.4); color: #fff; }
+        body.theme-glassmorphism .cal-absent { background-color: rgba(220, 53, 69, 0.4); color: #fff; }
+        body.theme-glassmorphism .cal-leave { background-color: rgba(255, 193, 7, 0.4); color: #fff; }
+        body.theme-glassmorphism .cal-holiday { background-color: rgba(111, 66, 193, 0.4); color: #fff; }
+        body.theme-glassmorphism .cal-weekend { background-color: rgba(255, 255, 255, 0.1); color: #ddd; }
+
+        /* =========================================
+           6. ANIMATION / MOTION
+           ========================================= */
+        @keyframes slideInUpFaded { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
+        body.theme-animation .col-xl-6 { animation: slideInUpFaded 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94) both; }
+        body.theme-animation .col-xl-6:nth-child(2) { animation-delay: 0.1s; }
+        body.theme-animation .col-xl-4 { animation: slideInUpFaded 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94) 0.2s both; }
+        body.theme-animation .col-xl-8 { animation: slideInUpFaded 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94) 0.3s both; }
+        body.theme-animation .calendar-day:hover { transform: scale(1.15) rotate(2deg); z-index: 10; box-shadow: 0 4px 8px rgba(0,0,0,0.1); }
+        body.theme-animation .table-hover tbody tr { transition: all 0.3s ease; }
+        body.theme-animation .table-hover tbody tr:hover { transform: scale(1.01); background-color: #fffaf8; box-shadow: 0 4px 10px rgba(0,0,0,0.05); }
+
+        /* =========================================
+           7. ILLUSTRATION TREND
+           ========================================= */
+        body.theme-illustration { background: #ffe3d8 url('data:image/svg+xml;utf8,<svg width="40" height="40" viewBox="0 0 40 40" xmlns="http://www.w3.org/2000/svg"><circle cx="20" cy="20" r="4" fill="%23ff5d2a" fill-opacity="0.3"/></svg>'); }
+        body.theme-illustration .sidebar { background: #fffaf8 url('data:image/svg+xml;utf8,<svg width="20" height="20" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><circle cx="2" cy="2" r="1" fill="%23ff5d2a" fill-opacity="0.1"/></svg>'); border-right: 3px dashed #ff5d2a; box-shadow: 6px 0px 0px rgba(255, 93, 42, 0.1); }
+        body.theme-illustration .sidebar-brand { border-bottom: 3px dashed #ff5d2a; color: #531603; text-shadow: 2px 2px 0px rgba(255, 93, 42, 0.15); }
+        body.theme-illustration .sidebar .nav-link { color: #531603; font-weight: 600; border: 2px solid transparent; border-radius: 12px; margin: 0.2rem 1rem; padding: 0.6rem 1rem; transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+        body.theme-illustration .sidebar .nav-link:hover { background-color: transparent; border: 2px dashed #ff5d2a; color: #ff5d2a; transform: rotate(-1deg) scale(1.02); }
+        body.theme-illustration .sidebar .nav-link.active { background-color: #ffe3d8; border: 2px dashed #ff5d2a; color: #ff5d2a; box-shadow: 4px 4px 0px rgba(255, 93, 42, 0.2); transform: rotate(1deg); }
+        body.theme-illustration .mobile-header { background: #fffaf8; border-bottom: 3px dashed #ff5d2a; border-radius: 0; color: #531603; box-shadow: 0px 4px 0px rgba(255, 93, 42, 0.1); }
+        body.theme-illustration .mobile-header .text-white { color: #ff5d2a !important; }
+        body.theme-illustration .mobile-header .btn { border: 2px dashed #ff5d2a !important; color: #ff5d2a !important; background: #ffe3d8; box-shadow: 2px 2px 0px rgba(255, 93, 42, 0.2); }
+        body.theme-illustration .dashboard-card, body.theme-illustration .modal-content { border: 2px dashed #ff5d2a !important; border-radius: 20px; background: #fffaf8 !important; box-shadow: 6px 6px 0px rgba(255, 93, 42, 0.1) !important;}
+        body.theme-illustration .bg-light, body.theme-illustration .alert { background: #fffaf8 !important; border: 1px dashed #ff5d2a !important; }
+        body.theme-illustration .badge { border-radius: 12px; border: 1px dashed rgba(0,0,0,0.2); }
+        body.theme-illustration .calendar-day { border-radius: 50%; border: 1px dashed #531603; }
+        body.theme-illustration .table th { border-bottom: 2px dashed #ff5d2a !important; background: transparent; color: #531603; }
+        body.theme-illustration .table td { border-bottom: 1px dashed rgba(255, 93, 42, 0.3) !important; }
+
+        /* =========================================
+           8. DARK MODE
+           ========================================= */
+        body.theme-dark { background-color: #121212; color: #e0e0e0; }
+        body.theme-dark .sidebar { background: #121212; border-right: 1px solid #333; box-shadow: none; }
+        body.theme-dark .sidebar-brand { color: #fff; }
+        body.theme-dark .sidebar .nav-link { color: #aaa; }
+        body.theme-dark .sidebar .nav-link:hover, body.theme-dark .sidebar .nav-link.active { color: #fff; background: #1a1a1a; }
+        body.theme-dark .mobile-header { background: #000000; border-bottom: 1px solid #333; border-radius: 0; }
+        body.theme-dark .text-dark { color: #ffffff !important; }
+        body.theme-dark .text-muted { color: #aaaaaa !important; }
+        body.theme-dark .dashboard-card, body.theme-dark .modal-content, body.theme-dark .bg-white { background-color: #1a1a1a !important; border-color: #333 !important; color: #fff !important; }
+        body.theme-dark .bg-light, body.theme-dark .alert { background-color: #252525 !important; color: #e0e0e0 !important; border-color: #333 !important; }
+        body.theme-dark .btn-light { background-color: #2a2a2a !important; color: #fff !important; border-color: #444 !important; }
+        
+        /* Dark Mode Attendance History Table Overrides */
+        body.theme-dark .table-custom { --bs-table-bg: transparent; --bs-table-color: #e0e0e0; }
+        body.theme-dark .table-custom th { background-color: #222 !important; color: #bbb !important; border-bottom: 1px solid #444 !important; }
+        body.theme-dark .table-custom td { background-color: #1a1a1a !important; color: #eee !important; border-bottom: 1px solid #333 !important; }
+        body.theme-dark .table-custom tbody tr:hover td { background-color: #2a2a2a !important; color: #fff !important; }
+        body.theme-dark .table-custom .badge.bg-light { background-color: #2a2a2a !important; border-color: #444 !important; color: #fff !important; }
+        body.theme-dark .table-custom .text-warning-emphasis { color: #ffda6a !important; }
+        body.theme-dark .table-custom .text-success { color: #75b798 !important; }
+        body.theme-dark .table-custom .badge.bg-success { background-color: rgba(25, 135, 84, 0.15) !important; border-color: rgba(25, 135, 84, 0.4) !important; color: #75b798 !important; }
+        
+        /* Dark Mode Calendar Highlights */
+        body.theme-dark .cal-present { background-color: rgba(25, 135, 84, 0.2); color: #75b798; }
+        body.theme-dark .cal-absent { background-color: rgba(220, 53, 69, 0.2); color: #ea868f; }
+        body.theme-dark .cal-leave { background-color: rgba(255, 193, 7, 0.2); color: #ffda6a; }
+        body.theme-dark .cal-holiday { background-color: rgba(111, 66, 193, 0.2); color: #b689ff; }
+        body.theme-dark .cal-weekend { background-color: rgba(255, 255, 255, 0.05); color: #adb5bd; }
+        body.theme-dark .cal-empty { color: #555; }
+    </style>
+</head>
+<body>
+
+    <!-- Mobile Header -->
+    <div class="mobile-header sticky-top">
+        <h4 class="mb-0 fw-bold"><i class="bi bi-layers-fill text-white me-2"></i>Octopyder</h4>
+        <button class="btn btn-outline-light border-0" data-bs-toggle="modal" data-bs-target="#logoutModal" title="Logout">
+            <i class="bi bi-box-arrow-right fs-3"></i>
+        </button>
+    </div>
+
+    <!-- Sidebar -->
+    <nav class="sidebar d-flex flex-column" id="sidebar">
+
+        <div class="sidebar-brand d-flex align-items-center">
+            <i class="bi bi-layers-fill me-2"></i>
+            <span>Octopyder</span>
+        </div>
+        
+        <div class="p-3">
+            <small class="text-uppercase fw-bold" style="letter-spacing: 1px; font-size: 0.75rem; color: inherit; opacity: 0.7;">Employee Portal</small>
+        </div>
+
+        <ul class="nav flex-column mb-auto">
+            <li class="nav-item">
+                <a href="dashboard.html" class="nav-link">
+                    <i class="bi bi-grid-1x2"></i> <span>Dashboard</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="tasks.html" class="nav-link">
+                    <i class="bi bi-list-task"></i> <span>My Tasks</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="attendance.html" class="nav-link active">
+                    <i class="bi bi-geo-alt"></i> <span>Attendance</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="leave.html" class="nav-link">
+                    <i class="bi bi-calendar2-x"></i> <span>Leave</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="salary.html" class="nav-link">
+                    <i class="bi bi-wallet2"></i> <span>Salary</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="profile.html" class="nav-link">
+                    <i class="bi bi-person"></i> <span>Profile</span>
+                </a>
+            </li>
+        </ul>
+        
+        <!-- Logout button triggering confirmation modal -->
+        <div class="mt-auto p-3 pb-5">
+            <a href="#" class="nav-link text-white bg-dark bg-opacity-25 rounded text-center fw-bold" data-bs-toggle="modal" data-bs-target="#logoutModal">
+                <i class="bi bi-box-arrow-right me-2"></i> <span>Logout</span>
+            </a>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <!-- Page Header -->
+        <div class="d-flex justify-content-between align-items-center mb-4 page-header">
+            <div>
+                <h2 class="fw-bold mb-0">Attendance Management</h2>
+                <p class="text-muted mb-0">Track your daily working hours, GPS locations, and manager approvals.</p>
+            </div>
+        </div>
+
+        <!-- Top Section: Today's Summary & Monthly Stats -->
+        <div class="row g-4 mb-4">
+            
+            <!-- Attendance Summary Card (Today) -->
+            <div class="col-xl-6">
+                <div class="card dashboard-card h-100 border-start border-4 border-danger">
+                    <div class="card-header bg-transparent border-0 pt-4 pb-0 d-flex justify-content-between align-items-center">
+                        <h5 class="fw-bold text-dark mb-0">Today's Status</h5>
+                        <span class="badge bg-secondary bg-opacity-25 text-secondary border border-secondary px-3 py-2" id="today-status-badge">Not Marked</span>
+                    </div>
+                    <div class="card-body p-4">
+                        <div class="row g-4 mb-4">
+                            <div class="col-6 col-md-3">
+                                <span class="d-block text-muted small fw-semibold mb-1">Check-in Time</span>
+                                <h5 class="fw-bold text-dark mb-0" id="check-in-display">--:--</h5>
+                            </div>
+                            <div class="col-6 col-md-3">
+                                <span class="d-block text-muted small fw-semibold mb-1">Check-out Time</span>
+                                <h5 class="fw-bold text-dark mb-0" id="check-out-display">--:--</h5>
+                            </div>
+                            <div class="col-6 col-md-3">
+                                <span class="d-block text-muted small fw-semibold mb-1">Working Hours</span>
+                                <h5 class="fw-bold text-primary mb-0" id="working-hours-display">--h --m</h5>
+                            </div>
+                            <div class="col-6 col-md-3">
+                                <span class="d-block text-muted small fw-semibold mb-1">Overtime</span>
+                                <h5 class="fw-bold text-warning mb-0">--</h5>
+                            </div>
+                        </div>
+
+                        <div class="d-flex flex-wrap gap-2 pt-3 border-top border-secondary-subtle">
+                            <button class="btn btn-danger fw-bold px-4" id="checkInBtn" data-bs-toggle="modal" data-bs-target="#attendanceModal">
+                                <i class="bi bi-fingerprint me-2"></i> Mark Attendance
+                            </button>
+                            <button class="btn btn-outline-secondary fw-bold px-4" id="checkOutBtn" onclick="executeCheckOut()" disabled>
+                                <i class="bi bi-box-arrow-right me-2"></i> Check Out
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Monthly Statistics -->
+            <div class="col-xl-6">
+                <div class="card dashboard-card h-100">
+                    <div class="card-body p-4">
+                        <div class="d-flex justify-content-between align-items-center mb-4">
+                            <h5 class="fw-bold text-dark mb-0">Monthly Statistics (July)</h5>
+                            <div class="text-end">
+                                <h3 class="fw-bold text-danger mb-0">95%</h3>
+                                <span class="text-muted small">Attendance Percentage</span>
+                            </div>
+                        </div>
+                        
+                        <div class="row g-3 text-center">
+                            <div class="col-4 col-sm-2">
+                                <div class="p-2 bg-light rounded border border-secondary-subtle">
+                                    <h4 class="fw-bold mb-0 text-dark">22</h4>
+                                    <span class="small text-muted" style="font-size: 0.75rem;">Working Days</span>
+                                </div>
+                            </div>
+                            <div class="col-4 col-sm-2">
+                                <div class="p-2 bg-success bg-opacity-10 border border-success-subtle rounded">
+                                    <h4 class="fw-bold mb-0 text-success">20</h4>
+                                    <span class="small text-muted" style="font-size: 0.75rem;">Present</span>
+                                </div>
+                            </div>
+                            <div class="col-4 col-sm-2">
+                                <div class="p-2 bg-danger bg-opacity-10 border border-danger-subtle rounded">
+                                    <h4 class="fw-bold mb-0 text-danger">1</h4>
+                                    <span class="small text-muted" style="font-size: 0.75rem;">Absent</span>
+                                </div>
+                            </div>
+                            <div class="col-4 col-sm-2">
+                                <div class="p-2 bg-warning bg-opacity-10 border border-warning-subtle rounded">
+                                    <h4 class="fw-bold mb-0 text-warning-emphasis">2</h4>
+                                    <span class="small text-muted" style="font-size: 0.75rem;">Late</span>
+                                </div>
+                            </div>
+                            <div class="col-4 col-sm-2">
+                                <div class="p-2 bg-info bg-opacity-10 border border-info-subtle rounded">
+                                    <h4 class="fw-bold mb-0 text-info-emphasis">0</h4>
+                                    <span class="small text-muted" style="font-size: 0.75rem;">Half Day</span>
+                                </div>
+                            </div>
+                            <div class="col-4 col-sm-2">
+                                <div class="p-2 bg-secondary bg-opacity-10 border border-secondary-subtle rounded">
+                                    <h4 class="fw-bold mb-0 text-secondary">1</h4>
+                                    <span class="small text-muted" style="font-size: 0.75rem;">Leaves</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- Bottom Section: Calendar & Table -->
+        <div class="row g-4">
+            
+            <!-- Monthly Calendar -->
+            <div class="col-xl-4">
+                <div class="card dashboard-card bg-white h-100">
+                    <div class="card-header bg-transparent border-0 pt-4 pb-2">
+                        <h5 class="fw-bold text-dark mb-0">Monthly Calendar</h5>
+                    </div>
+                    <div class="card-body">
+                        <!-- Legend -->
+                        <div class="d-flex flex-wrap gap-2 mb-4 justify-content-center" style="font-size: 0.75rem;">
+                            <span class="d-flex align-items-center"><div class="cal-present rounded-circle me-1" style="width:10px; height:10px;"></div> Present</span>
+                            <span class="d-flex align-items-center"><div class="cal-absent rounded-circle me-1" style="width:10px; height:10px;"></div> Absent</span>
+                            <span class="d-flex align-items-center"><div class="cal-leave rounded-circle me-1" style="width:10px; height:10px;"></div> Leave</span>
+                            <span class="d-flex align-items-center"><div class="cal-holiday rounded-circle me-1" style="width:10px; height:10px;"></div> Holiday</span>
+                            <span class="d-flex align-items-center"><div class="cal-weekend rounded-circle me-1" style="width:10px; height:10px;"></div> Weekend</span>
+                        </div>
+
+                        <!-- Calendar Grid -->
+                        <div class="calendar-grid mb-2">
+                            <div class="calendar-day-header">Su</div><div class="calendar-day-header">Mo</div><div class="calendar-day-header">Tu</div><div class="calendar-day-header">We</div><div class="calendar-day-header">Th</div><div class="calendar-day-header">Fr</div><div class="calendar-day-header">Sa</div>
+                        </div>
+                        
+                        <div class="calendar-grid" id="attendance-calendar">
+                            <!-- Pre-filled for July 2026 -->
+                            <div class="calendar-day cal-empty">28</div><div class="calendar-day cal-empty">29</div><div class="calendar-day cal-empty">30</div>
+                            <div class="calendar-day cal-present">1</div><div class="calendar-day cal-present">2</div><div class="calendar-day cal-present">3</div><div class="calendar-day cal-holiday" title="Independence Day">4</div>
+                            <div class="calendar-day cal-weekend">5</div><div class="calendar-day cal-present">6</div><div class="calendar-day cal-present">7</div><div class="calendar-day cal-present">8</div>
+                            <div class="calendar-day cal-absent">9</div><div class="calendar-day cal-present">10</div><div class="calendar-day cal-weekend">11</div><div class="calendar-day cal-weekend">12</div>
+                            <div class="calendar-day cal-present">13</div><div class="calendar-day cal-leave">14</div><div class="calendar-day cal-present">15</div><div class="calendar-day cal-present">16</div>
+                            <div class="calendar-day cal-present">17</div><div class="calendar-day cal-weekend">18</div><div class="calendar-day cal-weekend">19</div><div class="calendar-day cal-present">20</div>
+                            <div class="calendar-day cal-present">21</div><div class="calendar-day cal-empty border border-danger shadow-sm">22</div><div class="calendar-day cal-empty">23</div><div class="calendar-day cal-empty">24</div>
+                            <div class="calendar-day cal-empty">25</div><div class="calendar-day cal-empty">26</div><div class="calendar-day cal-empty">27</div><div class="calendar-day cal-empty">28</div>
+                            <div class="calendar-day cal-empty">29</div><div class="calendar-day cal-empty">30</div><div class="calendar-day cal-empty">31</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Attendance History Table -->
+            <div class="col-xl-8">
+                <div class="card dashboard-card bg-white h-100">
+                    <div class="card-header bg-transparent border-0 pt-4 pb-2 d-flex justify-content-between align-items-center">
+                        <h5 class="fw-bold text-dark mb-0">Attendance History</h5>
+                        <button class="btn btn-sm btn-light border"><i class="bi bi-download me-1"></i> Export</button>
+                    </div>
+                    <div class="card-body p-0">
+                        <div class="table-responsive">
+                            <table class="table table-hover table-custom mb-0 text-start">
+                                <thead>
+                                    <tr>
+                                        <th class="ps-4">Date</th>
+                                        <th>Check In</th>
+                                        <th>Check Out</th>
+                                        <th>Hours</th>
+                                        <th>Location</th>
+                                        <th>Status</th>
+                                        <th class="pe-4">Manager Approval</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr id="today-row" class="d-none">
+                                        <!-- Javascript will populate this when checked in -->
+                                    </tr>
+                                    <tr>
+                                        <td class="ps-4 fw-medium text-dark">21 Jul 2026</td>
+                                        <td>08:55 AM</td>
+                                        <td>06:00 PM</td>
+                                        <td>9h 05m</td>
+                                        <td><span class="badge bg-light text-dark border"><i class="bi bi-building me-1"></i> Office</span></td>
+                                        <td><span class="text-success fw-semibold"><i class="bi bi-circle-fill small me-1"></i> Present</span></td>
+                                        <td class="pe-4"><span class="badge bg-success bg-opacity-25 text-success border border-success">Approved</span></td>
+                                    </tr>
+                                    <tr>
+                                        <td class="ps-4 fw-medium text-dark">20 Jul 2026</td>
+                                        <td>09:15 AM</td>
+                                        <td>06:15 PM</td>
+                                        <td>9h 00m</td>
+                                        <td><span class="badge bg-light text-dark border"><i class="bi bi-house me-1"></i> Remote</span></td>
+                                        <td><span class="text-warning-emphasis fw-semibold"><i class="bi bi-circle-fill small text-warning me-1"></i> Late</span></td>
+                                        <td class="pe-4"><span class="badge bg-success bg-opacity-25 text-success border border-success">Approved</span></td>
+                                    </tr>
+                                    <tr>
+                                        <td class="ps-4 fw-medium text-dark">17 Jul 2026</td>
+                                        <td>09:00 AM</td>
+                                        <td>06:30 PM</td>
+                                        <td>9h 30m</td>
+                                        <td><span class="badge bg-light text-dark border"><i class="bi bi-diagram-2 me-1"></i> Hybrid</span></td>
+                                        <td><span class="text-success fw-semibold"><i class="bi bi-circle-fill small me-1"></i> Present</span></td>
+                                        <td class="pe-4"><span class="badge bg-success bg-opacity-25 text-success border border-success">Approved</span></td>
+                                    </tr>
+                                    <tr>
+                                        <td class="ps-4 fw-medium text-dark">14 Jul 2026</td>
+                                        <td>--:--</td>
+                                        <td>--:--</td>
+                                        <td>0h 00m</td>
+                                        <td><span class="badge bg-light text-muted border">-</span></td>
+                                        <td><span class="text-secondary fw-semibold"><i class="bi bi-circle-fill small me-1"></i> Leave</span></td>
+                                        <td class="pe-4"><span class="badge bg-success bg-opacity-25 text-success border border-success">Approved</span></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </main>
+
+    <!-- ============================================== -->
+    <!-- MODALS FOR QUICK ACTIONS & LOGOUT              -->
+    <!-- ============================================== -->
+
+    <!-- Logout Confirmation Modal -->
+    <div class="modal fade" id="logoutModal" tabindex="-1" aria-labelledby="logoutModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-sm">
+            <div class="modal-content border-0 shadow">
+                <div class="modal-body text-center p-4">
+                    <h5 class="mb-4 fw-bold">Are you sure you want to logout?</h5>
+                    <div class="d-flex justify-content-center gap-3">
+                        <button type="button" class="btn btn-light fw-semibold px-4" data-bs-dismiss="modal">Cancel</button>
+                        <a href="../index.html" class="btn btn-danger fw-semibold px-4">Logout</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MARK ATTENDANCE MODAL -->
+    <div class="modal fade" id="attendanceModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content border-0 shadow">
+                <div class="modal-header bg-danger text-white">
+                    <h5 class="modal-title fw-bold"><i class="bi bi-geo-alt-fill me-2"></i> Remote Attendance Check-in</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body text-center p-4">
+                    
+                    <div id="attendance-pre">
+                        <i class="bi bi-fingerprint text-danger opacity-50" style="font-size: 4rem;"></i>
+                        <p class="text-muted mt-3 mb-4">Click below to record your precise geographic coordinates, timestamp, and device data. This helps monitor field staff and remote teams.</p>
+                        <button class="btn btn-danger btn-lg w-100 fw-bold" onclick="executeMarkAttendance()">
+                            Capture GPS & Mark Attendance
+                        </button>
+                    </div>
+
+                    <div id="attendance-post" class="d-none text-start">
+                        <div class="alert alert-warning border-warning-subtle mb-3">
+                            <i class="bi bi-hourglass-split me-2"></i> <strong>Status:</strong> Pending Manager Approval.
+                        </div>
+                        <ul class="list-group list-group-flush small bg-transparent border rounded">
+                            <li class="list-group-item bg-transparent"><i class="bi bi-geo-alt text-danger me-2"></i> <strong>Location:</strong> <span id="modal-geo-coords">Fetching...</span></li>
+                            <li class="list-group-item bg-transparent"><i class="bi bi-clock text-danger me-2"></i> <strong>Timestamp:</strong> <span id="modal-timestamp"></span></li>
+                            <li class="list-group-item bg-transparent"><i class="bi bi-phone text-danger me-2"></i> <strong>Device Data:</strong> <span id="modal-device"></span></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS Bundle -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <!-- Page Logic -->
+    <script>
+        // --- 0. Theme Initializer ---
+        document.addEventListener('DOMContentLoaded', () => {
+            const savedTheme = localStorage.getItem('payrollTheme');
+            if (savedTheme && savedTheme !== 'default') {
+                document.body.classList.add(savedTheme);
+            }
+        });
+
+        // Sidebar Toggle
+        document.getElementById('sidebarToggle')?.addEventListener('click', function() {
+            document.getElementById('sidebar').classList.add('show');
+        });
+        
+        // Mobile Sidebar Close
+        document.getElementById('sidebarClose')?.addEventListener('click', function() {
+            document.getElementById('sidebar').classList.remove('show');
+        });
+
+        // Global variable to store active check-in time Object
+        let activeCheckInDateObj = null;
+
+        // --- Check IN Logic ---
+        function executeMarkAttendance() {
+            // Swap UI views inside modal
+            document.getElementById('attendance-pre').classList.add('d-none');
+            document.getElementById('attendance-post').classList.remove('d-none');
+            
+            // 1. Capture Timestamp
+            const now = new Date();
+            activeCheckInDateObj = now; 
+            
+            const timeString = now.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+            document.getElementById('modal-timestamp').innerText = now.toLocaleString();
+            
+            // Update the main top card displays
+            document.getElementById('check-in-display').innerText = timeString;
+            document.getElementById('working-hours-display').innerText = "In Progress...";
+            
+            const statusBadge = document.getElementById('today-status-badge');
+            statusBadge.innerText = "Present (Pending)";
+            statusBadge.className = "badge bg-warning bg-opacity-25 text-warning-emphasis border border-warning px-3 py-2";
+
+            // Enable Check-out Button & Disable Check-in Button
+            document.getElementById('checkInBtn').disabled = true;
+            document.getElementById('checkOutBtn').disabled = false;
+            document.getElementById('checkOutBtn').classList.replace('btn-outline-secondary', 'btn-outline-danger');
+
+            // 2. Capture Device Data
+            document.getElementById('modal-device').innerText = navigator.platform + " / " + navigator.userAgent.split(' ')[0];
+
+            // 3. Capture Precise Geolocation and Render Table Row
+            const geoSpan = document.getElementById('modal-geo-coords');
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(
+                    function(position) {
+                        geoSpan.innerText = `${position.coords.latitude.toFixed(6)}, ${position.coords.longitude.toFixed(6)}`;
+                        
+                        // Reveal and build the active Today row in the table
+                        const todayRow = document.getElementById('today-row');
+                        todayRow.classList.remove('d-none');
+                        todayRow.innerHTML = `
+                            <td class="ps-4 fw-medium text-dark">${now.toLocaleDateString('en-GB', {day: 'numeric', month: 'short', year: 'numeric'})}</td>
+                            <td id="table-check-in">${timeString}</td>
+                            <td id="table-check-out">--:--</td>
+                            <td id="table-working-hours">In Progress...</td>
+                            <td><span class="badge bg-light text-dark border"><i class="bi bi-house me-1"></i> Remote</span></td>
+                            <td><span class="text-success fw-semibold"><i class="bi bi-circle-fill small me-1"></i> Present</span></td>
+                            <td class="pe-4"><span class="badge bg-warning bg-opacity-25 text-warning-emphasis border border-warning">Pending</span></td>
+                        `;
+                    }, 
+                    function(error) {
+                        geoSpan.innerText = "Location permission denied.";
+                    },
+                    { enableHighAccuracy: true }
+                );
+            } else {
+                geoSpan.innerText = "Geolocation not supported.";
+            }
+        }
+
+        // --- Check OUT Logic (Dynamic Time capture) ---
+        function executeCheckOut() {
+            if(!activeCheckInDateObj) {
+                alert("You need to check in first.");
+                return;
+            }
+
+            const now = new Date();
+            const timeString = now.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+
+            // Calculate Difference
+            const diffMs = now - activeCheckInDateObj;
+            const diffHrs = Math.floor(diffMs / (1000 * 60 * 60));
+            const diffMins = Math.floor((diffMs % (1000 * 60 * 60)) / (1000 * 60));
+            const durationStr = `${diffHrs}h ${diffMins}m`;
+
+            // Update Main Card Displays
+            document.getElementById('check-out-display').innerText = timeString;
+            document.getElementById('working-hours-display').innerText = durationStr;
+
+            // Update Table Row Displays
+            const tableCheckOut = document.getElementById('table-check-out');
+            const tableWorkHours = document.getElementById('table-working-hours');
+            
+            if(tableCheckOut) tableCheckOut.innerText = timeString;
+            if(tableWorkHours) tableWorkHours.innerText = durationStr;
+
+            // Update Button State to prevent multiple checkouts
+            const checkoutBtn = document.getElementById('checkOutBtn');
+            checkoutBtn.disabled = true;
+            checkoutBtn.classList.replace('btn-outline-danger', 'btn-success');
+            checkoutBtn.innerHTML = `<i class="bi bi-check-circle me-2"></i> Checked Out`;
+            
+            alert(`Checked out successfully at ${timeString}. Total logged time: ${durationStr}.`);
+        }
+    </script>
+</body>
+</html>

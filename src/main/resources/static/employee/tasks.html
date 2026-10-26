@@ -1,0 +1,1113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Tasks - Octopyder</title>
+    
+    <!-- Google Fonts: Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;900&display=swap" rel="stylesheet">
+    
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    
+    <!-- Bootstrap Icons -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
+    
+    <style>
+        /* =========================================
+           DEFAULT THEME (Matched to Dashboard)
+           ========================================= */
+        :root {
+            --bs-danger: #7b5eea;
+            --bs-danger-rgb: 123, 94, 234;
+            --bg-main: #f4f7fe;
+            --sidebar-bg: #ffffff;
+            --sidebar-text: #a3aed1;
+            --sidebar-active-bg: rgba(123, 94, 234, 0.08);
+            --card-radius: 20px;
+        }
+        
+        .btn-danger {
+            --bs-btn-bg: #7b5eea;
+            --bs-btn-border-color: #7b5eea;
+            --bs-btn-hover-bg: #613beb;
+            --bs-btn-hover-border-color: #613beb;
+            --bs-btn-active-bg: #613beb;
+            --bs-btn-active-border-color: #613beb;
+        }
+        .btn-outline-danger {
+            --bs-btn-color: #7b5eea;
+            --bs-btn-border-color: #7b5eea;
+            --bs-btn-hover-bg: #7b5eea;
+            --bs-btn-hover-border-color: #7b5eea;
+            --bs-btn-active-bg: #7b5eea;
+            --bs-btn-active-border-color: #7b5eea;
+            --bs-btn-active-color: #fff;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-main);
+            color: #2b3674;
+            transition: background-color 0.4s ease, color 0.4s ease;
+        }
+
+        /* --- Desktop Sidebar --- */
+        .sidebar {
+            width: 260px;
+            background: var(--sidebar-bg);
+            color: var(--sidebar-text);
+            position: fixed;
+            top: 0;
+            bottom: 0;
+            left: 0;
+            height: 100dvh;
+            overflow-y: auto;
+            transition: all 0.3s;
+            z-index: 1050;
+            border-right: none;
+            box-shadow: 4px 0 20px rgba(0, 0, 0, 0.03);
+            
+            /* Hide scrollbar for IE, Edge and Firefox */
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+        
+        /* Hide scrollbar for Chrome, Safari and Opera */
+        .sidebar::-webkit-scrollbar {
+            display: none;
+        }
+        
+        .sidebar-brand {
+            padding: 2.5rem 1.5rem 1.5rem;
+            font-size: 1.5rem;
+            font-weight: 800;
+            color: #2b3674;
+            border-bottom: none;
+        }
+
+        .nav-link {
+            color: var(--sidebar-text);
+            padding: 0.8rem 1rem;
+            margin: 0.3rem 1.5rem;
+            border-radius: 12px;
+            font-weight: 600;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+        }
+
+        .nav-link:hover {
+            color: var(--bs-danger);
+            background-color: var(--sidebar-active-bg);
+        }
+        
+        .nav-link.active {
+            color: var(--bs-danger);
+            background-color: var(--sidebar-active-bg);
+            border-left: none;
+        }
+
+        .nav-link i {
+            margin-right: 12px;
+            font-size: 1.25rem;
+        }
+
+        /* --- Main Content Area --- */
+        .main-content {
+            margin-left: 260px;
+            padding: 2rem;
+            transition: all 0.3s;
+        }
+
+        /* --- Card Styling --- */
+        .dashboard-card {
+            border: none;
+            border-radius: var(--card-radius);
+            background: #ffffff;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.02);
+            transition: transform 0.2s ease, background-color 0.4s ease, border 0.4s ease;
+        }
+
+        .stat-card { transition: transform 0.2s ease; }
+        .stat-card:hover { transform: translateY(-3px); }
+
+        .card-icon {
+            width: 44px;
+            height: 44px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.3rem;
+        }
+
+        /* --- Filter Pills --- */
+        .filter-pill {
+            cursor: pointer;
+            border: 1px solid #dee2e6;
+            padding: 0.4rem 1rem;
+            border-radius: 50rem;
+            font-size: 0.85rem;
+            font-weight: 500;
+            color: #495057;
+            background: white;
+            transition: all 0.2s;
+            white-space: nowrap;
+            user-select: none;
+        }
+        .filter-pill:hover, .filter-pill.active {
+            background-color: var(--bs-danger);
+            color: white;
+            border-color: var(--bs-danger);
+        }
+
+        /* --- Custom Progress Bar --- */
+        .progress {
+            height: 8px;
+            border-radius: 4px;
+            background-color: #e9ecef;
+            transition: all 0.4s ease;
+        }
+
+        /* --- Calendar Styling --- */
+        .calendar-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 5px;
+            text-align: center;
+        }
+        .calendar-day-header { font-size: 0.75rem; font-weight: 700; color: #6c757d; padding-bottom: 0.5rem; }
+        .calendar-day {
+            aspect-ratio: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.85rem;
+            border-radius: 8px;
+            cursor: pointer;
+            position: relative;
+            transition: all 0.2s ease;
+        }
+        .calendar-day:hover:not(.text-muted) { background-color: #f8f9fa; }
+        .calendar-day.active { background-color: var(--bs-danger); color: white; font-weight: bold; }
+        .calendar-day.has-task::after {
+            content: ''; width: 6px; height: 6px; background-color: var(--bs-danger); border-radius: 50%; position: absolute; bottom: 4px;
+        }
+
+        /* Task Item Transitions */
+        .task-item { transition: opacity 0.3s ease, transform 0.3s ease, background-color 0.4s ease; }
+
+        .mobile-header { display: none; }
+
+        /* =========================================
+           MOBILE VIEW
+           ========================================= */
+        @media (max-width: 991.98px) {
+            .mobile-header {
+                display: flex !important;
+                position: sticky !important;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 70px !important;
+                background: linear-gradient(135deg, #8b6ce8, #613beb);
+                padding: 0 1.5rem !important;
+                color: white;
+                align-items: center !important;
+                justify-content: space-between !important;
+                border-radius: 0 !important;
+                z-index: 1040 !important;
+                box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            }
+            .mobile-header .btn { display: flex !important; align-items: center; justify-content: center; padding: 0.5rem; }
+            
+            #sidebarToggle { display: none !important; }
+
+            .main-content {
+                margin-left: 0;
+                margin-top: 0 !important; 
+                padding: 1rem;
+                padding-bottom: 110px; 
+                position: relative;
+                z-index: 10;
+            }
+            
+            .page-header h2 { color: #2b3674 !important; }
+            .page-header p { color: #6c757d !important; opacity: 0.9; }
+
+            .sidebar {
+                transform: translateX(0);
+                position: fixed;
+                top: auto;
+                bottom: 0;
+                width: 100%;
+                height: 85px;
+                background: #ffffff;
+                flex-direction: row !important;
+                border-top-left-radius: 35px;
+                border-top-right-radius: 35px;
+                box-shadow: 0 -5px 25px rgba(0, 0, 0, 0.08);
+                padding: 0 10px;
+                overflow: visible;
+                z-index: 1050;
+            }
+            
+            .sidebar-brand, 
+            .sidebar-close-btn, 
+            .sidebar > .p-3, 
+            .sidebar > .mt-auto {
+                display: none !important;
+            }
+
+            .sidebar .nav {
+                flex-direction: row !important;
+                width: 100%;
+                height: 100%;
+                align-items: center;
+                justify-content: space-around;
+                margin: 0 !important;
+            }
+
+            .sidebar .nav-item { flex: 1; display: flex; justify-content: center; }
+            .sidebar .nav-link {
+                flex-direction: column;
+                margin: 0;
+                padding: 5px;
+                background: transparent !important;
+                font-size: 0; 
+                border: none !important;
+            }
+            .sidebar .nav-link i {
+                margin: 0;
+                font-size: 1.5rem;
+                color: #b0b8d6;
+                transition: color 0.2s;
+            }
+            .sidebar .nav-link.active i { color: var(--bs-danger); }
+
+            /* Central FAB Styling */
+            .sidebar .nav-item:nth-child(3) .nav-link {
+                background: #11142d !important;
+                width: 60px;
+                height: 60px;
+                border-radius: 50%;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                transform: translateY(-25px);
+                box-shadow: 0 8px 20px rgba(17, 20, 45, 0.3);
+                margin: 0 auto;
+            }
+            .sidebar .nav-item:nth-child(3) .nav-link i {
+                color: white;
+                font-size: 1.6rem;
+            }
+            
+            /* --- Theme Specific Mobile Layout Overrides --- */
+
+            /* Neumorphism */
+            body.theme-neumorphism .mobile-header { background: #e0e5ec !important; box-shadow: 0 4px 10px rgba(163,177,198,0.3) !important; }
+            body.theme-neumorphism .mobile-header .text-white { color: var(--bs-danger) !important; }
+            body.theme-neumorphism .mobile-header .btn { color: #555 !important; background: #e0e5ec !important; box-shadow: 4px 4px 8px #a3b1c6, -4px -4px 8px #ffffff !important; border: none !important; }
+            body.theme-neumorphism .page-header h2, body.theme-neumorphism .page-header p { color: #333 !important; }
+
+            /* Illustration */
+            body.theme-illustration .mobile-header { background: #fffaf8 !important; border-bottom: 3px dashed #ff5d2a !important; box-shadow: 0 4px 0px rgba(255,93,42,0.1) !important; }
+            body.theme-illustration .mobile-header .text-white { color: #ff5d2a !important; }
+            body.theme-illustration .mobile-header .btn { color: #ff5d2a !important; background: #ffe3d8 !important; border: 2px dashed #ff5d2a !important; box-shadow: 2px 2px 0px rgba(255, 93, 42, 0.2) !important; }
+            body.theme-illustration .sidebar .nav { flex-wrap: nowrap !important; }
+            body.theme-illustration .sidebar .nav-item { flex: 1 1 0 !important; display: flex; justify-content: center; }
+            body.theme-illustration .sidebar .nav-link { width: auto !important; height: auto !important; padding: 5px !important; border: none !important; box-shadow: none !important; background: transparent !important; display: flex; flex-direction: column; align-items: center; justify-content: center; border-radius: 8px !important; transform: none !important; }
+            body.theme-illustration .sidebar .nav-item:nth-child(3) .nav-link { width: auto !important; height: auto !important; transform: none !important; box-shadow: none !important; background: transparent !important; border: none !important; margin: 0 !important; }
+            body.theme-illustration .sidebar .nav-item:nth-child(3) .nav-link i { color: #b0b8d6 !important; }
+            body.theme-illustration .sidebar .nav-link.active i { color: #ff5d2a !important; transform: scale(1.1); }
+            body.theme-illustration .sidebar .nav-link.active { background: #ffe3d8 !important; border: 1px dashed #ff5d2a !important; }
+            body.theme-illustration .page-header h2, body.theme-illustration .page-header p { color: #531603 !important; }
+
+            /* Flat Design */
+            body.theme-flat .mobile-header { background: #7b5eea !important; border-bottom: 2px solid #333 !important; }
+            body.theme-flat .mobile-header .btn { color: #fff !important; background: transparent !important; border: 2px solid #fff !important; border-radius: 0 !important; }
+            body.theme-flat .page-header h2, body.theme-flat .page-header p { color: #333 !important; }
+            body.theme-flat .sidebar { background: #ffffff !important; border-top: 2px solid #333 !important; border-right: none !important; border-radius: 0 !important; }
+            body.theme-flat .sidebar .nav-link i { color: #333 !important; }
+            body.theme-flat .sidebar .nav-link.active i { color: #7b5eea !important; }
+            body.theme-flat .sidebar .nav-item:nth-child(3) .nav-link { background: #333 !important; border: 2px solid #333 !important; border-radius: 0 !important; box-shadow: none !important; }
+            body.theme-flat .sidebar .nav-item:nth-child(3) .nav-link i { color: #fff !important; }
+
+            /* Bauhaus */
+            body.theme-bauhaus .mobile-header { background: #E3000F !important; border-bottom: 4px solid #000 !important; }
+            body.theme-bauhaus .mobile-header .btn { color: #000 !important; background: #fff !important; border: 2px solid #000 !important; border-radius: 0 !important; box-shadow: 2px 2px 0 #000 !important; }
+            body.theme-bauhaus .page-header h2, body.theme-bauhaus .page-header p { color: #000 !important; }
+            body.theme-bauhaus .sidebar { background: #ffffff !important; border-top: 4px solid #000 !important; border-radius: 0 !important; border-right: none !important; }
+            body.theme-bauhaus .sidebar .nav-link i { color: #000 !important; }
+            body.theme-bauhaus .sidebar .nav-link.active i { color: #E3000F !important; }
+            body.theme-bauhaus .sidebar .nav-item:nth-child(3) .nav-link { background: #000 !important; border: 2px solid #000 !important; border-radius: 0 !important; box-shadow: 4px 4px 0 #000 !important; transform: translateY(-20px) !important; }
+            body.theme-bauhaus .sidebar .nav-item:nth-child(3) .nav-link i { color: #fff !important; }
+
+            /* Glassmorphism */
+            body.theme-glassmorphism .mobile-header { background: rgba(255, 255, 255, 0.1) !important; backdrop-filter: blur(10px) !important; border-bottom: 1px solid rgba(255, 255, 255, 0.2) !important; }
+            body.theme-glassmorphism .mobile-header .btn { color: #fff !important; background: rgba(255, 255, 255, 0.1) !important; border: 1px solid rgba(255, 255, 255, 0.2) !important; }
+            body.theme-glassmorphism .page-header h2, body.theme-glassmorphism .page-header p { color: #fff !important; }
+            body.theme-glassmorphism .sidebar { background: rgba(20, 20, 40, 0.8) !important; backdrop-filter: blur(15px) !important; border-top: 1px solid rgba(255, 255, 255, 0.2) !important; }
+            body.theme-glassmorphism .sidebar .nav-link i { color: rgba(255,255,255,0.6) !important; }
+            body.theme-glassmorphism .sidebar .nav-link.active i { color: #fff !important; text-shadow: 0 0 8px rgba(255,255,255,0.8); }
+
+            /* Dark */
+            body.theme-dark .mobile-header { background: #000000 !important; border-bottom: 1px solid #333 !important; }
+            body.theme-dark .mobile-header .btn { color: #fff !important; background: #1a1a1a !important; border: 1px solid #333 !important; }
+            body.theme-dark .page-header h2, body.theme-dark .page-header p { color: #fff !important; }
+            body.theme-dark .sidebar { background: #121212 !important; border-top: 1px solid #333 !important; }
+        }
+
+        /* =========================================
+           1. FLAT DESIGN
+           ========================================= */
+        body.theme-flat .sidebar { background: #7b5eea; border-right: 2px solid #333; box-shadow: none; }
+        body.theme-flat .sidebar-brand { color: #fff; }
+        body.theme-flat .sidebar .nav-link { color: rgba(255, 255, 255, 0.9); border-radius: 0; }
+        body.theme-flat .sidebar .nav-link:hover, body.theme-flat .sidebar .nav-link.active { background: #333; color: #fff; }
+        body.theme-flat .mobile-header { background: #7b5eea; border-bottom: 2px solid #333; border-radius: 0; }
+        body.theme-flat .dashboard-card, body.theme-flat .modal-content, body.theme-flat .filter-pill, body.theme-flat .progress, body.theme-flat .calendar-day, body.theme-flat .badge, body.theme-flat .btn { border-radius: 0 !important; box-shadow: none !important; }
+        body.theme-flat .dashboard-card, body.theme-flat .filter-pill, body.theme-flat .modal-content { border: 2px solid #333; }
+        body.theme-flat .stat-card:hover { transform: none; background-color: #f8f9fa; }
+        
+        /* Enforces replacement of orange with purple in flat view */
+        body.theme-flat .bg-warning { background-color: #7b5eea !important; }
+        body.theme-flat .bg-warning.bg-opacity-15 { background-color: rgba(123, 94, 234, 0.15) !important; }
+        body.theme-flat .text-warning-emphasis, body.theme-flat .text-warning { color: #7b5eea !important; }
+        body.theme-flat .border-warning-subtle { border-color: #7b5eea !important; }
+        body.theme-flat .alert-warning { background-color: rgba(123, 94, 234, 0.1) !important; color: #7b5eea !important; border-color: #7b5eea !important; }
+
+        /* =========================================
+           2. BAUHAUS STYLE
+           ========================================= */
+        body.theme-bauhaus, body.theme-bauhaus .main-content { background: #FFCC00; }
+        body.theme-bauhaus .sidebar { background: #E3000F; border-right: 4px solid #000; box-shadow: none; }
+        body.theme-bauhaus .sidebar-brand { color: #fff; border-bottom: 4px solid #000; padding-bottom: 2.5rem; margin-bottom: 1rem; }
+        body.theme-bauhaus .sidebar .nav-link { color: #fff; border: 3px solid transparent; border-radius: 0; }
+        body.theme-bauhaus .sidebar .nav-link:hover, body.theme-bauhaus .sidebar .nav-link.active { background: white; color: #000; border: 3px solid #000; box-shadow: 4px 4px 0 #000; transform: translate(-2px, -2px); }
+        body.theme-bauhaus .mobile-header { background: #E3000F; border-bottom: 4px solid #000; border-radius: 0; }
+        body.theme-bauhaus .mobile-header .btn { border: 2px solid #000 !important; border-radius: 0; box-shadow: 2px 2px 0 #000; }
+        body.theme-bauhaus .dashboard-card, body.theme-bauhaus .modal-content { background: white !important; border: 4px solid #000 !important; box-shadow: 8px 8px 0px #000 !important; border-radius: 0; }
+        body.theme-bauhaus .modal-header { background: #E3000F !important; border-bottom: 4px solid #000; }
+        body.theme-bauhaus .filter-pill { border: 2px solid #000; border-radius: 0; font-weight: bold; }
+        body.theme-bauhaus .filter-pill.active { box-shadow: 2px 2px 0px #000; transform: translate(-2px, -2px); }
+        body.theme-bauhaus .progress { border-radius: 0; border: 2px solid #000; height: 14px; background: white; }
+        body.theme-bauhaus .badge { border-radius: 0 !important; border: 2px solid #000; }
+        body.theme-bauhaus .calendar-day.has-task::after { border-radius: 0; width: 8px; height: 8px; border: 1px solid #000; }
+        body.theme-bauhaus .btn { border: 2px solid #000; border-radius: 0; }
+
+        /* =========================================
+           3. BOLD TYPOGRAPHY
+           ========================================= */
+        body.theme-bold-type .mobile-header { background: #111; color: #fff; border-radius: 0; }
+        body.theme-bold-type h2, body.theme-bold-type h4, body.theme-bold-type h5 { font-weight: 900 !important; letter-spacing: -1.5px; text-transform: uppercase; }
+        body.theme-bold-type .task-title { font-size: 1.7rem !important; }
+        body.theme-bold-type .filter-pill { font-weight: 800; text-transform: uppercase; }
+        body.theme-bold-type .small, body.theme-bold-type .badge { font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; }
+
+        /* =========================================
+           4. NEUMORPHISM
+           ========================================= */
+        body.theme-neumorphism { background-color: #e0e5ec; }
+        body.theme-neumorphism .sidebar { background: #e0e5ec; color: #333; border-right: none; box-shadow: 6px 0px 12px #a3b1c6; }
+        body.theme-neumorphism .sidebar .nav-link, body.theme-neumorphism .sidebar-brand { color: #555; }
+        body.theme-neumorphism .sidebar .nav-link:hover, body.theme-neumorphism .sidebar .nav-link.active { color: #ff5d2a; background: transparent; box-shadow: inset 4px 4px 8px #a3b1c6, inset -4px -4px 8px #ffffff; }
+        body.theme-neumorphism .mobile-header { background: #e0e5ec; box-shadow: 0 4px 10px rgba(163,177,198,0.3); color: #333; border-radius: 0;}
+        body.theme-neumorphism .mobile-header .text-white { color: #ff5d2a !important; }
+        body.theme-neumorphism .mobile-header .btn { color: #555 !important; border: none; box-shadow: 4px 4px 8px #a3b1c6, -4px -4px 8px #ffffff; background: #e0e5ec; }
+        body.theme-neumorphism .dashboard-card, body.theme-neumorphism .modal-content, body.theme-neumorphism .bg-white { background-color: #e0e5ec !important; border: none !important; box-shadow: 6px 6px 12px #a3b1c6, -6px -6px 12px #ffffff !important; }
+        body.theme-neumorphism .bg-light { background-color: #d1d9e6 !important; box-shadow: inset 4px 4px 8px #a3b1c6, inset -4px -4px 8px #ffffff !important; }
+        body.theme-neumorphism .filter-pill { background: #e0e5ec; border: none; box-shadow: 4px 4px 8px #a3b1c6, -4px -4px 8px #ffffff; color: #555; }
+        body.theme-neumorphism .filter-pill.active { box-shadow: inset 4px 4px 8px #a3b1c6, inset -4px -4px 8px #ffffff; color: #ff5d2a; }
+        body.theme-neumorphism .progress { background: #e0e5ec; box-shadow: inset 3px 3px 6px #a3b1c6, inset -3px -3px 6px #ffffff; border: none; }
+        body.theme-neumorphism .calendar-day.active { background: #e0e5ec; color: #ff5d2a; box-shadow: inset 3px 3px 6px #a3b1c6, inset -3px -3px 6px #ffffff; }
+
+        /* =========================================
+           5. GLASSMORPHISM
+           ========================================= */
+        body.theme-glassmorphism { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: #fff; }
+        body.theme-glassmorphism .text-muted, body.theme-glassmorphism .text-dark { color: #f1f1f1 !important; }
+        body.theme-glassmorphism .sidebar { background: rgba(255, 255, 255, 0.1); backdrop-filter: blur(10px); border-right: 1px solid rgba(255, 255, 255, 0.2); box-shadow: none; }
+        body.theme-glassmorphism .sidebar-brand { color: #fff; }
+        body.theme-glassmorphism .sidebar .nav-link { color: rgba(255, 255, 255, 0.7); }
+        body.theme-glassmorphism .sidebar .nav-link:hover, body.theme-glassmorphism .sidebar .nav-link.active { color: #fff; background: rgba(255, 255, 255, 0.2); }
+        body.theme-glassmorphism .mobile-header { background: rgba(255, 255, 255, 0.1); backdrop-filter: blur(10px); border-bottom: 1px solid rgba(255, 255, 255, 0.2); border-radius: 0; }
+        body.theme-glassmorphism .dashboard-card, body.theme-glassmorphism .modal-content, body.theme-glassmorphism .bg-white { background: rgba(255, 255, 255, 0.15) !important; backdrop-filter: blur(15px); border: 1px solid rgba(255, 255, 255, 0.3) !important; box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37) !important; color: #fff !important; }
+        body.theme-glassmorphism .bg-light { background: rgba(0, 0, 0, 0.1) !important; color: #fff !important; border: 1px solid rgba(255, 255, 255, 0.2); }
+        body.theme-glassmorphism .filter-pill { background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); color: #fff; }
+        body.theme-glassmorphism .filter-pill.active { background: rgba(255,255,255,0.3); border-color: rgba(255,255,255,0.5); }
+        body.theme-glassmorphism .progress { background: rgba(255,255,255,0.2); }
+        body.theme-glassmorphism .calendar-day { color: #fff; }
+        body.theme-glassmorphism .calendar-day:hover:not(.text-muted) { background-color: rgba(255,255,255,0.2); }
+        body.theme-glassmorphism .calendar-day.active { background-color: rgba(255,255,255,0.4); }
+        body.theme-glassmorphism .modal-header { background: rgba(255, 93, 42, 0.4) !important; border-bottom: 1px solid rgba(255, 255, 255, 0.2); }
+        body.theme-glassmorphism .btn-light { background: rgba(255,255,255,0.1); color: #fff; border-color: rgba(255,255,255,0.3); }
+
+        /* =========================================
+           6. ANIMATION / MOTION
+           ========================================= */
+        @keyframes slideInUpFaded { from { opacity: 0; transform: translateY(40px); } to { opacity: 1; transform: translateY(0); } }
+        body.theme-animation .task-item { animation: slideInUpFaded 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94) both; }
+        body.theme-animation .task-item:nth-child(1) { animation-delay: 0.1s; }
+        body.theme-animation .task-item:nth-child(2) { animation-delay: 0.2s; }
+        body.theme-animation .task-item:nth-child(3) { animation-delay: 0.3s; }
+        body.theme-animation .filter-pill { transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+        body.theme-animation .filter-pill:hover { transform: scale(1.08); }
+        body.theme-animation .progress-bar { transition: width 1.5s cubic-bezier(0.25, 1, 0.5, 1); }
+
+        /* =========================================
+           7. ILLUSTRATION TREND
+           ========================================= */
+        body.theme-illustration { background: #ffe3d8 url('data:image/svg+xml;utf8,<svg width="40" height="40" viewBox="0 0 40 40" xmlns="http://www.w3.org/2000/svg"><circle cx="20" cy="20" r="4" fill="%23ff5d2a" fill-opacity="0.3"/></svg>'); }
+        body.theme-illustration .sidebar { background: #fffaf8 url('data:image/svg+xml;utf8,<svg width="20" height="20" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><circle cx="2" cy="2" r="1" fill="%23ff5d2a" fill-opacity="0.1"/></svg>'); border-right: 3px dashed #ff5d2a; box-shadow: 6px 0px 0px rgba(255, 93, 42, 0.1); }
+        body.theme-illustration .sidebar-brand { border-bottom: 3px dashed #ff5d2a; color: #531603; text-shadow: 2px 2px 0px rgba(255, 93, 42, 0.15); }
+        body.theme-illustration .sidebar .nav-link { color: #531603; font-weight: 600; border: 2px solid transparent; border-radius: 12px; margin: 0.2rem 1rem; padding: 0.6rem 1rem; transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+        body.theme-illustration .sidebar .nav-link:hover { background-color: transparent; border: 2px dashed #ff5d2a; color: #ff5d2a; transform: rotate(-1deg) scale(1.02); }
+        body.theme-illustration .sidebar .nav-link.active { background-color: #ffe3d8; border: 2px dashed #ff5d2a; color: #ff5d2a; box-shadow: 4px 4px 0px rgba(255, 93, 42, 0.2); transform: rotate(1deg); }
+        body.theme-illustration .mobile-header { background: #fffaf8; border-bottom: 3px dashed #ff5d2a; border-radius: 0; color: #531603; box-shadow: 0px 4px 0px rgba(255, 93, 42, 0.1); }
+        body.theme-illustration .mobile-header .text-white { color: #ff5d2a !important; }
+        body.theme-illustration .mobile-header .btn { border: 2px dashed #ff5d2a !important; color: #ff5d2a !important; background: #ffe3d8; box-shadow: 2px 2px 0px rgba(255, 93, 42, 0.2); }
+        body.theme-illustration .dashboard-card, body.theme-illustration .modal-content { border: 2px dashed #ff5d2a !important; border-radius: 20px; background: #fffaf8 !important; box-shadow: 6px 6px 0px rgba(255, 93, 42, 0.1) !important;}
+        body.theme-illustration .bg-light, body.theme-illustration .alert { background: #fffaf8 !important; border: 1px dashed #ff5d2a !important; }
+        body.theme-illustration .list-group-item { border-bottom: 1px dashed rgba(255,93,42,0.3) !important; background: transparent; }
+        body.theme-illustration .badge { border-radius: 12px; border: 1px dashed rgba(0,0,0,0.2); }
+        body.theme-illustration .calendar-day { border-radius: 50%; border: 1px dashed #531603; }
+        body.theme-illustration .table th { border-bottom: 2px dashed #ff5d2a !important; background: transparent; color: #531603; }
+        body.theme-illustration .table td { border-bottom: 1px dashed rgba(255, 93, 42, 0.3) !important; }
+        body.theme-illustration .progress { background: #fffaf8; border: 1px dashed #ff5d2a; border-radius: 12px !important; }
+        body.theme-illustration #themeSelector, body.theme-illustration .form-control, body.theme-illustration .form-select { border: 2px dashed #ff5d2a; border-radius: 12px; background: #fffaf8; box-shadow: 2px 2px 0px rgba(255,93,42,0.1); }
+
+        /* =========================================
+           8. DARK MODE
+           ========================================= */
+        body.theme-dark { background-color: #121212; color: #e0e0e0; }
+        body.theme-dark .sidebar { background: #121212; border-right: 1px solid #333; box-shadow: none; }
+        body.theme-dark .sidebar-brand { color: #fff; }
+        body.theme-dark .sidebar .nav-link { color: #aaa; }
+        body.theme-dark .sidebar .nav-link:hover, body.theme-dark .sidebar .nav-link.active { color: #fff; background: #1a1a1a; }
+        body.theme-dark .mobile-header { background: #000000; border-bottom: 1px solid #333; border-radius: 0; }
+        body.theme-dark .text-dark { color: #ffffff !important; }
+        body.theme-dark .text-muted { color: #aaaaaa !important; }
+        body.theme-dark .dashboard-card, body.theme-dark .modal-content, body.theme-dark .bg-white { background-color: #1a1a1a !important; border-color: #333 !important; color: #fff !important; }
+        body.theme-dark .filter-pill { background: #1a1a1a; border-color: #444; color: #aaa; }
+        body.theme-dark .filter-pill.active { background: #ff5d2a; color: #fff; border-color: #ff5d2a; }
+        body.theme-dark .bg-light { background-color: #252525 !important; color: #e0e0e0; border: 1px solid #333; }
+        body.theme-dark .calendar-day { color: #e0e0e0; }
+        body.theme-dark .calendar-day:hover:not(.text-muted) { background-color: #333; }
+        body.theme-dark .calendar-day.active { background-color: #ff5d2a; color: #fff; }
+        body.theme-dark .btn-light { background-color: #2a2a2a !important; color: #fff !important; border-color: #444 !important; }
+        body.theme-dark .btn-light:hover { background-color: #3a3a3a !important; }
+        body.theme-dark .progress { background-color: #333; }
+    </style>
+</head>
+<body>
+
+    <!-- Mobile Header -->
+    <div class="mobile-header sticky-top">
+        <h4 class="mb-0 fw-bold"><i class="bi bi-layers-fill text-white me-2"></i>Octopyder</h4>
+        <button class="btn btn-outline-light border-0" data-bs-toggle="modal" data-bs-target="#logoutModal" title="Logout">
+            <i class="bi bi-box-arrow-right fs-3"></i>
+        </button>
+    </div>
+
+    <!-- Sidebar -->
+    <nav class="sidebar d-flex flex-column" id="sidebar">
+
+        <div class="sidebar-brand d-flex align-items-center">
+            <i class="bi bi-layers-fill me-2"></i>
+            <span>Octopyder</span>
+        </div>
+        
+        <div class="p-3">
+            <small class="text-uppercase fw-bold" style="letter-spacing: 1px; font-size: 0.75rem; color: inherit; opacity: 0.7;">Employee Portal</small>
+        </div>
+
+        <ul class="nav flex-column mb-auto">
+            <li class="nav-item">
+                <a href="dashboard.html" class="nav-link">
+                    <i class="bi bi-grid-1x2"></i> <span>Dashboard</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="tasks.html" class="nav-link active">
+                    <i class="bi bi-list-task"></i> <span>My Tasks</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="attendance.html" class="nav-link">
+                    <i class="bi bi-geo-alt"></i> <span>Attendance</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="leave.html" class="nav-link">
+                    <i class="bi bi-calendar2-x"></i> <span>Leave</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="salary.html" class="nav-link">
+                    <i class="bi bi-wallet2"></i> <span>Salary</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="profile.html" class="nav-link">
+                    <i class="bi bi-person"></i> <span>Profile</span>
+                </a>
+            </li>
+        </ul>
+        
+        <!-- Logout button triggering confirmation modal -->
+        <div class="mt-auto p-3 pb-5">
+            <a href="#" class="nav-link text-white bg-dark bg-opacity-25 rounded text-center fw-bold" data-bs-toggle="modal" data-bs-target="#logoutModal">
+                <i class="bi bi-box-arrow-right me-2"></i> <span>Logout</span>
+            </a>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <!-- Page Header -->
+        <div class="d-flex justify-content-between align-items-center mb-4 page-header">
+            <div>
+                <h2 class="fw-bold mb-0">My Tasks</h2>
+                <p class="text-muted mb-0">Manage and track your assigned project deliverables.</p>
+            </div>
+        </div>
+
+        <!-- Task Statistics -->
+        <div class="row g-4 mb-4">
+            <div class="col-sm-6 col-xl-3">
+                <div class="card dashboard-card stat-card card-body">
+                    <div class="d-flex align-items-center">
+                        <div class="card-icon bg-primary bg-opacity-15 text-primary me-3"><i class="bi bi-collection-fill"></i></div>
+                        <div><h6 class="text-muted mb-1 small fw-semibold">Total Tasks</h6><h4 class="fw-bold mb-0" id="stat-total">3</h4></div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-6 col-xl-3">
+                <div class="card dashboard-card stat-card card-body">
+                    <div class="d-flex align-items-center">
+                        <div class="card-icon bg-warning bg-opacity-15 text-warning me-3"><i class="bi bi-hourglass-split"></i></div>
+                        <div><h6 class="text-muted mb-1 small fw-semibold">Pending</h6><h4 class="fw-bold mb-0" id="stat-pending">1</h4></div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-6 col-xl-3">
+                <div class="card dashboard-card stat-card card-body">
+                    <div class="d-flex align-items-center">
+                        <div class="card-icon bg-success bg-opacity-15 text-success me-3"><i class="bi bi-patch-check-fill"></i></div>
+                        <div><h6 class="text-muted mb-1 small fw-semibold">Completed</h6><h4 class="fw-bold mb-0" id="stat-completed">1</h4></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Controls: Search & Filters -->
+        <div class="card dashboard-card bg-white p-3 mb-4">
+            <div class="row g-3 align-items-center">
+                <div class="col-lg-4">
+                    <div class="input-group">
+                        <span class="input-group-text bg-transparent border-end-0 text-muted"><i class="bi bi-search"></i></span>
+                        <input type="text" id="taskSearch" class="form-control bg-transparent border-start-0" placeholder="Search task...">
+                    </div>
+                </div>
+                <div class="col-lg-8">
+                    <div class="d-flex gap-2 flex-nowrap overflow-auto pb-2 pb-lg-0 hide-scrollbar" id="filter-container">
+                        <span class="filter-pill active" data-filter="all">All</span>
+                        <span class="filter-pill" data-filter="pending">Pending</span>
+                        <span class="filter-pill" data-filter="in-progress">In Progress</span>
+                        <span class="filter-pill" data-filter="completed">Completed</span>
+                        <span class="filter-pill text-danger" data-filter="high-priority"><i class="bi bi-fire me-1"></i>High Priority</span>
+                        <span class="filter-pill text-warning-emphasis" data-filter="due-today"><i class="bi bi-clock-history me-1"></i>Due Today</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Layout: Task Feed & Calendar -->
+        <div class="row g-4">
+            <!-- Left Column: Task Cards Container -->
+            <div class="col-xl-8" id="task-list">
+                
+                <!-- Task 1 -->
+                <div class="card dashboard-card mb-4 border-start border-4 border-danger task-item" 
+                     data-status="in-progress" data-priority="high" data-due="future" data-deadline-date="2026-07-22">
+                    <div class="card-body p-4">
+                        <div class="d-flex justify-content-between align-items-start mb-2">
+                            <h5 class="fw-bold mb-0 text-dark task-title">Develop Login Page</h5>
+                            <span class="badge bg-danger rounded-pill px-3 ms-2">High Priority</span>
+                        </div>
+                        <p class="text-muted small mb-3 task-desc">Implement a fully responsive login page with role-based routing (Admin, Manager, Employee) utilizing HTML, CSS, JS, and Bootstrap. Ensure styling matches the red SaaS brand theme.</p>
+                        
+                        <div class="row g-3 mb-4 bg-light p-3 rounded-3">
+                            <div class="col-6 col-md-3">
+                                <span class="d-block text-muted small fw-semibold mb-1">Assigned By</span>
+                                <span class="fw-medium text-dark"><i class="bi bi-person-badge text-primary me-1"></i> Project Manager</span>
+                            </div>
+                            <div class="col-6 col-md-3">
+                                <span class="d-block text-muted small fw-semibold mb-1">Deadline</span>
+                                <span class="fw-bold text-danger"><i class="bi bi-calendar-event me-1"></i> 22 Jul 2026</span>
+                            </div>
+                            <div class="col-6 col-md-3">
+                                <span class="d-block text-muted small fw-semibold mb-1">Est. Time</span>
+                                <span class="fw-medium text-dark"><i class="bi bi-stopwatch me-1 text-secondary"></i> 16 Hours</span>
+                            </div>
+                            <div class="col-6 col-md-3">
+                                <span class="d-block text-muted small fw-semibold mb-1">Status</span>
+                                <span class="badge bg-info text-dark bg-opacity-25 border border-info status-badge">In Progress</span>
+                            </div>
+                        </div>
+
+                        <div class="mb-4">
+                            <div class="d-flex justify-content-between align-items-center mb-1">
+                                <span class="small fw-bold text-dark">Progress</span>
+                                <span class="small fw-bold text-danger progress-text">70% Completed</span>
+                            </div>
+                            <div class="progress"><div class="progress-bar bg-danger progress-fill" role="progressbar" style="width: 70%"></div></div>
+                        </div>
+
+                        <div class="d-flex flex-wrap gap-2 pt-2 border-top action-buttons">
+                            <button class="btn btn-outline-danger btn-sm px-3 fw-medium btn-continue"><i class="bi bi-play-circle me-1"></i> Continue</button>
+                            <button class="btn btn-success btn-sm px-3 fw-medium btn-submit"><i class="bi bi-check2-all me-1"></i> Submit Task</button>
+                            <button class="btn btn-light btn-sm border px-3 fw-medium ms-auto btn-details"><i class="bi bi-eye me-1"></i> View Details</button>
+                            <button class="btn btn-light btn-sm border px-3 fw-medium btn-upload"><i class="bi bi-cloud-arrow-up"></i> Upload</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Task 2 -->
+                <div class="card dashboard-card mb-4 border-start border-4 border-warning task-item" 
+                     data-status="pending" data-priority="medium" data-due="future" data-deadline-date="2026-07-26">
+                    <div class="card-body p-4">
+                        <div class="d-flex justify-content-between align-items-start mb-2">
+                            <h5 class="fw-bold mb-0 text-dark task-title">Java Hierarchy & Database Setup</h5>
+                            <span class="badge bg-warning text-dark rounded-pill px-3 ms-2">Medium Priority</span>
+                        </div>
+                        <p class="text-muted small mb-3 task-desc">Establish the core Java development environment utilizing the requested com.function package structure. Following setup, configure the local MariaDB instance and execute database user creation scripts.</p>
+                        
+                        <div class="row g-3 mb-4 bg-light p-3 rounded-3">
+                            <div class="col-6 col-md-3">
+                                <span class="d-block text-muted small fw-semibold mb-1">Assigned By</span>
+                                <span class="fw-medium text-dark"><i class="bi bi-person-badge text-primary me-1"></i> Tech Lead</span>
+                            </div>
+                            <div class="col-6 col-md-3">
+                                <span class="d-block text-muted small fw-semibold mb-1">Deadline</span>
+                                <span class="fw-bold text-dark"><i class="bi bi-calendar-event me-1 text-warning"></i> 26 Jul 2026</span>
+                            </div>
+                            <div class="col-6 col-md-3">
+                                <span class="d-block text-muted small fw-semibold mb-1">Est. Time</span>
+                                <span class="fw-medium text-dark"><i class="bi bi-stopwatch me-1 text-secondary"></i> 24 Hours</span>
+                            </div>
+                            <div class="col-6 col-md-3">
+                                <span class="d-block text-muted small fw-semibold mb-1">Status</span>
+                                <span class="badge bg-secondary bg-opacity-25 text-secondary border border-secondary status-badge">Pending</span>
+                            </div>
+                        </div>
+
+                        <div class="mb-4">
+                            <div class="d-flex justify-content-between align-items-center mb-1">
+                                <span class="small fw-bold text-dark">Progress</span>
+                                <span class="small fw-bold text-secondary progress-text">0% Completed</span>
+                            </div>
+                            <div class="progress"><div class="progress-bar bg-warning progress-fill" style="width: 0%"></div></div>
+                        </div>
+
+                        <div class="d-flex flex-wrap gap-2 pt-2 border-top action-buttons">
+                            <button class="btn btn-danger btn-sm px-3 fw-medium btn-start"><i class="bi bi-play-fill me-1"></i> Start Task</button>
+                            <button class="btn btn-outline-secondary btn-sm px-3 fw-medium btn-submit" disabled><i class="bi bi-check2-all me-1"></i> Submit Task</button>
+                            <button class="btn btn-light btn-sm border px-3 fw-medium ms-auto btn-details"><i class="bi bi-eye me-1"></i> View Details</button>
+                            <button class="btn btn-light btn-sm border px-3 fw-medium btn-upload"><i class="bi bi-cloud-arrow-up"></i> Upload</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Task 3 -->
+                <div class="card dashboard-card mb-4 border-start border-4 border-success task-item" 
+                     data-status="completed" data-priority="high" data-due="today" data-deadline-date="2026-07-21">
+                    <div class="card-body p-4">
+                        <div class="d-flex justify-content-between align-items-start mb-2">
+                            <h5 class="fw-bold mb-0 text-dark task-title">Cloud Storage & Assets</h5>
+                            <span class="badge bg-danger rounded-pill px-3 ms-2">High Priority</span>
+                        </div>
+                        <p class="text-muted small mb-3 task-desc">Integrate AWS S3 for secure document storage and map CloudFront for optimized asset delivery across the frontend portal.</p>
+                        
+                        <div class="row g-3 mb-4 bg-light p-3 rounded-3">
+                            <div class="col-6 col-md-3">
+                                <span class="d-block text-muted small fw-semibold mb-1">Assigned By</span>
+                                <span class="fw-medium text-dark"><i class="bi bi-person-badge text-primary me-1"></i> Cloud Architect</span>
+                            </div>
+                            <div class="col-6 col-md-3">
+                                <span class="d-block text-muted small fw-semibold mb-1">Deadline</span>
+                                <span class="fw-bold text-danger"><i class="bi bi-calendar-event me-1"></i> 21 Jul 2026 (Today)</span>
+                            </div>
+                            <div class="col-6 col-md-3">
+                                <span class="d-block text-muted small fw-semibold mb-1">Est. Time</span>
+                                <span class="fw-medium text-dark"><i class="bi bi-stopwatch me-1 text-secondary"></i> 8 Hours</span>
+                            </div>
+                            <div class="col-6 col-md-3">
+                                <span class="d-block text-muted small fw-semibold mb-1">Status</span>
+                                <span class="badge bg-success bg-opacity-25 text-success border border-success status-badge">Manager Approved</span>
+                            </div>
+                        </div>
+
+                        <div class="mb-4">
+                            <div class="d-flex justify-content-between align-items-center mb-1">
+                                <span class="small fw-bold text-dark">Progress</span>
+                                <span class="small fw-bold text-success progress-text">100% Completed</span>
+                            </div>
+                            <div class="progress"><div class="progress-bar bg-success progress-fill" style="width: 100%"></div></div>
+                        </div>
+
+                        <div class="d-flex flex-wrap gap-2 pt-2 border-top action-buttons">
+                            <button class="btn btn-outline-secondary btn-sm px-3 fw-medium" disabled><i class="bi bi-check2-all me-1"></i> Submitted</button>
+                            <button class="btn btn-light btn-sm border px-3 fw-medium ms-auto btn-details"><i class="bi bi-eye me-1"></i> View Details</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Empty State -->
+                <div id="no-tasks-msg" class="text-center py-5 d-none">
+                    <i class="bi bi-clipboard-x text-muted opacity-50" style="font-size: 3rem;"></i>
+                    <h5 class="fw-bold mt-3 text-muted">No Tasks Found</h5>
+                    <p class="text-muted small">No tasks match your current filter criteria.</p>
+                </div>
+
+            </div>
+
+            <!-- Right Column: Interactive Dynamic Calendar -->
+            <div class="col-xl-4 d-none d-xl-block">
+                <div class="card dashboard-card bg-white sticky-top" style="top: 80px;">
+                    <div class="card-header bg-transparent border-0 pt-4 pb-0 d-flex justify-content-between align-items-center">
+                        <h5 class="fw-bold text-dark mb-0">Deadlines Calendar</h5>
+                        <div class="d-flex gap-2">
+                            <button class="btn btn-sm btn-light border" onclick="changeMonth(-1)"><i class="bi bi-chevron-left"></i></button>
+                            <button class="btn btn-sm btn-light border" onclick="changeMonth(1)"><i class="bi bi-chevron-right"></i></button>
+                        </div>
+                    </div>
+                    <div class="card-body text-center pt-3">
+                        
+                        <h6 class="fw-bold text-danger mb-4" id="calendar-month-year">Loading...</h6>
+                        
+                        <!-- Days of Week Header -->
+                        <div class="calendar-grid mb-2">
+                            <div class="calendar-day-header">Su</div>
+                            <div class="calendar-day-header">Mo</div>
+                            <div class="calendar-day-header">Tu</div>
+                            <div class="calendar-day-header">We</div>
+                            <div class="calendar-day-header">Th</div>
+                            <div class="calendar-day-header">Fr</div>
+                            <div class="calendar-day-header">Sa</div>
+                        </div>
+
+                        <!-- Dynamic Days Grid -->
+                        <div class="calendar-grid" id="calendar-grid-days">
+                            <!-- JS Generates this -->
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </main>
+
+    <!-- Modals -->
+    <!-- Logout Confirmation Modal -->
+    <div class="modal fade" id="logoutModal" tabindex="-1" aria-labelledby="logoutModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-sm">
+            <div class="modal-content border-0 shadow">
+                <div class="modal-body text-center p-4">
+                    <h5 class="mb-4 fw-bold">Are you sure you want to logout?</h5>
+                    <div class="d-flex justify-content-center gap-3">
+                        <button type="button" class="btn btn-light fw-semibold px-4" data-bs-dismiss="modal">Cancel</button>
+                        <a href="../index.html" class="btn btn-danger fw-semibold px-4">Logout</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- View Details Modal -->
+    <div class="modal fade" id="taskDetailsModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content border-0 shadow">
+                <div class="modal-header bg-danger text-white">
+                    <h5 class="modal-title fw-bold"><i class="bi bi-file-text me-2"></i> Task Details</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body p-4">
+                    <h5 id="modal-task-title" class="fw-bold mb-3 text-dark">Title</h5>
+                    <p id="modal-task-desc" class="text-muted small">Description goes here...</p>
+                    <hr>
+                    <div class="alert alert-secondary bg-light border small text-muted mb-0">
+                        <i class="bi bi-info-circle me-1 text-dark"></i> As per company policy, task details are limited to title and textual description without nested subtasks. All activities are logged with a timestamp.
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Upload Files Modal -->
+    <div class="modal fade" id="uploadModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content border-0 shadow">
+                <div class="modal-header bg-dark text-white">
+                    <h5 class="modal-title fw-bold"><i class="bi bi-cloud-arrow-up me-2"></i> Upload Assets</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body p-4 text-center">
+                    <i class="bi bi-folder-plus text-muted opacity-50 mb-3" style="font-size: 3rem; display:block;"></i>
+                    <p class="small text-muted mb-4">Select project files or assets to attach to this task before submission.</p>
+                    <input class="form-control mb-3" type="file" id="formFileMultiple" multiple>
+                    <button class="btn btn-danger w-100 fw-bold" onclick="simulateUpload()">Upload Files</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS Bundle -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <!-- JavaScript Logic -->
+    <script>
+        // --- 0. Theme Initializer ---
+        document.addEventListener('DOMContentLoaded', () => {
+            const savedTheme = localStorage.getItem('payrollTheme');
+            if (savedTheme && savedTheme !== 'default') {
+                document.body.classList.add(savedTheme);
+            }
+        });
+
+        // --- 1. Sidebar Toggle ---
+        document.getElementById('sidebarToggle')?.addEventListener('click', function() {
+            document.getElementById('sidebar').classList.add('show');
+        });
+        
+        // Mobile Sidebar Close
+        document.getElementById('sidebarClose')?.addEventListener('click', function() {
+            document.getElementById('sidebar').classList.remove('show');
+        });
+        
+        // --- 2. Filter System ---
+        const filterPills = document.querySelectorAll('.filter-pill');
+        const taskItems = document.querySelectorAll('.task-item');
+        const noTasksMsg = document.getElementById('no-tasks-msg');
+        const searchInput = document.getElementById('taskSearch');
+
+        function filterTasks() {
+            const activeFilter = document.querySelector('.filter-pill.active').getAttribute('data-filter');
+            const searchQuery = searchInput.value.toLowerCase();
+            let visibleCount = 0;
+
+            taskItems.forEach(task => {
+                const status = task.getAttribute('data-status');
+                const priority = task.getAttribute('data-priority');
+                const due = task.getAttribute('data-due');
+                const title = task.querySelector('.task-title').innerText.toLowerCase();
+                
+                let matchesFilter = false;
+                if (activeFilter === 'all') matchesFilter = true;
+                else if (activeFilter === status) matchesFilter = true;
+                else if (activeFilter === 'high-priority' && priority === 'high') matchesFilter = true;
+                else if (activeFilter === 'due-today' && due === 'today') matchesFilter = true;
+
+                let matchesSearch = title.includes(searchQuery);
+
+                if (matchesFilter && matchesSearch) {
+                    task.style.display = 'flex';
+                    // Minor timeout to allow display:flex to apply before opacity for smooth theme animations
+                    setTimeout(() => task.style.opacity = '1', 50);
+                    visibleCount++;
+                } else {
+                    task.style.opacity = '0';
+                    setTimeout(() => task.style.display = 'none', 300);
+                }
+            });
+
+            if (visibleCount === 0) noTasksMsg.classList.remove('d-none');
+            else noTasksMsg.classList.add('d-none');
+        }
+
+        filterPills.forEach(pill => {
+            pill.addEventListener('click', function() {
+                filterPills.forEach(p => p.classList.remove('active'));
+                this.classList.add('active');
+                filterTasks();
+            });
+        });
+        searchInput.addEventListener('input', filterTasks);
+
+        // --- 3. Task Button Actions ---
+        const detailsModal = new bootstrap.Modal(document.getElementById('taskDetailsModal'));
+        const uploadModal = new bootstrap.Modal(document.getElementById('uploadModal'));
+
+        document.getElementById('task-list').addEventListener('click', function(e) {
+            const btn = e.target.closest('button');
+            if (!btn) return;
+            const taskCard = btn.closest('.task-item');
+
+            if (btn.classList.contains('btn-details')) {
+                const title = taskCard.querySelector('.task-title').innerText;
+                const desc = taskCard.querySelector('.task-desc').innerText;
+                document.getElementById('modal-task-title').innerText = title;
+                document.getElementById('modal-task-desc').innerText = desc;
+                detailsModal.show();
+            }
+
+            if (btn.classList.contains('btn-upload')) uploadModal.show();
+
+            if (btn.classList.contains('btn-start')) {
+                taskCard.setAttribute('data-status', 'in-progress');
+                taskCard.querySelector('.status-badge').className = "badge bg-info text-dark bg-opacity-25 border border-info status-badge";
+                taskCard.querySelector('.status-badge').innerText = "In Progress";
+                taskCard.querySelector('.progress-text').innerText = "Working...";
+                taskCard.querySelector('.progress-text').className = "small fw-bold text-info progress-text";
+                taskCard.querySelector('.progress-fill').className = "progress-bar progress-bar-striped progress-bar-animated bg-info progress-fill";
+                taskCard.querySelector('.progress-fill').style.width = "20%";
+
+                const actions = taskCard.querySelector('.action-buttons');
+                actions.innerHTML = `
+                    <button class="btn btn-outline-info btn-sm px-3 fw-medium btn-continue"><i class="bi bi-play-circle me-1"></i> Continue</button>
+                    <button class="btn btn-success btn-sm px-3 fw-medium btn-submit"><i class="bi bi-check2-all me-1"></i> Submit Task</button>
+                    <button class="btn btn-light btn-sm border px-3 fw-medium ms-auto btn-details"><i class="bi bi-eye me-1"></i> View Details</button>
+                    <button class="btn btn-light btn-sm border px-3 fw-medium btn-upload"><i class="bi bi-cloud-arrow-up"></i> Upload</button>
+                `;
+                updateCounters();
+            }
+
+            if (btn.classList.contains('btn-submit')) {
+                taskCard.setAttribute('data-status', 'completed');
+                taskCard.querySelector('.status-badge').className = "badge bg-success bg-opacity-25 text-success border border-success status-badge";
+                taskCard.querySelector('.status-badge').innerText = "Pending Mgr Approval";
+                taskCard.querySelector('.progress-text').innerText = "Awaiting Verification";
+                taskCard.querySelector('.progress-text').className = "small fw-bold text-success progress-text";
+                taskCard.querySelector('.progress-fill').className = "progress-bar bg-success progress-fill";
+                taskCard.querySelector('.progress-fill').style.width = "100%";
+
+                const actions = taskCard.querySelector('.action-buttons');
+                actions.innerHTML = `
+                    <button class="btn btn-outline-secondary btn-sm px-3 fw-medium" disabled><i class="bi bi-check2-all me-1"></i> Submitted</button>
+                    <button class="btn btn-light btn-sm border px-3 fw-medium ms-auto btn-details"><i class="bi bi-eye me-1"></i> View Details</button>
+                `;
+                updateCounters();
+                setTimeout(filterTasks, 1500); 
+            }
+            
+            if (btn.classList.contains('btn-continue')) {
+                alert("Resuming time tracker for: " + taskCard.querySelector('.task-title').innerText);
+            }
+        });
+
+        function simulateUpload() {
+            alert('Files securely attached to the task record.');
+            uploadModal.hide();
+        }
+
+        function updateCounters() {
+            let pending = 0, completed = 0, inProg = 0;
+            document.querySelectorAll('.task-item').forEach(task => {
+                const s = task.getAttribute('data-status');
+                if(s === 'pending') pending++;
+                if(s === 'completed') completed++;
+                if(s === 'in-progress') inProg++;
+            });
+            document.getElementById('stat-pending').innerText = pending + inProg;
+            document.getElementById('stat-completed').innerText = completed;
+        }
+
+
+        // --- 4. Dynamic Calendar Logic ---
+        
+        let currentDate = new Date();
+        let navMonth = currentDate.getMonth(); 
+        let navYear = currentDate.getFullYear();
+        let actualCurrentDay = currentDate.getDate();
+        let actualCurrentMonth = currentDate.getMonth();
+        let actualCurrentYear = currentDate.getFullYear();
+
+        const monthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+
+        // Scrape deadlines from task items in the DOM
+        function getTaskDeadlines() {
+            const dates = [];
+            document.querySelectorAll('.task-item').forEach(task => {
+                const dateStr = task.getAttribute('data-deadline-date'); // Expected Format: YYYY-MM-DD
+                if (dateStr) dates.push(dateStr);
+            });
+            return dates;
+        }
+
+        function renderCalendar(month, year) {
+            document.getElementById('calendar-month-year').innerText = `${monthNames[month]} ${year}`;
+            
+            const firstDay = new Date(year, month, 1).getDay(); // Day of week (0-6)
+            const daysInMonth = new Date(year, month + 1, 0).getDate(); // Total days in month
+            const daysInPrevMonth = new Date(year, month, 0).getDate(); // For padding
+            
+            const calendarGrid = document.getElementById('calendar-grid-days');
+            calendarGrid.innerHTML = ''; 
+
+            const taskDates = getTaskDeadlines();
+
+            // Render Previous Month Padding
+            for (let i = 0; i < firstDay; i++) {
+                const padDay = daysInPrevMonth - firstDay + i + 1;
+                calendarGrid.innerHTML += `<div class="calendar-day text-muted opacity-50">${padDay}</div>`;
+            }
+
+            // Render Current Month Days
+            for (let day = 1; day <= daysInMonth; day++) {
+                let classes = "calendar-day";
+                let title = "";
+
+                // Highlight exact today
+                if (day === actualCurrentDay && month === actualCurrentMonth && year === actualCurrentYear) {
+                    classes += " active shadow-sm";
+                    title = "Today";
+                }
+
+                // Check for Task Deadlines
+                const formattedMonth = String(month + 1).padStart(2, '0');
+                const formattedDay = String(day).padStart(2, '0');
+                const dateString = `${year}-${formattedMonth}-${formattedDay}`;
+
+                if (taskDates.includes(dateString)) {
+                    classes += " has-task";
+                    
+                    // Style font based on if it's overdue, due today, or future
+                    const deadlineDateObj = new Date(year, month, day);
+                    const todayObj = new Date(actualCurrentYear, actualCurrentMonth, actualCurrentDay);
+                    
+                    if (deadlineDateObj < todayObj) classes += " fw-bold text-danger"; // Overdue
+                    else if (deadlineDateObj.getTime() === todayObj.getTime()) classes += " fw-bold"; // Due Today
+                    else classes += " fw-bold text-dark"; // Future Deadline
+
+                    title = title ? `${title} (Task Deadline)` : "Task Deadline";
+                }
+
+                calendarGrid.innerHTML += `<div class="${classes}" title="${title}">${day}</div>`;
+            }
+        }
+
+        // Arrow controls function
+        function changeMonth(direction) {
+            navMonth += direction;
+            if (navMonth > 11) {
+                navMonth = 0;
+                navYear++;
+            } else if (navMonth < 0) {
+                navMonth = 11;
+                navYear--;
+            }
+            renderCalendar(navMonth, navYear);
+        }
+
+        // Initialize calendar on page load
+        renderCalendar(navMonth, navYear);
+
+    </script>
+</body>
+</html>

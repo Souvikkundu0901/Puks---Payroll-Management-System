@@ -1,0 +1,2105 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manager Dashboard - Octopyder </title>
+
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <style>
+        /* Typography & Core Variables */
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
+        :root {
+            --bg-body: #959ca8;
+            --bg-dashboard: linear-gradient(135deg, #fdf8eb 0%, #f7ebd3 100%);
+            --glass-bg: rgba(255, 255, 255, 0.55);
+            --glass-border: rgba(255, 255, 255, 0.8);
+            --dark: #2a2a2a;
+            --yellow: #fcd54a;
+            --text-main: #1d1d1d;
+            --text-muted: #6b6b6b;
+            --shadow-soft: 0 10px 30px rgba(0, 0, 0, 0.03);
+            --radius-lg: 32px;
+            --radius-md: 20px;
+            --radius-sm: 12px;
+        }
+
+        /* Protect custom dashboard styling from Bootstrap */
+        * {
+            box-sizing: border-box;
+            font-family: 'Inter', sans-serif;
+        }
+
+        h1,
+        h2,
+        h3,
+        h4,
+        p {
+            margin: 0;
+            padding: 0;
+        }
+
+        /* Enforce exact screen fit and lock scrolling */
+        body {
+            background-color: var(--bg-body);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            width: 100vw;
+            overflow: hidden !important;
+            transition: all 0.4s ease;
+        }
+
+        /* Prevent Bootstrap modal from shifting layout */
+        body.modal-open {
+            padding-right: 1.5vw !important;
+        }
+
+        /* Flex container for the whole dashboard */
+        .dashboard {
+            width: 100%;
+            max-width: 1600px;
+            height: 100%;
+            background: var(--bg-dashboard);
+            padding: 2.5vh 2.5vw;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.1);
+            display: flex;
+            flex-direction: column;
+            transition: all 0.4s ease;
+        }
+
+        .glass {
+            background: var(--glass-bg);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid var(--glass-border);
+            border-radius: var(--radius-md);
+            box-shadow: var(--shadow-soft);
+            transition: all 0.4s ease;
+        }
+
+        /* --- View Visibility Utilities --- */
+        .mobile-only {
+            display: none !important;
+        }
+
+        /* --- Top Navigation / Quick Actions --- */
+        .top-nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2.5vh;
+        }
+
+        .logo {
+            font-size: max(18px, 1.2vw);
+            font-weight: 500;
+            border: 1px solid var(--text-main);
+            padding: 6px 1.5vw;
+            border-radius: 30px;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 0.8vw;
+            background: rgba(255, 255, 255, 0.3);
+            padding: 6px;
+            border-radius: 30px;
+            border: 1px solid rgba(255, 255, 255, 0.5);
+            transition: all 0.4s ease;
+        }
+
+        .nav-links a {
+            text-decoration: none !important;
+            color: var(--text-main);
+            font-size: max(11px, 0.75vw);
+            font-weight: 500;
+            padding: 6px 1.2vw;
+            border-radius: 20px;
+            transition: all 0.3s ease;
+            white-space: nowrap;
+            cursor: pointer;
+        }
+
+        .nav-links a.active,
+        .nav-links a:hover {
+            background: var(--dark);
+            color: #fff;
+        }
+
+        .nav-actions {
+            display: flex;
+            gap: 1vw;
+            align-items: center;
+        }
+
+        /* Styled Theme Selector */
+        #desktopThemeSelector, #mobileThemeSelector {
+            border-radius: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.5);
+            background: rgba(255, 255, 255, 0.5);
+            color: var(--text-main);
+            font-size: 12px;
+            font-weight: 500;
+            cursor: pointer;
+            height: 35px;
+            min-width: 140px;
+            box-shadow: none;
+            backdrop-filter: blur(5px);
+            padding: 0 10px;
+        }
+
+        .action-btn {
+            background: rgba(255, 255, 255, 0.6);
+            border: none;
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.4s ease;
+        }
+
+        .setting-btn {
+            background: rgba(255, 255, 255, 0.6);
+            border: none;
+            padding: 6px 1vw;
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 13px;
+            font-weight: 500;
+            cursor: pointer;
+            white-space: nowrap;
+            transition: all 0.4s ease;
+        }
+
+        /* --- Header Section --- */
+        .header-section {
+            margin-bottom: 1.5vh;
+        }
+
+        .welcome-title {
+            font-size: max(24px, 2vw);
+            font-weight: 400;
+            margin-bottom: 0.5vh;
+        }
+
+        .stats-overview {
+            display: flex;
+            width: 100%;
+        }
+
+        /* 6 KPI Cards in a single row */
+        .key-metrics {
+            display: flex;
+            justify-content: space-between;
+            gap: 1vw;
+            width: 100%;
+            margin-top: 1.5vh;
+        }
+
+        .metric-card {
+            background: rgba(255, 255, 255, 0.35);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid var(--glass-border);
+            border-radius: var(--radius-sm);
+            padding: 1.2vh 1vw;
+            display: flex;
+            flex: 1;
+            flex-direction: column;
+            align-items: flex-end;
+            box-shadow: var(--shadow-soft);
+            transition: all 0.4s ease;
+        }
+
+        .metric-val {
+            font-size: max(20px, 1.6vw);
+            font-weight: 300;
+            line-height: 1;
+        }
+
+        .metric-label {
+            font-size: 10px;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            margin-top: 4px;
+            white-space: nowrap;
+        }
+
+        /* --- Main Grid Layout --- */
+        .dashboard-grid {
+            flex: 1;
+            display: grid;
+            grid-template-columns: 280px 1fr 340px;
+            gap: 1.5vw;
+            min-height: 0;
+            margin-top: 1vh;
+        }
+
+        /* Column Layouts */
+        .col-left,
+        .col-middle,
+        .col-right {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5vh;
+            min-height: 0;
+        }
+
+        /* Left Column */
+        .col-left.glass {
+            padding: 1.5vh;
+            border-radius: 35px;
+        }
+
+        .profile-card {
+            background: linear-gradient(to bottom, transparent, rgba(0, 0, 0, 0.7)), url('https://images.unsplash.com/photo-1530268729831-4b0b9e170218?q=80&w=200&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D') center/cover;
+            flex: 0.8;
+            min-height: 20vh;
+            border-radius: var(--radius-lg);
+            position: relative;
+            padding: 2vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-end;
+            cursor: pointer;
+            transition: transform 0.2s ease;
+        }
+
+        .profile-card:hover {
+            transform: scale(0.98);
+        }
+
+        .profile-info {
+            color: #fff;
+        }
+
+        .profile-info h3 {
+            font-size: 18px;
+            font-weight: 500;
+        }
+
+        .profile-info p {
+            font-size: 11px;
+            opacity: 0.9;
+            margin-top: 4px;
+            line-height: 1.4;
+        }
+
+        .budget-tag {
+            position: absolute;
+            bottom: 2vh;
+            right: 1.5vw;
+            background: rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            padding: 6px 12px;
+            border-radius: 20px;
+            color: #fff;
+            font-weight: 500;
+            font-size: 12px;
+        }
+
+        /* Dynamic Accordion Styles */
+        .accordion-list {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            padding: 0 10px;
+            overflow-y: auto;
+        }
+
+        .accordion-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1.5vh 0;
+            font-size: 13px;
+            font-weight: 500;
+            cursor: pointer;
+            border-bottom: 1px dashed rgba(0, 0, 0, 0.1);
+        }
+
+        .accordion-content {
+            display: none;
+            padding: 1vh 0;
+            font-size: 11px;
+            color: var(--text-muted);
+            border-bottom: 1px dashed rgba(0, 0, 0, 0.1);
+            animation: fadeIn 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+
+            to {
+                opacity: 1;
+            }
+        }
+
+        .device-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-top: 5px;
+        }
+
+        .device-img {
+            width: 35px;
+            height: 35px;
+            background: #fff;
+            border-radius: 50%;
+            border: 1px solid #eee;
+            object-fit: cover;
+        }
+
+        .device-text h4 {
+            font-size: 12px;
+            font-weight: 500;
+            color: var(--text-main);
+        }
+
+        .device-text p {
+            font-size: 10px;
+            color: var(--text-muted);
+            margin-top: 2px;
+        }
+
+        /* Middle Column */
+        .mid-top {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.5vw;
+            flex: 1.2;
+        }
+
+        .progress-card,
+        .tracker-card,
+        .onboarding-card {
+            padding: 2.5vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 1vh;
+        }
+
+        .card-header h3 {
+            font-size: 15px;
+            font-weight: 500;
+        }
+
+        .tracker-header {
+            width: 100%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .tracker-header h3 {
+            font-size: 15px;
+            font-weight: 500;
+        }
+
+        .arrow-up {
+            width: 25px;
+            height: 25px;
+            background: #fff;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        .arrow-up:hover {
+            background: var(--dark);
+            color: #fff;
+        }
+
+        /* Adjusted Circular Tracker specifically for Attendance layout */
+        .circular-progress {
+            width: 11vh;
+            height: 11vh;
+            border-radius: 50%;
+            background: conic-gradient(var(--yellow) 0%, #eaeaea 0);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+
+        .circular-progress::before {
+            content: '';
+            position: absolute;
+            width: 9vh;
+            height: 9vh;
+            background: #fcf6e7;
+            border-radius: 50%;
+        }
+
+        .circular-inner {
+            position: relative;
+            z-index: 1;
+            text-align: center;
+        }
+
+        .circular-inner h2 {
+            font-size: max(18px, 1.4vw);
+            font-weight: 400;
+        }
+
+        .circular-inner p {
+            font-size: 9px;
+            font-weight: 500;
+            color: var(--text-muted);
+        }
+
+        /* Dynamic Calendar Styling */
+        .calendar-card {
+            flex: 0.8;
+            cursor: pointer;
+            transition: 0.2s;
+            padding: 1.8vh 2vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .calendar-card:hover {
+            transform: scale(0.99);
+        }
+
+        .calendar-header {
+            display: flex;
+            justify-content: space-between;
+            font-size: 12px; 
+            font-weight: 500;
+            margin-bottom: 1.2vh;
+            color: var(--text-muted);
+        }
+
+        .calendar-header .active {
+            background: #fff;
+            padding: 3px 8px;
+            border-radius: 12px;
+            color: var(--text-main);
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        }
+
+        .calendar-grid {
+            flex: 1;
+            display: grid;
+            grid-template-columns: 40px 1fr; 
+            gap: 10px;
+        }
+
+        .time-col {
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            font-size: 9px; 
+            color: var(--text-muted);
+            padding-bottom: 1vh;
+        }
+
+        .days-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            position: relative;
+            gap: 2px;
+        }
+
+        .day-header {
+            text-align: center;
+            font-size: 9px; 
+            color: var(--text-muted);
+            border-right: 1px dotted rgba(0, 0, 0, 0.1);
+        }
+        .day-header:last-child {
+            border-right: none;
+        }
+
+        .day-header span {
+            display: inline-block;
+            font-size: 12px;
+            color: var(--text-main);
+            font-weight: 500;
+            margin-top: 4px;
+        }
+        
+        /* Today Highlight Class */
+        .today-highlight {
+            background: var(--yellow);
+            color: #000 !important;
+            padding: 2px 6px;
+            border-radius: 8px;
+            font-weight: 700 !important;
+        }
+
+        .event-dot {
+            width: 4px;
+            height: 4px;
+            background: var(--yellow);
+            border-radius: 50%;
+            margin: 4px auto 0;
+        }
+
+        /* Right Column */
+        .task-list-card {
+            background: var(--dark);
+            border-radius: var(--radius-lg);
+            padding: 2.5vh;
+            color: #fff;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            transition: all 0.4s ease;
+        }
+
+        .task-list-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2vh;
+        }
+
+        .task-list-header h3 {
+            font-size: 16px;
+            font-weight: 400;
+        }
+
+        .task-list-header span {
+            font-size: max(22px, 1.5vw);
+            font-weight: 300;
+        }
+
+        .task-list-items {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .task-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .task-icon {
+            width: 35px;
+            height: 35px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+        }
+
+        .task-info {
+            flex: 1;
+        }
+
+        .task-info h4 {
+            font-size: 13px;
+            font-weight: 400;
+            margin-bottom: 2px;
+        }
+
+        .task-info p {
+            font-size: 10px;
+            color: #888;
+        }
+
+        /* Big Calendar Modal Grid */
+        .big-cal-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 8px; 
+        }
+
+        .big-cal-day {
+            background: rgba(255, 255, 255, 0.5);
+            border: 1px solid rgba(0, 0, 0, 0.05);
+            border-radius: 8px; 
+            min-height: 75px; 
+            padding: 8px; 
+            display: flex;
+            flex-direction: column;
+            transition: all 0.2s ease;
+        }
+
+        .big-cal-date {
+            font-weight: 600;
+            font-size: 12px; 
+            color: var(--text-muted);
+            margin-bottom: 6px;
+            text-align: right;
+        }
+
+        .big-cal-date.today-badge {
+            background: var(--yellow);
+            color: #000 !important;
+            width: 22px;
+            height: 22px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+        }
+
+        .big-cal-day.is-today {
+            border: 2px solid var(--yellow);
+            background: rgba(252, 213, 74, 0.1);
+        }
+
+        .big-event-card {
+            background: var(--yellow);
+            color: #000; 
+            font-size: 9.5px; 
+            font-weight: 600;
+            padding: 4px 6px; 
+            border-radius: 4px;
+            margin-bottom: 4px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .big-event-card.dark-theme {
+            background: var(--dark);
+            color: #fff !important;
+        }
+
+        /* Icons */
+        .icon-setting::before {
+            content: '⚙️';
+        }
+
+        .icon-bell::before {
+            content: '🔔';
+        }
+
+        .icon-user::before {
+            content: '👤';
+        }
+
+        .icon-arr-up::before {
+            content: '↗';
+        }
+
+
+        /* =========================================
+           THEME IMPLEMENTATIONS (From Login Page)
+           ========================================= */
+
+        .theme-selector-input option {
+            color: #212529;
+            background: #fff;
+        }
+
+        /* 1. FLAT DESIGN */
+        body.theme-flat {
+            --bg-dashboard: #ff5d2a;
+        }
+
+        body.theme-flat .glass,
+        body.theme-flat .metric-card,
+        body.theme-flat .modal-content,
+        body.theme-flat .nav-links {
+            background: #fff !important;
+            border: 2px solid #333 !important;
+            border-radius: 0 !important;
+            box-shadow: none !important;
+        }
+
+        body.theme-flat .action-btn,
+        body.theme-flat .setting-btn {
+            background: #fff !important;
+            border: 2px solid #333 !important;
+            border-radius: 0 !important;
+            color: #333 !important;
+        }
+
+        body.theme-flat .task-list-card {
+            background: #333 !important;
+            border-radius: 0 !important;
+        }
+        
+        body.theme-flat .today-highlight {
+            border: 2px solid #000;
+            border-radius: 0;
+        }
+
+        body.theme-flat .big-cal-day.is-today {
+            border: 2px solid #000;
+            box-shadow: 3px 3px 0px #000;
+        }
+
+        /* 2. BAUHAUS STYLE */
+        body.theme-bauhaus {
+            --bg-dashboard: #FFCC00;
+        }
+
+        body.theme-bauhaus .metric-val,
+        body.theme-bauhaus h1,
+        body.theme-bauhaus h2,
+        body.theme-bauhaus h3,
+        body.theme-bauhaus h4 {
+            color: #000 !important;
+            font-weight: 700;
+        }
+
+        body.theme-bauhaus .glass,
+        body.theme-bauhaus .metric-card,
+        body.theme-bauhaus .modal-content,
+        body.theme-bauhaus .nav-links {
+            background: #fff !important;
+            border: 4px solid #000 !important;
+            border-radius: 0 !important;
+            box-shadow: 6px 6px 0px #000 !important;
+        }
+
+        body.theme-bauhaus .action-btn,
+        body.theme-bauhaus .setting-btn {
+            background: #005BB8 !important;
+            border: 3px solid #000 !important;
+            border-radius: 0 !important;
+            box-shadow: 3px 3px 0px #000 !important;
+            color: #fff !important;
+        }
+
+        body.theme-bauhaus .task-list-card {
+            background: #fff !important;
+            color: #000 !important;
+            border: 4px solid #000 !important;
+            border-radius: 0 !important;
+            box-shadow: 6px 6px 0px #000 !important;
+        }
+
+        body.theme-bauhaus .task-list-card p {
+            color: #444 !important;
+        }
+        
+        body.theme-bauhaus .today-highlight {
+            border: 3px solid #000;
+            box-shadow: 3px 3px 0px #000;
+            border-radius: 0;
+        }
+        
+        body.theme-bauhaus .big-cal-day.is-today {
+            border: 3px solid #005BB8;
+            background: #fff;
+        }
+
+        /* 3. BOLD TYPOGRAPHY */
+        body.theme-bold-type .welcome-title {
+            font-size: 3vw !important;
+            font-weight: 900 !important;
+            letter-spacing: -2px;
+            text-transform: uppercase;
+        }
+
+        body.theme-bold-type .metric-val {
+            font-weight: 800 !important;
+            font-size: 2.2vw !important;
+            letter-spacing: -1px;
+        }
+
+        body.theme-bold-type h3 {
+            text-transform: uppercase;
+            font-weight: 800;
+        }
+
+        /* 4. NEUMORPHISM */
+        body.theme-neumorphism {
+            --bg-dashboard: #e0e5ec;
+        }
+
+        body.theme-neumorphism .glass,
+        body.theme-neumorphism .metric-card,
+        body.theme-neumorphism .modal-content,
+        body.theme-neumorphism .big-cal-day {
+            background-color: #e0e5ec !important;
+            border: none !important;
+            box-shadow: 6px 6px 12px #a3b1c6, -6px -6px 12px #ffffff !important;
+        }
+
+        body.theme-neumorphism .action-btn,
+        body.theme-neumorphism .setting-btn,
+        body.theme-neumorphism .nav-links {
+            background-color: #e0e5ec !important;
+            border: none !important;
+            box-shadow: 4px 4px 8px #a3b1c6, -4px -4px 8px #ffffff !important;
+        }
+        
+        body.theme-neumorphism .big-cal-day.is-today {
+            box-shadow: inset 4px 4px 8px #a3b1c6, inset -4px -4px 8px #ffffff !important;
+        }
+
+        /* 5. GLASSMORPHISM */
+        body.theme-glassmorphism {
+            --bg-dashboard: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --text-main: #ffffff;
+            --text-muted: rgba(255, 255, 255, 0.8);
+        }
+
+        body.theme-glassmorphism,
+        body.theme-glassmorphism .welcome-details span strong,
+        body.theme-glassmorphism .metric-val,
+        body.theme-glassmorphism h1,
+        body.theme-glassmorphism h2,
+        body.theme-glassmorphism h3,
+        body.theme-glassmorphism h4 {
+            color: var(--text-main) !important;
+        }
+
+        body.theme-glassmorphism .text-muted,
+        body.theme-glassmorphism p,
+        body.theme-glassmorphism .metric-label,
+        body.theme-glassmorphism .accordion-content,
+        body.theme-glassmorphism td,
+        body.theme-glassmorphism .calendar-header,
+        body.theme-glassmorphism .day-header {
+            color: var(--text-muted) !important;
+        }
+
+        body.theme-glassmorphism .glass,
+        body.theme-glassmorphism .metric-card,
+        body.theme-glassmorphism .modal-content,
+        body.theme-glassmorphism .nav-links,
+        body.theme-glassmorphism .theme-dropdown-menu {
+            background: rgba(255, 255, 255, 0.15) !important;
+            backdrop-filter: blur(15px);
+            border: 1px solid rgba(255, 255, 255, 0.3) !important;
+            box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37) !important;
+        }
+
+        body.theme-glassmorphism .action-btn,
+        body.theme-glassmorphism .setting-btn {
+            background: rgba(255, 255, 255, 0.2) !important;
+            border: 1px solid rgba(255, 255, 255, 0.4) !important;
+            color: #fff !important;
+        }
+
+        body.theme-glassmorphism .theme-selector-input {
+            background: rgba(255, 255, 255, 0.2) !important;
+            color: #fff !important;
+            border: 1px solid rgba(255, 255, 255, 0.4) !important;
+        }
+        
+        body.theme-glassmorphism .calendar-header .active {
+            background: rgba(255, 255, 255, 0.2) !important;
+            color: #fff !important;
+        }
+        
+        body.theme-glassmorphism .today-highlight {
+            background: #fff;
+            color: #764ba2 !important;
+        }
+
+        body.theme-glassmorphism .dropdown-item {
+            color: #fff !important;
+        }
+        body.theme-glassmorphism .dropdown-item:hover {
+            background: rgba(255, 255, 255, 0.2) !important;
+        }
+
+        /* 6. ANIMATION / MOTION */
+        @keyframes float-dash {
+            0% { transform: translateY(0px); }
+            50% { transform: translateY(-8px); }
+            100% { transform: translateY(0px); }
+        }
+
+        body.theme-animation .metric-card {
+            animation: float-dash 4s ease-in-out infinite;
+        }
+
+        body.theme-animation .metric-card:nth-child(even) {
+            animation-delay: 1s;
+        }
+
+        body.theme-animation .col-left {
+            animation: float-dash 6s ease-in-out infinite 0.5s;
+        }
+
+        /* 7. ILLUSTRATION TREND */
+        body.theme-illustration {
+            --bg-dashboard: #ffe3d8;
+        }
+
+        body.theme-illustration .glass,
+        body.theme-illustration .metric-card,
+        body.theme-illustration .modal-content,
+        body.theme-illustration .nav-links,
+        body.theme-illustration .theme-dropdown-menu {
+            border: 3px dashed #ff5d2a !important;
+            background-color: #fffaf8 !important;
+            box-shadow: 8px 8px 0px rgba(255, 93, 42, 0.15) !important;
+        }
+
+        body.theme-illustration .action-btn,
+        body.theme-illustration .setting-btn {
+            border: 2px dashed #ff5d2a !important;
+            background: #ffe3d8 !important;
+            color: #ff5d2a !important;
+            font-weight: 700;
+        }
+        
+        body.theme-illustration .today-highlight {
+            border: 2px dashed #ff5d2a;
+            background: #fffaf8;
+        }
+
+        body.theme-illustration .big-cal-day.is-today {
+            border: 2px dashed #ff5d2a;
+        }
+
+        /* 8. DARK MODE */
+        body.theme-dark {
+            --bg-body: #000;
+            --bg-dashboard: #121212;
+            --text-main: #e0e0e0;
+            --text-muted: #aaaaaa;
+        }
+
+        body.theme-dark,
+        body.theme-dark .welcome-details span strong,
+        body.theme-dark .metric-val,
+        body.theme-dark h1,
+        body.theme-dark h2,
+        body.theme-dark h3,
+        body.theme-dark h4 {
+            color: var(--text-main) !important;
+        }
+
+        body.theme-dark .text-muted,
+        body.theme-dark p,
+        body.theme-dark .metric-label,
+        body.theme-dark .accordion-content,
+        body.theme-dark td,
+        body.theme-dark .calendar-header,
+        body.theme-dark .day-header {
+            color: var(--text-muted) !important;
+        }
+
+        body.theme-dark .glass,
+        body.theme-dark .metric-card,
+        body.theme-dark .modal-content,
+        body.theme-dark .nav-links,
+        body.theme-dark .theme-dropdown-menu {
+            background: #1e1e1e !important;
+            border: 1px solid #333 !important;
+        }
+
+        body.theme-dark .task-list-card,
+        body.theme-dark .big-cal-day {
+            background: #000 !important;
+            border: 1px solid #333 !important;
+        }
+
+        body.theme-dark .action-btn,
+        body.theme-dark .setting-btn {
+            background: #1e1e1e !important;
+            border: 1px solid #333 !important;
+            color: #fff !important;
+        }
+
+        body.theme-dark .calendar-header .active {
+            background: #333 !important;
+            color: #fff !important;
+            box-shadow: none;
+        }
+
+        body.theme-dark .theme-selector-input {
+            background: #1e1e1e !important;
+            color: #fff !important;
+            border: 1px solid #333 !important;
+        }
+        
+        body.theme-dark .today-highlight {
+            background: #fff;
+            color: #000 !important;
+        }
+
+        body.theme-dark .big-cal-day.is-today {
+            border: 1px solid #fff;
+            background: #111;
+        }
+        
+        body.theme-dark .big-event-card {
+            background: #333 !important;
+            color: #fff !important;
+        }
+
+        body.theme-dark .dropdown-item {
+            color: var(--text-main) !important;
+        }
+        body.theme-dark .dropdown-item:hover {
+            background: #333 !important;
+            color: #fff !important;
+        }
+
+        /* =========================================
+   MOBILE RESPONSIVE LAYOUT (Max-width: 768px)
+   ========================================= */
+        @media (max-width: 768px) {
+
+            /* Activate Mobile Components / Hide Desktop Components */
+            .desktop-only {
+                display: none !important;
+            }
+            .mobile-only {
+                display: block !important;
+            }
+
+            body {
+                height: auto !important;
+                overflow: auto !important;
+                overflow-x: hidden !important;
+                padding: 0 !important;
+                background: var(--bg-dashboard);
+            }
+
+            .dashboard {
+                height: auto !important;
+                min-height: 100vh;
+                padding: 20px 15px 100px 15px !important;
+                box-shadow: none;
+                max-width: 100vw;
+            }
+
+            /* Place logo on left, actions on top-most right corner */
+            .top-nav {
+                display: flex !important;
+                justify-content: space-between !important;
+                align-items: center !important;
+                margin-bottom: 20px;
+                position: relative;
+            }
+
+            .nav-links {
+                position: fixed;
+                bottom: 20px;
+                left: 5%;
+                width: 90%;
+                background: var(--dark) !important;
+                padding: 12px 15px !important;
+                border-radius: 40px !important;
+                display: flex;
+                justify-content: flex-start;
+                overflow-x: auto;
+                gap: 10px;
+                z-index: 9999;
+                box-shadow: 0 15px 35px rgba(0, 0, 0, 0.3);
+                border: none !important;
+            }
+
+            .nav-links::-webkit-scrollbar {
+                display: none;
+            }
+
+            .nav-links {
+                -ms-overflow-style: none;
+                scrollbar-width: none;
+            }
+
+            .nav-links a {
+                color: #a0a0a0 !important;
+                background: transparent !important;
+                font-size: 13px !important;
+                padding: 8px 16px !important;
+            }
+
+            .nav-links a.active,
+            .nav-links a:hover {
+                background: rgba(255, 255, 255, 0.2) !important;
+                color: #fff !important;
+            }
+
+            body.theme-flat .nav-links a,
+            body.theme-bauhaus .nav-links a,
+            body.theme-illustration .nav-links a,
+            body.theme-neumorphism .nav-links a {
+                color: #555 !important;
+            }
+            body.theme-flat .nav-links a.active, body.theme-flat .nav-links a:hover,
+            body.theme-bauhaus .nav-links a.active, body.theme-bauhaus .nav-links a:hover,
+            body.theme-illustration .nav-links a.active, body.theme-illustration .nav-links a:hover {
+                background: #000 !important;
+                color: #fff !important;
+            }
+            body.theme-neumorphism .nav-links a.active, body.theme-neumorphism .nav-links a:hover {
+                background: #a3b1c6 !important;
+                color: #fff !important;
+            }
+
+            /* Top-most right corner nav actions for mobile */
+            .nav-actions {
+                margin-top: 0 !important; 
+                width: auto !important;
+                display: flex !important;
+                align-items: center !important;
+                gap: 10px !important;
+            }
+
+            .welcome-title {
+                font-size: 26px !important;
+                font-weight: 600 !important;
+            }
+
+            .key-metrics {
+                display: flex;
+                flex-wrap: nowrap;
+                overflow-x: auto;
+                gap: 15px;
+                padding-bottom: 10px;
+                scroll-snap-type: x mandatory;
+            }
+
+            .key-metrics::-webkit-scrollbar {
+                display: none;
+            }
+
+            .metric-card {
+                min-width: 160px;
+                scroll-snap-align: start;
+                border-radius: 20px;
+                align-items: flex-start;
+                padding: 20px;
+            }
+
+            .metric-val {
+                font-size: 28px !important;
+                font-weight: 500 !important;
+            }
+
+            .metric-label {
+                font-size: 13px !important;
+                margin-top: 8px;
+                white-space: normal !important;
+                line-height: 1.3;
+            }
+
+            .dashboard-grid,
+            .task-layout {
+                display: flex;
+                flex-direction: column;
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+
+            .profile-card {
+                min-height: 350px !important;
+                border-radius: 35px !important;
+                box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+            }
+
+            .profile-info h3 {
+                font-size: 24px;
+                font-weight: 600;
+            }
+
+            .profile-info p {
+                font-size: 14px;
+            }
+
+            .budget-tag {
+                bottom: 25px;
+                right: 25px;
+                padding: 10px 18px;
+                font-size: 14px;
+                border-radius: 25px;
+                background: rgba(255, 255, 255, 0.3);
+                color: #fff;
+            }
+
+            .mid-top,
+            .bottom-left-grid {
+                display: flex;
+                flex-direction: column;
+                gap: 20px;
+            }
+
+            .progress-card,
+            .tracker-card,
+            .calendar-card,
+            .onboarding-card,
+            .create-task-card,
+            .task-list-card,
+            .task-card {
+                padding: 25px 20px;
+                border-radius: 25px !important;
+                box-shadow: 0 5px 20px rgba(0, 0, 0, 0.05);
+            }
+            
+            .calendar-card {
+                padding: 20px 15px !important;
+            }
+
+            .tasks-container {
+                max-height: none;
+                overflow-y: visible;
+                padding-right: 0;
+            }
+
+            .form-control,
+            .form-select {
+                height: 45px;
+                font-size: 14px;
+                border-radius: 15px;
+                margin-bottom: 10px;
+            }
+
+            .btn-create {
+                height: 50px;
+                font-size: 16px;
+                border-radius: 25px;
+                margin-top: 10px;
+            }
+
+            .col-left, .col-middle, .col-right {
+                min-height: auto;
+            }
+            
+            .big-cal-day {
+                min-height: 60px; 
+                padding: 4px;
+            }
+            .big-event-card {
+                font-size: 8px;
+                padding: 2px 4px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="dashboard">
+        <!-- Top Navigation -->
+        <div class="top-nav">
+            <div class="logo">Octopyder</div>
+            <div class="nav-links">
+                <a href="dashboard.html" class="active">Dashboard</a>
+                <a href="assign-task.html">Assign Task</a>
+                <a href="approve-attendance.html">Approve Attendance</a>
+                <a href="review-leave.html">Review Leave</a>
+                <a href="salary-approval.html">Salary Approval</a>
+            </div>
+            
+            <div class="nav-actions">
+                
+                <!-- Desktop Elements (Hidden on Mobile) -->
+                <select class="form-select form-select-sm theme-selector-input desktop-only" id="desktopThemeSelector">
+                    <option value="default" selected>Default Style</option>
+                    <option value="theme-flat">Flat Design</option>
+                    <option value="theme-bauhaus">Bauhaus Style</option>
+                    <option value="theme-bold-type">Bold Typography</option>
+                    <option value="theme-neumorphism">Neumorphism</option>
+                    <option value="theme-glassmorphism">Glassmorphism</option>
+                    <option value="theme-animation">Animation / Motion</option>
+                    <option value="theme-illustration">Illustration Trend</option>
+                    <option value="theme-dark">Dark Mode</option>
+                </select>
+
+                <button class="setting-btn desktop-only" data-bs-toggle="modal" data-bs-target="#profileModal"><span
+                        class="icon-user"></span> Profile</button>
+
+                <!-- Notification Button (Visible on both Desktop & Mobile) -->
+                <button class="action-btn icon-bell" data-bs-toggle="modal" data-bs-target="#notificationModal"
+                    style="position: relative;">
+                    <span
+                        style="position: absolute; top: -2px; right: -2px; background: #ff6b6b; width: 10px; height: 10px; border-radius: 50%; border: 2px solid #fff;"></span>
+                </button>
+
+                <!-- Desktop Logout Button (Hidden on Mobile) -->
+                <button class="setting-btn desktop-only" data-bs-toggle="modal" data-bs-target="#logoutModal">Logout</button>
+
+                <!-- Mobile Settings Dropdown (Placed at top-most right corner next to Notification) -->
+                <div class="dropdown mobile-only">
+                    <button class="action-btn icon-setting" type="button" id="mobileSettingsBtn" data-bs-toggle="dropdown" aria-expanded="false" style="border-radius: 50%;">
+                    </button>
+                    <ul class="dropdown-menu dropdown-menu-end glass theme-dropdown-menu" aria-labelledby="mobileSettingsBtn" style="padding: 15px; border-radius: 15px; min-width: 200px; box-shadow: 0 10px 30px rgba(0,0,0,0.1);">
+                        <li style="margin-bottom: 10px;">
+                            <label style="font-size: 11px; font-weight: 600; color: var(--text-muted); margin-bottom: 5px; display: block; padding-left: 5px;">Theme Style</label>
+                            <select class="form-select form-select-sm theme-selector-input" id="mobileThemeSelector" style="border-radius: 10px;">
+                                <option value="default" selected>Default Style</option>
+                                <option value="theme-flat">Flat Design</option>
+                                <option value="theme-bauhaus">Bauhaus Style</option>
+                                <option value="theme-bold-type">Bold Typography</option>
+                                <option value="theme-neumorphism">Neumorphism</option>
+                                <option value="theme-glassmorphism">Glassmorphism</option>
+                                <option value="theme-animation">Animation / Motion</option>
+                                <option value="theme-illustration">Illustration Trend</option>
+                                <option value="theme-dark">Dark Mode</option>
+                            </select>
+                        </li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li>
+                            <button class="dropdown-item" style="border-radius: 8px; font-size: 13px; font-weight: 500; margin-bottom: 5px;" data-bs-toggle="modal" data-bs-target="#profileModal"><span class="icon-user"></span> Profile</button>
+                        </li>
+                        <li>
+                            <button class="dropdown-item text-danger" style="border-radius: 8px; font-size: 13px; font-weight: 500;" data-bs-toggle="modal" data-bs-target="#logoutModal">Logout</button>
+                        </li>
+                    </ul>
+                </div>
+
+            </div>
+        </div>
+
+        <!-- Header / Welcome -->
+        <div class="header-section">
+            <h1 class="welcome-title">Welcome, Rahul Sharma</h1>
+            
+            <div class="stats-overview">
+                <div class="key-metrics">
+                    <div class="metric-card">
+                        <span class="metric-val">18</span>
+                        <span class="metric-label">👥 Employees Under Me</span>
+                    </div>
+                    <div class="metric-card">
+                        <span class="metric-val">12</span>
+                        <span class="metric-label">📝 Active Tasks</span>
+                    </div>
+                    <div class="metric-card">
+                        <span class="metric-val">8</span>
+                        <span class="metric-label">👤 Pending Attendance</span>
+                    </div>
+                    <div class="metric-card">
+                        <span class="metric-val">5</span>
+                        <span class="metric-label">📅 Leave Requests</span>
+                    </div>
+                    <div class="metric-card">
+                        <span class="metric-val">3</span>
+                        <span class="metric-label">💰 Salary Approvals</span>
+                    </div>
+                    <div class="metric-card">
+                        <span class="metric-val">9</span>
+                        <span class="metric-label">⏳ Tasks Awaiting</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Grid -->
+        <div class="dashboard-grid">
+
+            <!-- Left Column -->
+            <div class="col-left glass">
+
+                <div class="profile-card" data-bs-toggle="modal" data-bs-target="#managerProfileModal">
+                    <div class="profile-info">
+                        <h3>Rahul Sharma</h3>
+                        <p>Project Manager<br>Engineering Department</p>
+                    </div>
+                    <div class="budget-tag">Manager ID</div>
+                </div>
+
+                <!-- Accordion Container -->
+                <div class="accordion-list" id="dynamic-accordion-container">
+                    <!-- Injected via JS -->
+                </div>
+            </div>
+
+            <!-- Middle Column -->
+            <div class="col-middle">
+                <div class="mid-top">
+
+                    <!-- Team Performance Chart -->
+                    <div class="progress-card glass">
+                        <div class="card-header">
+                            <h3>Team Performance</h3>
+                        </div>
+                        <div style="display: flex; flex-direction: column; gap: 1.2vh; margin-top: 1vh; width: 100%;">
+                            <div>
+                                <div
+                                    style="display:flex; justify-content:space-between; font-size:10px; margin-bottom:3px; font-weight:500;">
+                                    <span>Aman</span><span>95%</span></div>
+                                <div style="background:rgba(0,0,0,0.1); border-radius:10px; height:6px; width:100%;">
+                                    <div style="background:var(--dark); height:100%; width:95%; border-radius:10px;">
+                                    </div>
+                                </div>
+                            </div>
+                            <div>
+                                <div
+                                    style="display:flex; justify-content:space-between; font-size:10px; margin-bottom:3px; font-weight:500;">
+                                    <span>Rahul</span><span>88%</span></div>
+                                <div style="background:rgba(0,0,0,0.1); border-radius:10px; height:6px; width:100%;">
+                                    <div style="background:var(--yellow); height:100%; width:88%; border-radius:10px;">
+                                    </div>
+                                </div>
+                            </div>
+                            <div>
+                                <div
+                                    style="display:flex; justify-content:space-between; font-size:10px; margin-bottom:3px; font-weight:500;">
+                                    <span>Neha</span><span>76%</span></div>
+                                <div style="background:rgba(0,0,0,0.1); border-radius:10px; height:6px; width:100%;">
+                                    <div
+                                        style="background:var(--text-muted); height:100%; width:76%; border-radius:10px;">
+                                    </div>
+                                </div>
+                            </div>
+                            <div>
+                                <div
+                                    style="display:flex; justify-content:space-between; font-size:10px; margin-bottom:3px; font-weight:500;">
+                                    <span>Priya</span><span>62%</span></div>
+                                <div style="background:rgba(0,0,0,0.1); border-radius:10px; height:6px; width:100%;">
+                                    <div style="background:#b3b3b3; height:100%; width:62%; border-radius:10px;"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Team Attendance -->
+                    <div class="tracker-card glass" style="align-items: flex-start;">
+                        <div class="tracker-header">
+                            <h3>Team Attendance</h3>
+                            <div class="arrow-up icon-arr-up" data-bs-toggle="modal"
+                                data-bs-target="#attendanceDetailsModal"></div>
+                        </div>
+
+                        <div
+                            style="display: flex; width: 100%; align-items: center; justify-content: space-between; margin-top: 1vh; flex: 1;">
+
+                            <!-- Left Side: Circle -->
+                            <div class="circular-progress" id="att-circle">
+                                <div class="circular-inner">
+                                    <h2 id="att-present">16</h2>
+                                    <p>Present</p>
+                                </div>
+                            </div>
+
+                            <!-- Right Side: Requests -->
+                            <div style="display: flex; flex-direction: column; gap: 1vh; width: 45%;">
+                                <span style="font-size: 10px; color: var(--text-muted); font-weight: 500;">Attendance
+                                    Requests</span>
+                                <div style="display: flex; align-items: center; gap: 8px;">
+                                    <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRh5nGOiKvXUTinKVcl9GyxToN5WhMnqb1C2ozzqLT-gw&s"
+                                        alt="Aman"
+                                        style="width: 24px; height: 24px; border-radius: 50%; border: 1px solid #fff; object-fit: cover;">
+                                    <span style="font-size: 11px; font-weight: 500;">Aman</span>
+                                </div>
+                                <div style="display: flex; align-items: center; gap: 8px;">
+                                    <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRh5nGOiKvXUTinKVcl9GyxToN5WhMnqb1C2ozzqLT-gw&s"
+                                        alt="Priya"
+                                        style="width: 24px; height: 24px; border-radius: 50%; border: 1px solid #fff; object-fit: cover;">
+                                    <span style="font-size: 11px; font-weight: 500;">Priya</span>
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Calendar Section -->
+                <div class="calendar-card glass" data-bs-toggle="modal" data-bs-target="#bigCalendarModal">
+                    <div class="calendar-header">
+                        <span id="cal-prev-month">Prev</span>
+                        <span class="active" id="cal-curr-month">Current Month</span>
+                        <span id="cal-next-month">Next</span>
+                    </div>
+
+                    <div class="calendar-grid">
+                        <div class="time-col">
+                            <span>8 am</span>
+                            <span>9 am</span>
+                            <span>10 am</span>
+                            <span>11 am</span>
+                        </div>
+                        <!-- Injected via JS -->
+                        <div class="days-grid" id="dynamic-mini-calendar"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Column -->
+            <div class="col-right">
+
+                <!-- Pending Task Approval Table -->
+                <div class="onboarding-card glass"
+                    style="display: flex; flex-direction: column; overflow: hidden; padding: 2vh;">
+                    <div class="onboarding-header" style="margin-bottom: 1vh;">
+                        <h3>Pending Task Approval</h3>
+                    </div>
+                    <div style="flex: 1; overflow-y: auto;">
+                        <table style="width: 100%; font-size: 10px; text-align: left; border-collapse: collapse;">
+                            <thead>
+                                <tr style="color: var(--text-muted); border-bottom: 1px solid rgba(0,0,0,0.1);">
+                                    <th style="padding: 4px;">Employee</th>
+                                    <th style="padding: 4px;">Task</th>
+                                    <th style="padding: 4px;">Progress</th>
+                                    <th style="padding: 4px; text-align: right;">Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr style="border-bottom: 1px dashed rgba(0,0,0,0.05);">
+                                    <td style="padding: 8px 4px; font-weight: 500;">Aman</td>
+                                    <td style="padding: 8px 4px;">Login Page</td>
+                                    <td style="padding: 8px 4px; color: #27ae60; font-weight: 600;">100%</td>
+                                    <td style="padding: 8px 4px; display:flex; gap:3px; justify-content: flex-end;">
+                                        <button
+                                            style="background:var(--yellow); border:none; border-radius:3px; padding:3px 5px; cursor:pointer; font-size:8px; font-weight:600; color:#000;">Approve</button>
+                                        <button
+                                            style="background:#e74c3c; color:#fff; border:none; border-radius:3px; padding:3px 5px; cursor:pointer; font-size:8px;">Reject</button>
+                                        <button
+                                            style="background:var(--dark); color:#fff; border:none; border-radius:3px; padding:3px 5px; cursor:pointer; font-size:8px;">View</button>
+                                    </td>
+                                </tr>
+                                <tr style="border-bottom: 1px dashed rgba(0,0,0,0.05);">
+                                    <td style="padding: 8px 4px; font-weight: 500;">Priya</td>
+                                    <td style="padding: 8px 4px;">DB Schema</td>
+                                    <td style="padding: 8px 4px; color: #27ae60; font-weight: 600;">100%</td>
+                                    <td style="padding: 8px 4px; display:flex; gap:3px; justify-content: flex-end;">
+                                        <button
+                                            style="background:var(--yellow); border:none; border-radius:3px; padding:3px 5px; cursor:pointer; font-size:8px; font-weight:600; color:#000;">Approve</button>
+                                        <button
+                                            style="background:#e74c3c; color:#fff; border:none; border-radius:3px; padding:3px 5px; cursor:pointer; font-size:8px;">Reject</button>
+                                        <button
+                                            style="background:var(--dark); color:#fff; border:none; border-radius:3px; padding:3px 5px; cursor:pointer; font-size:8px;">View</button>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td style="padding: 8px 4px; font-weight: 500;">Rahul</td>
+                                    <td style="padding: 8px 4px;">Wireframes</td>
+                                    <td style="padding: 8px 4px; color: #27ae60; font-weight: 600;">100%</td>
+                                    <td style="padding: 8px 4px; display:flex; gap:3px; justify-content: flex-end;">
+                                        <button
+                                            style="background:var(--yellow); border:none; border-radius:3px; padding:3px 5px; cursor:pointer; font-size:8px; font-weight:600; color:#000;">Approve</button>
+                                        <button
+                                            style="background:#e74c3c; color:#fff; border:none; border-radius:3px; padding:3px 5px; cursor:pointer; font-size:8px;">Reject</button>
+                                        <button
+                                            style="background:var(--dark); color:#fff; border:none; border-radius:3px; padding:3px 5px; cursor:pointer; font-size:8px;">View</button>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Recent Activities -->
+                <div class="task-list-card">
+                    <div class="task-list-header">
+                        <h3>Recent Activities</h3>
+                        <span></span>
+                    </div>
+
+                    <!-- Container updated via JavaScript array -->
+                    <div class="task-list-items" id="recent-activities-container"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ==============================================
+     BOOTSTRAP MODALS
+=================================================== -->
+
+    <!-- Manager Profile Modal -->
+    <div class="modal fade" id="managerProfileModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-sm">
+            <div class="modal-content glass border-0"
+                style="background: rgba(255,255,255,0.95); box-shadow: 0 15px 35px rgba(0,0,0,0.2);">
+                <div class="modal-header border-0 pb-0">
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body text-center pt-0 px-4 pb-4">
+                    <img src="https://images.unsplash.com/photo-1530268729831-4b0b9e170218?q=80&w=200&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
+                        alt="Rahul Sharma"
+                        style="width: 110px; height: 110px; border-radius: 50%; object-fit: cover; margin-bottom: 15px; border: 3px solid var(--dark); padding: 3px;">
+                    <h4 style="font-weight: 500; font-size: 20px; color: var(--text-main); margin-bottom: 5px;">Rahul
+                        Sharma</h4>
+                    <p class="text-muted" style="font-size: 13px; margin-bottom: 25px;">Project Manager | Engineering
+                    </p>
+                    <div
+                        style="text-align: left; font-size: 13px; display: grid; gap: 12px; background: rgba(0,0,0,0.03); padding: 20px; border-radius: 20px; color: var(--text-main);">
+                        <div style="display: flex; justify-content: space-between;"><strong>Manager ID:</strong> <span
+                                class="text-muted">MGR-2026-007</span></div>
+                        <div style="display: flex; justify-content: space-between;"><strong>Email:</strong> <span
+                                class="text-muted">rahul.sharma@gmail.com</span></div>
+                        <div style="display: flex; justify-content: space-between;"><strong>Phone:</strong> <span
+                                class="text-muted">+91 98765 43210</span></div>
+                        <div style="display: flex; justify-content: space-between;"><strong>Location:</strong> <span
+                                class="text-muted">Patna, Bihar, India</span></div>
+                        <div style="display: flex; justify-content: space-between;"><strong>Direct Reports:</strong>
+                            <span class="text-muted">18 Members</span></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Detailed Attendance Modal -->
+    <div class="modal fade" id="attendanceDetailsModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+            <div class="modal-content glass border-0" style="background: rgba(255,255,255,0.95);">
+                <div class="modal-header border-0">
+                    <h5 class="modal-title">Attendance Requests</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body p-0 px-3 pb-3">
+                    <table class="table table-borderless align-middle mb-0" style="font-size: 13px;">
+                        <thead style="border-bottom: 1px solid rgba(0,0,0,0.1); color: var(--text-muted);">
+                            <tr>
+                                <th class="fw-normal">Employee</th>
+                                <th class="fw-normal">Time</th>
+                                <th class="fw-normal">GPS Location</th>
+                                <th class="fw-normal">Status</th>
+                                <th class="fw-normal text-end">Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr style="border-bottom: 1px dashed rgba(0,0,0,0.05);">
+                                <td class="fw-medium"><img
+                                        src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRh5nGOiKvXUTinKVcl9GyxToN5WhMnqb1C2ozzqLT-gw&s"
+                                        style="width:28px; height:28px; object-fit:cover; border-radius:50%; margin-right:8px;">
+                                    Aman Singh</td>
+                                <td>09:15 AM</td>
+                                <td>Patna Hub, Bihar</td>
+                                <td><span class="badge bg-warning text-dark rounded-pill">Pending</span></td>
+                                <td class="text-end">
+                                    <button class="btn btn-sm btn-dark rounded-pill px-3"
+                                        style="font-size:11px;">Approve</button>
+                                    <button class="btn btn-sm btn-outline-danger rounded-pill px-3"
+                                        style="font-size:11px;">Reject</button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="fw-medium"><img
+                                        src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRh5nGOiKvXUTinKVcl9GyxToN5WhMnqb1C2ozzqLT-gw&s"
+                                        style="width:28px; height:28px; object-fit:cover; border-radius:50%; margin-right:8px;">
+                                    Priya Roy</td>
+                                <td>09:45 AM</td>
+                                <td>Remote (Home)</td>
+                                <td><span class="badge bg-warning text-dark rounded-pill">Pending</span></td>
+                                <td class="text-end">
+                                    <button class="btn btn-sm btn-dark rounded-pill px-3"
+                                        style="font-size:11px;">Approve</button>
+                                    <button class="btn btn-sm btn-outline-danger rounded-pill px-3"
+                                        style="font-size:11px;">Reject</button>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Big Calendar Modal (Dynamic) -->
+    <div class="modal fade" id="bigCalendarModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-xl modal-dialog-centered">
+            <div class="modal-content glass border-0" style="background: rgba(255,255,255,0.95); min-height: 80vh;">
+                <div class="modal-header border-0 pb-0">
+                    <h3 class="modal-title ms-2" id="big-cal-title" style="font-weight: 300;">Master Schedule</h3>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body p-4">
+                    <div
+                        style="display: grid; grid-template-columns: repeat(7, 1fr); gap: 8px; margin-bottom: 10px; text-align: right; padding-right: 8px; font-weight: 600; color: var(--text-muted); font-size: 11px;">
+                        <span>SUN</span><span>MON</span><span>TUE</span><span>WED</span><span>THU</span><span>FRI</span><span>SAT</span>
+                    </div>
+                    <!-- Big Grid injected via JS -->
+                    <div class="big-cal-grid" id="dynamic-big-calendar"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ==============================================
+     GLOBAL MODALS (Profile, Notifications, Logout)
+=================================================== -->
+
+    <!-- 1. Profile Modal -->
+    <div class="modal fade" id="profileModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content glass border-0">
+                <div class="modal-header border-0 pb-0">
+                    <h5 class="modal-title fs-5 fw-semibold">Manager Profile</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body p-4 pt-3">
+                    
+                    <div class="d-flex align-items-center gap-3 mb-4">
+                        <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRh5nGOiKvXUTinKVcl9GyxToN5WhMnqb1C2ozzqLT-gw&s"
+                            style="width: 60px; height: 60px; border-radius: 50%; border: 2px solid var(--dark); object-fit: cover;">
+                        <div>
+                            <h4 style="font-size: 16px; font-weight: 600; color: var(--text-main); margin-bottom: 4px;">Rahul Sharma</h4>
+                            <p style="font-size: 12px; color: var(--text-muted); margin-bottom: 2px;">🏢 Department: Engineering</p>
+                            <p style="font-size: 12px; color: var(--text-muted);">📧 rahul.sharma@gmail.com | 📞 +91 98765 43210</p>
+                        </div>
+                    </div>
+
+                    <hr style="border-color: rgba(0,0,0,0.1); margin: 20px 0;">
+
+                    <!-- Welcome Details -->
+                    <h5 style="font-size: 14px; font-weight: 600; color: var(--text-main); margin-bottom: 15px;">Welcome Details</h5>
+                    <div class="welcome-details" style="display: flex; flex-direction: column; gap: 10px; font-size: 13px; color: var(--text-muted); margin-bottom: 25px;">
+                        <span><strong style="color: var(--text-main);">Manager ID:</strong> MGR-2026-007</span>
+                        <span><strong style="color: var(--text-main);">Department:</strong> Engineering</span>
+                        <span><strong style="color: var(--text-main);">Role:</strong> Project Manager</span>
+                        <span><strong style="color: var(--text-main);">Date:</strong> <span id="currentDateText"></span></span>
+                        <span><strong style="color: var(--text-main);">Time:</strong> <span id="currentTimeText"></span></span>
+                    </div>
+                    
+                    <hr style="border-color: rgba(0,0,0,0.1); margin: 20px 0;">
+
+                    <!-- Change Password Form -->
+                    <h5 style="font-size: 14px; font-weight: 600; color: var(--text-main); margin-bottom: 15px;">
+                        Security Settings</h5>
+                    <form onsubmit="handlePasswordChange(event)">
+                        <div class="mb-2">
+                            <label class="form-label">Current Password</label>
+                            <input type="password" class="form-control" required placeholder="Enter current password">
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">New Password</label>
+                            <input type="password" class="form-control" required placeholder="Enter new password">
+                        </div>
+                        <button type="submit" class="btn-create" style="margin-top: 0;">Change Password</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 2. Notification Modal -->
+    <div class="modal fade" id="notificationModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+            <div class="modal-content glass border-0">
+                <div class="modal-header border-0 pb-0">
+                    <h5 class="modal-title fs-5 fw-semibold">Notifications (5)</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body p-4 pt-3">
+
+                    <div class="employee-list-item mb-2" style="cursor: pointer;"
+                        onclick="window.location.href='approve-attendance.html'">
+                        <div class="task-icon-box blue"
+                            style="width: 30px; height: 30px; font-size: 14px; border-radius: 8px;">📍</div>
+                        <div class="emp-info flex-grow-1">
+                            <h4>New Attendance Request</h4>
+                            <p>Aman Singh checked in remotely (Pending Validation).</p>
+                        </div>
+                        <span style="font-size: 10px; color: var(--text-muted);">Just now</span>
+                    </div>
+
+                    <div class="employee-list-item mb-2" style="cursor: pointer;"
+                        onclick="window.location.href='review-leave.html'">
+                        <div class="task-icon-box"
+                            style="background: #ffec99; color: #e67700; width: 30px; height: 30px; font-size: 14px; border-radius: 8px;">
+                            🗓️</div>
+                        <div class="emp-info flex-grow-1">
+                            <h4>New Leave Request</h4>
+                            <p>Priya Roy requested 1 day Sick Leave.</p>
+                        </div>
+                        <span style="font-size: 10px; color: var(--text-muted);">2h ago</span>
+                    </div>
+
+                    <div class="employee-list-item mb-2" style="cursor: pointer;"
+                        onclick="window.location.href='assign-task.html'">
+                        <div class="task-icon-box green"
+                            style="background: #20c997; width: 30px; height: 30px; font-size: 14px; border-radius: 8px;">
+                            ✅</div>
+                        <div class="emp-info flex-grow-1">
+                            <h4>Task Awaiting Approval</h4>
+                            <p>Database Design (100% completed) requires sign-off.</p>
+                        </div>
+                        <span style="font-size: 10px; color: var(--text-muted);">4h ago</span>
+                    </div>
+
+                    <div class="employee-list-item mb-2" style="cursor: pointer;"
+                        onclick="window.location.href='salary-approval.html'">
+                        <div class="task-icon-box dark"
+                            style="width: 30px; height: 30px; font-size: 14px; border-radius: 8px;">💰</div>
+                        <div class="emp-info flex-grow-1">
+                            <h4>Salary Pending Approval</h4>
+                            <p>July 2026 payroll batch is ready for final review.</p>
+                        </div>
+                        <span style="font-size: 10px; color: var(--text-muted);">Yesterday</span>
+                    </div>
+
+                    <div class="employee-list-item mb-0">
+                        <div class="task-icon-box"
+                            style="background: #ff6b6b; width: 30px; height: 30px; font-size: 14px; border-radius: 8px;">
+                            ⏰</div>
+                        <div class="emp-info flex-grow-1">
+                            <h4>Deadline Reminder</h4>
+                            <p>Rahul Sharma's "Setup Server" task is due in 24 hours.</p>
+                        </div>
+                        <span style="font-size: 10px; color: var(--text-muted);">Yesterday</span>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 3. Logout Confirmation Modal -->
+    <div class="modal fade" id="logoutModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-sm">
+            <div class="modal-content glass border-0" style="text-align: center;">
+                <div class="modal-body p-4">
+                    <div style="font-size: 40px; margin-bottom: 10px;">👋</div>
+                    <h4 style="font-size: 18px; font-weight: 600; color: var(--text-main); margin-bottom: 10px;">End
+                        Session?</h4>
+                    <p style="font-size: 12px; color: var(--text-muted); margin-bottom: 20px;">Are you sure you want to
+                        log out of Octopyder?</p>
+
+                    <div style="display: flex; gap: 10px; justify-content: center;">
+                        <button type="button" class="btn-action btn-delete" style="flex: 1; padding: 10px;"
+                            data-bs-dismiss="modal">Cancel</button>
+                        <button type="button" class="btn-action btn-approve" style="flex: 1; padding: 10px;"
+                            onclick="executeLogout()">Yes, Logout</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Global Functions Script -->
+    <script>
+        function handlePasswordChange(e) {
+            e.preventDefault();
+            alert('Password updated successfully! Please use your new password next time you log in.');
+            const profileModalEl = document.getElementById('profileModal');
+            const modal = bootstrap.Modal.getInstance(profileModalEl);
+            modal.hide();
+            e.target.reset();
+        }
+
+        function executeLogout() {
+            sessionStorage.clear();
+            alert('Session securely ended. Redirecting to login page...');
+            window.location.href = '../index.html';
+        }
+    </script>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
+    <!-- Custom Dashboard Scripts -->
+    <script>
+        // --- 1. Dynamic Date & Time ---
+        function updateDateTime() {
+            const now = new Date();
+            const dateOptions = { month: 'long', day: 'numeric', year: 'numeric' };
+            if(document.getElementById('currentDateText')) {
+                document.getElementById('currentDateText').innerText = now.toLocaleDateString('en-US', dateOptions);
+            }
+            if(document.getElementById('currentTimeText')) {
+                const timeOptions = { hour: 'numeric', minute: '2-digit', hour12: true };
+                document.getElementById('currentTimeText').innerText = now.toLocaleTimeString('en-US', timeOptions);
+            }
+        }
+        updateDateTime();
+        setInterval(updateDateTime, 1000);
+
+        // --- 2. Dynamic Team Attendance ---
+        function loadDynamicAttendance() {
+            const total = 18;
+            const present = 16;
+            document.getElementById('att-present').innerText = present;
+            const percentage = (present / total) * 100;
+            document.getElementById('att-circle').style.background = `conic-gradient(var(--yellow) ${percentage}%, #eaeaea 0)`;
+        }
+        loadDynamicAttendance();
+
+        // --- 3. Backend-Ready Task Panel ---
+        const recentActivitiesData = [
+            { title: 'Attendance approved', time: '5 mins ago' },
+            { title: 'Leave rejected', time: '20 mins ago' },
+            { title: 'Task completed', time: '1 hour ago' },
+            { title: 'Salary approved', time: 'Yesterday' }
+        ];
+
+        const taskContainer = document.getElementById('recent-activities-container');
+        taskContainer.innerHTML = recentActivitiesData.map(act => `
+        <div class="task-item">
+            <div class="task-info">
+                <h4>${act.title}</h4>
+                <p>${act.time}</p>
+            </div>
+        </div>
+    `).join('');
+
+        // --- 4. Dynamic Accordion ---
+        const accordionData = [
+            { title: 'Team Members', content: '<div class="device-item"><img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRh5nGOiKvXUTinKVcl9GyxToN5WhMnqb1C2ozzqLT-gw&s" class="device-img"><div class="device-text"><h4>Aman Singh</h4><p>Frontend Developer</p></div></div><div class="device-item"><img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRh5nGOiKvXUTinKVcl9GyxToN5WhMnqb1C2ozzqLT-gw&s" class="device-img"><div class="device-text"><h4>Priya Roy</h4><p>UI/UX Designer</p></div></div>' },
+            { title: 'Pending Approvals', content: '<p style="margin-bottom:5px;">2 Attendance Requests</p><p>1 Leave Request</p>' },
+            { title: 'Today\'s Deadlines', content: '<p>Login Page API Integration - Aman</p>' },
+            { title: 'Department Performance', content: '<p>Overall velocity is up 12% this week.</p>' }
+        ];
+
+        const accContainer = document.getElementById('dynamic-accordion-container');
+        accContainer.innerHTML = accordionData.map((item, index) => `
+        <div class="accordion-item-wrapper">
+            <div class="accordion-header" id="acc-head-${index}">
+                <span>${item.title}</span>
+                <span class="acc-icon">⌄</span>
+            </div>
+            <div class="accordion-content" id="acc-content-${index}">
+                ${item.content}
+            </div>
+        </div>
+    `).join('');
+
+        document.querySelectorAll('.accordion-header').forEach(header => {
+            header.addEventListener('click', () => {
+                const content = header.nextElementSibling;
+                const icon = header.querySelector('.acc-icon');
+                const isOpen = content.style.display === 'block';
+
+                document.querySelectorAll('.accordion-content').forEach(c => c.style.display = 'none');
+                document.querySelectorAll('.acc-icon').forEach(i => i.textContent = '⌄');
+
+                if (!isOpen) {
+                    content.style.display = 'block';
+                    icon.textContent = '⌃';
+                }
+            });
+        });
+
+        // --- 5. Completely Dynamic System Calendar Generation ---
+        const today = new Date();
+        const currentYear = today.getFullYear();
+        const currentMonth = today.getMonth();
+        const currentDateNum = today.getDate();
+
+        const monthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+        
+        // Populate Header Data dynamically
+        document.getElementById('cal-curr-month').innerText = `${monthNames[currentMonth]} ${currentYear}`;
+        document.getElementById('cal-prev-month').innerText = monthNames[(currentMonth - 1 + 12) % 12];
+        document.getElementById('cal-next-month').innerText = monthNames[(currentMonth + 1) % 12];
+        document.getElementById('big-cal-title').innerText = `${monthNames[currentMonth]} ${currentYear} - Master Schedule`;
+
+        // Generate dynamic dummy events relative to today
+        const calEvents = [
+            { date: Math.min(currentDateNum + 2, 28), title: 'Sprint Review', type: 'dark' },
+            { date: Math.max(currentDateNum - 1, 1), title: 'Leave: Priya', type: 'light' },
+            { date: currentDateNum, title: 'Project Deadline', type: 'dark' }
+        ];
+
+        // 1. Mini Timeline Calendar setup (Current Week Context)
+        const miniDaysGrid = document.getElementById('dynamic-mini-calendar');
+        const dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+        
+        // Find starting Sunday of current week
+        const startOfWeek = new Date(today);
+        startOfWeek.setDate(today.getDate() - today.getDay());
+        
+        let miniHtml = '';
+        for (let i = 0; i < 7; i++) {
+            let loopDate = new Date(startOfWeek);
+            loopDate.setDate(startOfWeek.getDate() + i);
+            
+            let dNum = loopDate.getDate();
+            let dName = dayNames[loopDate.getDay()];
+            let isThisMonth = (loopDate.getMonth() === currentMonth);
+            let isToday = (dNum === currentDateNum && isThisMonth);
+            let hasEvent = calEvents.some(e => e.date === dNum && isThisMonth);
+
+            miniHtml += `
+            <div class="day-header">
+                ${dName}
+                <span class="${isToday ? 'today-highlight' : ''}">${dNum}</span>
+                ${hasEvent ? '<div class="event-dot"></div>' : ''}
+            </div>
+            `;
+        }
+        miniDaysGrid.innerHTML = miniHtml;
+
+        // 2. Big Calendar Generation for Modal
+        const bigCalGrid = document.getElementById('dynamic-big-calendar');
+        const firstDayOfMonth = new Date(currentYear, currentMonth, 1).getDay();
+        const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
+        
+        let bigCalHtml = '';
+
+        // Empty cells for alignment
+        for (let i = 0; i < firstDayOfMonth; i++) {
+            bigCalHtml += `<div class="big-cal-day" style="background: rgba(255,255,255,0.05); border: none;"></div>`;
+        }
+
+        // Fill current month days
+        for (let i = 1; i <= daysInMonth; i++) {
+            let isToday = (i === currentDateNum);
+            let matchingEvents = calEvents.filter(e => e.date === i);
+            
+            let eventCardsHtml = matchingEvents.map(e => `
+                <div class="big-event-card ${e.type === 'dark' ? 'dark-theme' : ''}">${e.title}</div>
+            `).join('');
+
+            bigCalHtml += `
+                <div class="big-cal-day ${isToday ? 'is-today' : ''}">
+                    <span class="big-cal-date ${isToday ? 'today-badge' : ''}">${i}</span>
+                    ${eventCardsHtml}
+                </div>
+            `;
+        }
+        bigCalGrid.innerHTML = bigCalHtml;
+
+        // --- 6. UI Theme Switcher Logic ---
+        const themeSelectors = document.querySelectorAll('.theme-selector-input');
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const savedTheme = localStorage.getItem('payrollTheme');
+            if (savedTheme) {
+                themeSelectors.forEach(select => { select.value = savedTheme; });
+                
+                if (savedTheme !== 'default') {
+                    document.body.classList.add(savedTheme);
+                }
+            }
+        });
+
+        themeSelectors.forEach(selector => {
+            selector.addEventListener('change', function () {
+                document.body.classList.forEach(cls => {
+                    if (cls.startsWith('theme-')) {
+                        document.body.classList.remove(cls);
+                    }
+                });
+
+                const selectedTheme = this.value;
+                if (selectedTheme !== 'default') {
+                    document.body.classList.add(selectedTheme);
+                }
+
+                localStorage.setItem('payrollTheme', selectedTheme);
+                
+                themeSelectors.forEach(sel => {
+                    if (sel !== this) sel.value = selectedTheme;
+                });
+            });
+        });
+    </script>
+
+</body>
+
+</html>

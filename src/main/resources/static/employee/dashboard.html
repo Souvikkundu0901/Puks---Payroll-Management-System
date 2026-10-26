@@ -1,0 +1,766 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Employee Dashboard - Octopyder</title>
+    
+    <!-- Google Fonts: Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;900&display=swap" rel="stylesheet">
+    
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    
+    <!-- Bootstrap Icons -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
+    
+    <style>
+        /* =========================================
+           DEFAULT THEME (Matched to Dashboard)
+           ========================================= */
+        :root {
+            --bs-danger: #7b5eea;
+            --bs-danger-rgb: 123, 94, 234;
+            --bg-main: #f4f7fe;
+            --sidebar-bg: #ffffff;
+            --sidebar-text: #a3aed1;
+            --sidebar-active-bg: rgba(123, 94, 234, 0.08);
+            --card-radius: 20px;
+        }
+        .btn-danger { --bs-btn-bg: #7b5eea; --bs-btn-border-color: #7b5eea; --bs-btn-hover-bg: #613beb; --bs-btn-hover-border-color: #613beb; --bs-btn-active-bg: #613beb; --bs-btn-active-border-color: #613beb; }
+        .btn-outline-danger { --bs-btn-color: #7b5eea; --bs-btn-border-color: #7b5eea; --bs-btn-hover-bg: #7b5eea; --bs-btn-hover-border-color: #7b5eea; --bs-btn-active-bg: #7b5eea; --bs-btn-active-border-color: #7b5eea; --bs-btn-active-color: #fff; }
+        body { font-family: 'Inter', sans-serif; background-color: var(--bg-main); color: #2b3674; transition: background-color 0.4s ease, color 0.4s ease; }
+
+        /* --- Desktop Sidebar --- */
+        .sidebar { width: 260px; background: var(--sidebar-bg); color: var(--sidebar-text); position: fixed; top: 0; bottom: 0; left: 0; height: 100dvh; overflow-y: auto; transition: all 0.3s; z-index: 1050; border-right: none; box-shadow: 4px 0 20px rgba(0, 0, 0, 0.03); -ms-overflow-style: none; scrollbar-width: none; }
+        .sidebar::-webkit-scrollbar { display: none; }
+        .sidebar-brand { padding: 2.5rem 1.5rem 1.5rem; font-size: 1.5rem; font-weight: 800; color: #2b3674; border-bottom: none; }
+        .nav-link { color: var(--sidebar-text); padding: 0.8rem 1rem; margin: 0.3rem 1.5rem; border-radius: 12px; font-weight: 600; transition: all 0.2s; display: flex; align-items: center; }
+        .nav-link:hover { color: var(--bs-danger); background-color: var(--sidebar-active-bg); }
+        .nav-link.active { color: var(--bs-danger); background-color: var(--sidebar-active-bg); border-left: none; }
+        .nav-link i { margin-right: 12px; font-size: 1.25rem; }
+
+        /* --- Main Content Area --- */
+        .main-content { margin-left: 260px; padding: 2rem; transition: all 0.3s; }
+
+        /* --- Card Styling --- */
+        .dashboard-card { border: none; border-radius: var(--card-radius); background: #ffffff; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.02); transition: transform 0.2s ease, background-color 0.4s ease, border 0.4s ease; }
+        .stat-card { transition: transform 0.2s ease; }
+        .stat-card:hover { transform: translateY(-3px); }
+        .card-icon { width: 44px; height: 44px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 1.3rem; }
+
+        /* --- Shared specific styles (Filter Pills, Custom Tabs, Calendar, Tables) --- */
+        .nav-pills .nav-link { color: #495057; font-weight: 600; border-radius: 0.5rem; padding: 0.75rem 1.25rem; width: 100%; white-space: nowrap; transition: all 0.3s ease; }
+        .nav-pills .nav-link.active { background-color: var(--bs-danger); color: white; }
+        .hide-scrollbar::-webkit-scrollbar { display: none; }
+        .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+        
+        .filter-pill { cursor: pointer; border: 1px solid #dee2e6; padding: 0.4rem 1rem; border-radius: 50rem; font-size: 0.85rem; font-weight: 500; color: #495057; background: white; transition: all 0.2s; white-space: nowrap; user-select: none; }
+        .filter-pill:hover, .filter-pill.active { background-color: var(--bs-danger); color: white; border-color: var(--bs-danger); }
+        
+        .progress { height: 8px; border-radius: 4px; background-color: #e9ecef; transition: all 0.4s ease; }
+        
+        .calendar-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 5px; text-align: center; }
+        .calendar-day-header { font-size: 0.75rem; font-weight: 700; color: #6c757d; padding-bottom: 0.5rem; }
+        .calendar-day { aspect-ratio: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; font-size: 0.85rem; border-radius: 8px; position: relative; font-weight: 500; transition: all 0.3s ease; cursor: pointer; }
+        .calendar-day:hover:not(.text-muted) { background-color: #f8f9fa; }
+        .calendar-day.active { background-color: var(--bs-danger); color: white; font-weight: bold; }
+        .calendar-day.has-task::after { content: ''; width: 6px; height: 6px; background-color: var(--bs-danger); border-radius: 50%; position: absolute; bottom: 4px; }
+        .cal-weekend { background-color: #f1f3f5; color: #adb5bd; }
+        .cal-present { background-color: #d1e7dd; color: #0f5132; }
+        .cal-absent { background-color: #f8d7da; color: #842029; }
+        .cal-leave { background-color: #fff3cd; color: #664d03; }
+        .cal-holiday { background-color: #e0cffc; color: #432874; font-weight: bold; }
+        .cal-approved { background-color: #d1e7dd; color: #0f5132; font-weight: bold; border: 1px solid #badbcc; }
+        .cal-today { border: 2px solid var(--bs-danger); font-weight: bold; }
+        .cal-empty { background-color: transparent; color: #adb5bd; cursor: default; }
+        
+        .task-item { transition: opacity 0.3s ease, transform 0.3s ease, background-color 0.4s ease; }
+        
+        .table-custom { --bs-table-bg: transparent; }
+        .table-custom th { background-color: #f8f9fa; color: #6c757d; font-weight: 600; font-size: 0.85rem; text-transform: uppercase; border-bottom: 1px solid #dee2e6; transition: all 0.3s ease; }
+        .table-custom td { vertical-align: middle; font-size: 0.9rem; color: #495057; padding: 1rem 0.5rem; transition: all 0.3s ease; }
+        .breakdown-table th { background-color: transparent; color: #6c757d; font-weight: 600; text-transform: uppercase; font-size: 0.8rem; transition: all 0.3s ease; }
+        .breakdown-table td { padding: 0.75rem 0.5rem; font-size: 0.95rem; border-color: #f1f3f5; transition: all 0.3s ease; }
+        .table-total { background-color: #f8f9fa; font-weight: 700; transition: all 0.3s ease; }
+        .table-total td { border-bottom: none; }
+        .current-cycle-row { background-color: rgba(0,0,0,0.02); }
+
+        .info-label { font-size: 0.75rem; font-weight: 600; color: #6c757d; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 0.2rem; transition: color 0.3s ease; }
+        .info-value { font-size: 0.95rem; font-weight: 500; color: #212529; margin-bottom: 1rem; transition: color 0.3s ease; }
+        .profile-img-container { width: 120px; height: 120px; border-radius: 50%; border: 4px solid #fff; box-shadow: 0 4px 10px rgba(0,0,0,0.1); position: relative; margin: 0 auto; overflow: hidden; transition: all 0.3s ease; }
+        .profile-img { width: 100%; height: 100%; border-radius: 50%; object-fit: cover; transition: border-radius 0.3s ease; }
+        .skill-badge { background-color: rgba(123, 94, 234, 0.1); color: var(--bs-danger) !important; border: 1px solid rgba(123, 94, 234, 0.2); font-weight: 600; transition: all 0.3s ease; }
+        .quick-action-btn { border: none; background: white; border-radius: var(--card-radius); padding: 1.2rem; text-align: left; transition: all 0.2s ease; color: #2b3674; display: flex; align-items: center; width: 100%; cursor: pointer; box-shadow: 0 5px 15px rgba(0, 0, 0, 0.03); }
+        .quick-action-btn:hover { box-shadow: 0 10px 25px rgba(123, 94, 234, 0.1); transform: translateY(-2px); }
+        .quick-action-btn i { margin-right: 15px; margin-bottom: 0 !important; background: rgba(123, 94, 234, 0.1); padding: 12px; border-radius: 12px; }
+
+        /* Dashboard specific welcome banner */
+        #dashboard-welcome { background: linear-gradient(135deg, #8b6ce8 0%, #613beb 100%) !important; color: white !important; border: none !important; padding: 2.5rem !important; border-radius: 24px; }
+        #dashboard-welcome h2, #dashboard-welcome .text-dark { color: white !important; }
+        #dashboard-welcome .text-muted { color: rgba(255, 255, 255, 0.8) !important; }
+        #dashboard-welcome .text-danger { color: #d8cffd !important; }
+
+        .mobile-header { display: none; }
+
+        /* =========================================
+           MOBILE VIEW
+           ========================================= */
+        @media (max-width: 991.98px) {
+            .mobile-header {
+                display: flex !important;
+                position: absolute;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 280px;
+                background: linear-gradient(135deg, #8b6ce8, #613beb);
+                padding: 2rem 1.5rem;
+                color: white;
+                align-items: flex-start;
+                justify-content: space-between;
+                border-bottom-left-radius: 40px;
+                border-bottom-right-radius: 40px;
+                z-index: 0;
+            }
+
+            .main-content { margin-left: 0; margin-top: 60px; padding: 1rem; padding-bottom: 110px; position: relative; z-index: 10; }
+            
+            /* Transparent Welcome Overlap in Default Theme */
+            #dashboard-welcome { background: transparent !important; box-shadow: none !important; padding: 0 0.5rem 1.5rem !important; }
+
+            /* Headers Default Text Coloring */
+            .page-header h2, .page-header p { color: white !important; }
+            .page-header p { opacity: 0.9; }
+            .page-header .btn-danger, .page-header .btn-outline-danger { background-color: rgba(255, 255, 255, 0.2) !important; border-color: rgba(255, 255, 255, 0.3) !important; color: white !important; }
+
+            .sidebar { transform: translateX(0); position: fixed; top: auto; bottom: 0; width: 100%; height: 85px; background: #ffffff; flex-direction: row !important; border-top-left-radius: 35px; border-top-right-radius: 35px; box-shadow: 0 -5px 25px rgba(0, 0, 0, 0.08); padding: 0 10px; overflow: visible; z-index: 1050; }
+            .sidebar-brand, .sidebar-close-btn, .sidebar > .p-3, .sidebar > .mt-auto { display: none !important; }
+            .sidebar .nav { flex-direction: row !important; width: 100%; height: 100%; align-items: center; justify-content: space-around; margin: 0 !important; }
+            .sidebar .nav-item { flex: 1; display: flex; justify-content: center; }
+            .sidebar .nav-link { flex-direction: column; margin: 0 !important; padding: 5px !important; background: transparent !important; font-size: 0; border: none !important; }
+            .sidebar .nav-link i { margin: 0; font-size: 1.5rem; color: #b0b8d6; transition: color 0.2s; }
+            .sidebar .nav-link.active i { color: var(--bs-danger); }
+
+            /* Central FAB Styling */
+            .sidebar .nav-item:nth-child(3) .nav-link { background: #11142d !important; width: 60px; height: 60px; border-radius: 50%; display: flex; justify-content: center; align-items: center; transform: translateY(-25px); box-shadow: 0 8px 20px rgba(17, 20, 45, 0.3); margin: 0 auto !important; }
+            .sidebar .nav-item:nth-child(3) .nav-link i { color: white; font-size: 1.6rem; }
+            
+            /* --- Theme Specific Mobile Layout Overrides --- */
+            
+            /* Neumorphism Mobile Header Fix */
+            body.theme-neumorphism .mobile-header { position: relative; height: auto; padding-bottom: 1.5rem; background: #e0e5ec; box-shadow: 0 4px 10px rgba(163,177,198,0.3); border-radius: 0; }
+            body.theme-neumorphism .mobile-header .text-white { color: var(--bs-danger) !important; }
+            body.theme-neumorphism .mobile-header .btn { color: #555 !important; background: #e0e5ec; box-shadow: 4px 4px 8px #a3b1c6, -4px -4px 8px #ffffff; border: none; }
+            body.theme-neumorphism .main-content { margin-top: 0; }
+            body.theme-neumorphism .main-content > .dashboard-card:first-of-type { background-color: #e0e5ec !important; box-shadow: 6px 6px 12px #a3b1c6, -6px -6px 12px #ffffff !important; padding: 2rem !important; margin-top: 1rem; }
+            body.theme-neumorphism .page-header h2, body.theme-neumorphism .page-header p { color: #333 !important; }
+            body.theme-neumorphism .page-header .btn-danger, body.theme-neumorphism .page-header .btn-outline-danger { background-color: #e0e5ec !important; color: var(--bs-danger) !important; border: none !important; box-shadow: 4px 4px 8px #a3b1c6, -4px -4px 8px #ffffff !important; }
+            
+            /* Illustration Mobile Header Fix */
+            body.theme-illustration .mobile-header { position: relative; height: auto; padding-bottom: 1.5rem; background: #fffaf8; border-bottom: 3px dashed #ff5d2a; border-radius: 0; }
+            body.theme-illustration .mobile-header .text-white { color: #ff5d2a !important; }
+            body.theme-illustration .mobile-header .btn { color: #ff5d2a !important; background: #ffe3d8; border: 2px dashed #ff5d2a !important; box-shadow: 2px 2px 0px rgba(255, 93, 42, 0.2); }
+            body.theme-illustration .main-content { margin-top: 0; }
+            body.theme-illustration .sidebar .nav-link { margin: 0 !important; padding: 5px !important; border: none !important; }
+            body.theme-illustration .page-header h2, body.theme-illustration .page-header p { color: #531603 !important; }
+            body.theme-illustration .page-header .btn-danger, body.theme-illustration .page-header .btn-outline-danger { background-color: #ffe3d8 !important; color: #ff5d2a !important; border: 2px dashed #ff5d2a !important; box-shadow: 2px 2px 0px rgba(255, 93, 42, 0.2) !important; }
+
+            /* Flat Design Mobile Header Fix & Content Visibility Correction */
+            body.theme-flat .mobile-header { background: #7b5eea; border-bottom: 2px solid #333; border-radius: 0; position: relative; height: auto; padding-bottom: 1.5rem; }
+            body.theme-flat .mobile-header .btn { border: 2px solid #fff !important; border-radius: 0; }
+            body.theme-flat .main-content { margin-top: 0; }
+            body.theme-flat .page-header h2, body.theme-flat .page-header p { color: #333 !important; }
+            body.theme-flat .page-header .btn-danger, body.theme-flat .page-header .btn-outline-danger { background-color: white !important; color: #7b5eea !important; border: 2px solid #333 !important; }
+            body.theme-flat .main-content > .dashboard-card:first-of-type { border: 2px solid #333 !important; padding: 2rem !important; margin-top: 1rem; background: #ffffff !important; box-shadow: none !important; }
+            body.theme-flat #dashboard-welcome h2, body.theme-flat #dashboard-welcome .text-dark { color: #333 !important; }
+            body.theme-flat #dashboard-welcome .text-muted { color: #6c757d !important; }
+            body.theme-flat #dashboard-welcome .text-danger { color: #7b5eea !important; }
+            
+            /* Bauhaus Mobile Header Fix */
+            body.theme-bauhaus .mobile-header { background: #E3000F; border-bottom: 4px solid #000; border-radius: 0; position: relative; height: auto; padding-bottom: 1.5rem; }
+            body.theme-bauhaus .mobile-header .btn { border: 2px solid #000 !important; border-radius: 0; box-shadow: 2px 2px 0 #000; }
+            body.theme-bauhaus .main-content { margin-top: 0; }
+            body.theme-bauhaus .page-header h2, body.theme-bauhaus .page-header p { color: #000 !important; }
+            body.theme-bauhaus .page-header .btn-danger, body.theme-bauhaus .page-header .btn-outline-danger { background-color: white !important; color: #000 !important; border: 2px solid #000 !important; box-shadow: 4px 4px 0px #000 !important; }
+            body.theme-bauhaus .main-content > .dashboard-card:first-of-type { border: 4px solid #000 !important; padding: 2rem !important; margin-top: 1rem; }
+            
+            body.theme-glassmorphism .mobile-header { background: rgba(255, 255, 255, 0.1); backdrop-filter: blur(10px); border-bottom: 1px solid rgba(255, 255, 255, 0.2); border-radius: 0; position: relative; height: auto; padding-bottom: 1.5rem; }
+            body.theme-glassmorphism .main-content { margin-top: 0; }
+            body.theme-glassmorphism .page-header h2, body.theme-glassmorphism .page-header p { color: #fff !important; }
+            
+            body.theme-dark .mobile-header { background: #000000; border-bottom: 1px solid #333; border-radius: 0; position: relative; height: auto; padding-bottom: 1.5rem; }
+            body.theme-dark .main-content { margin-top: 0; }
+            body.theme-dark .page-header h2, body.theme-dark .page-header p { color: #fff !important; }
+        }
+
+        /* =========================================
+           1. FLAT DESIGN
+           ========================================= */
+        body.theme-flat .sidebar { background: #7b5eea; border-right: 2px solid #333; box-shadow: none; }
+        body.theme-flat .sidebar-brand { color: #fff; }
+        body.theme-flat .sidebar .nav-link { color: rgba(255, 255, 255, 0.9); border-radius: 0; }
+        body.theme-flat .sidebar .nav-link:hover, body.theme-flat .sidebar .nav-link.active { background: #333; color: #fff; }
+        body.theme-flat .mobile-header { background: #7b5eea; border-bottom: 2px solid #333; border-radius: 0; }
+        
+        body.theme-flat .dashboard-card,
+        body.theme-flat .modal-content,
+        body.theme-flat .btn,
+        body.theme-flat .badge,
+        body.theme-flat .progress,
+        body.theme-flat .list-group-item,
+        body.theme-flat .form-control,
+        body.theme-flat .alert,
+        body.theme-flat .nav-pills .nav-link,
+        body.theme-flat .profile-img-container,
+        body.theme-flat .profile-img,
+        body.theme-flat .calendar-day,
+        body.theme-flat .filter-pill,
+        body.theme-flat .quick-action-btn { border-radius: 0 !important; box-shadow: none !important; }
+        
+        body.theme-flat .dashboard-card, body.theme-flat .modal-content, body.theme-flat .filter-pill { border: 2px solid #333; }
+        body.theme-flat .table-total { background-color: transparent !important; border-top: 2px solid #333; }
+        body.theme-flat .table-custom th, body.theme-flat .table-custom td { border-bottom: 2px solid #333; background: transparent; }
+        body.theme-flat .current-cycle-row { background-color: rgba(0,0,0,0.05); }
+        body.theme-flat .profile-img-container, body.theme-flat .form-control { border: 2px solid #333; }
+        body.theme-flat .form-control:focus { border-color: #7b5eea; }
+        body.theme-flat .skill-badge { background-color: #7b5eea !important; color: #ffffff !important; border: 2px solid #333 !important; }
+        body.theme-flat .stat-card:hover { transform: none; background-color: #f8f9fa; }
+        body.theme-flat .quick-action-btn:hover { transform: none; background-color: #f8f9fa; }
+
+        /* =========================================
+           2. BAUHAUS STYLE
+           ========================================= */
+        body.theme-bauhaus, body.theme-bauhaus .main-content { background: #FFCC00; }
+        body.theme-bauhaus .sidebar { background: #E3000F; border-right: 4px solid #000; box-shadow: none; }
+        body.theme-bauhaus .sidebar-brand { color: #fff; border-bottom: 4px solid #000; padding-bottom: 2.5rem; margin-bottom: 1rem; }
+        body.theme-bauhaus .sidebar .nav-link { color: #fff; border: 3px solid transparent; border-radius: 0; }
+        body.theme-bauhaus .sidebar .nav-link:hover, body.theme-bauhaus .sidebar .nav-link.active { background: white; color: #000; border: 3px solid #000; box-shadow: 4px 4px 0 #000; transform: translate(-2px, -2px); }
+        body.theme-bauhaus .mobile-header { background: #E3000F; border-bottom: 4px solid #000; border-radius: 0; }
+        body.theme-bauhaus .mobile-header .btn { border: 2px solid #000 !important; border-radius: 0; box-shadow: 2px 2px 0 #000; }
+        
+        body.theme-bauhaus .dashboard-card, body.theme-bauhaus .modal-content, body.theme-bauhaus .quick-action-btn { background: white !important; border: 4px solid #000 !important; box-shadow: 8px 8px 0px #000 !important; border-radius: 0; }
+        body.theme-bauhaus .btn { border: 2px solid #000; border-radius: 0; box-shadow: 4px 4px 0px #000; }
+        body.theme-bauhaus .btn:active { transform: translate(2px, 2px); box-shadow: 2px 2px 0px #000; }
+        body.theme-bauhaus .badge, body.theme-bauhaus .progress, body.theme-bauhaus .calendar-day { border-radius: 0; border: 2px solid #000; }
+        body.theme-bauhaus .bg-light { background-color: white !important; border: 2px solid #000 !important; }
+        body.theme-bauhaus .list-group-item { border-bottom: 2px solid #000 !important; }
+        body.theme-bauhaus .nav-pills .nav-link { border: 2px solid #000; border-radius: 0; }
+        body.theme-bauhaus .nav-pills .nav-link.active { box-shadow: 2px 2px 0px #000; transform: translate(-2px, -2px); background-color: #E3000F; }
+        body.theme-bauhaus .profile-img-container { border: 4px solid #000; box-shadow: 4px 4px 0px #000; }
+        body.theme-bauhaus .form-control { border: 2px solid #000; border-radius: 0; }
+        body.theme-bauhaus .skill-badge { background-color: #ffffff !important; color: #000000 !important; border: 2px solid #000 !important; box-shadow: 2px 2px 0px #000 !important; }
+        body.theme-bauhaus .breakdown-table th, body.theme-bauhaus .breakdown-table td, body.theme-bauhaus .table-custom th, body.theme-bauhaus .table-custom td { border: 2px solid #000; background: transparent; }
+        body.theme-bauhaus .table-total { background-color: #FFCC00 !important; border: 2px solid #000 !important; }
+        body.theme-bauhaus .current-cycle-row { background-color: #ffe885; }
+        body.theme-bauhaus .filter-pill { border: 2px solid #000; border-radius: 0; font-weight: bold; }
+        body.theme-bauhaus .filter-pill.active { box-shadow: 2px 2px 0px #000; transform: translate(-2px, -2px); }
+        body.theme-bauhaus .calendar-day.has-task::after { border-radius: 0; width: 8px; height: 8px; border: 1px solid #000; }
+        body.theme-bauhaus .quick-action-btn:hover { transform: translate(2px, 2px); box-shadow: 4px 4px 0px #000 !important; }
+
+        /* =========================================
+           3. BOLD TYPOGRAPHY
+           ========================================= */
+        body.theme-bold-type .mobile-header { background: #111; color: #fff; border-radius: 0; }
+        body.theme-bold-type h2, body.theme-bold-type h3, body.theme-bold-type h4, body.theme-bold-type h5, body.theme-bold-type h6 { font-weight: 900 !important; letter-spacing: -1px; text-transform: uppercase; }
+        body.theme-bold-type .small, body.theme-bold-type .badge, body.theme-bold-type th, body.theme-bold-type .table-custom th, body.theme-bold-type .info-label { font-weight: 800; text-transform: uppercase; letter-spacing: 0.5px; }
+        body.theme-bold-type .nav-pills .nav-link { font-weight: 800; text-transform: uppercase; }
+        body.theme-bold-type .skill-badge { background-color: #333 !important; color: #ffffff !important; border: 2px solid #333 !important; }
+        body.theme-bold-type .task-title { font-size: 1.7rem !important; }
+        body.theme-bold-type .filter-pill { font-weight: 800; text-transform: uppercase; }
+        body.theme-bold-type .calendar-day { font-weight: 800; font-size: 1rem; }
+
+        /* =========================================
+           4. NEUMORPHISM
+           ========================================= */
+        body.theme-neumorphism { background-color: #e0e5ec; }
+        body.theme-neumorphism .sidebar { background: #e0e5ec; color: #333; border-right: none; box-shadow: 6px 0px 12px #a3b1c6; }
+        body.theme-neumorphism .sidebar .nav-link, body.theme-neumorphism .sidebar-brand { color: #555; border-color: #333; }
+        body.theme-neumorphism .sidebar .nav-link:hover, body.theme-neumorphism .sidebar .nav-link.active { color: #ff5d2a; background: transparent; box-shadow: inset 4px 4px 8px #a3b1c6, inset -4px -4px 8px #ffffff; }
+        
+        body.theme-neumorphism .dashboard-card, body.theme-neumorphism .modal-content, body.theme-neumorphism .bg-white, body.theme-neumorphism .quick-action-btn { background-color: #e0e5ec !important; border: none !important; box-shadow: 6px 6px 12px #a3b1c6, -6px -6px 12px #ffffff !important; }
+        body.theme-neumorphism .bg-light, body.theme-neumorphism .alert { background-color: #e0e5ec !important; box-shadow: inset 4px 4px 8px #a3b1c6, inset -4px -4px 8px #ffffff !important; border: none !important; }
+        body.theme-neumorphism .list-group-item { background: transparent; border-color: #d1d9e6; }
+        body.theme-neumorphism .btn-light { background-color: #e0e5ec; border: none !important; box-shadow: 4px 4px 8px #a3b1c6, -4px -4px 8px #ffffff; }
+        body.theme-neumorphism .btn-light:active { box-shadow: inset 4px 4px 8px #a3b1c6, inset -4px -4px 8px #ffffff; }
+        
+        body.theme-neumorphism .profile-img-container { border: none; box-shadow: 6px 6px 12px #a3b1c6, -6px -6px 12px #ffffff; }
+        body.theme-neumorphism .nav-pills .nav-link { color: #555; }
+        body.theme-neumorphism .nav-pills .nav-link.active { background-color: #e0e5ec; color: #ff5d2a; box-shadow: inset 4px 4px 8px #a3b1c6, inset -4px -4px 8px #ffffff; }
+        body.theme-neumorphism .form-control { background-color: #e0e5ec; border: none; box-shadow: inset 4px 4px 8px #a3b1c6, inset -4px -4px 8px #ffffff; color: #333; }
+        body.theme-neumorphism .skill-badge { background-color: #e0e5ec !important; color: #ff5d2a !important; border: none !important; box-shadow: 4px 4px 8px #a3b1c6, -4px -4px 8px #ffffff !important; }
+        body.theme-neumorphism .breakdown-table { background: transparent; }
+        body.theme-neumorphism .breakdown-table th, body.theme-neumorphism .breakdown-table td { background: transparent !important; color: #555 !important; border-bottom: 1px solid #d1d9e6 !important; }
+        body.theme-neumorphism .breakdown-table .text-dark { color: #333 !important; }
+        body.theme-neumorphism .border-md-end { border-color: #d1d9e6 !important; }
+        body.theme-neumorphism .table-total, body.theme-neumorphism .table-total td { background-color: transparent !important; }
+        body.theme-neumorphism .table-custom th { background-color: transparent; border-bottom: 2px solid #d1d9e6; }
+        body.theme-neumorphism .table-custom td { background-color: transparent; border-bottom: 1px solid #d1d9e6; }
+        body.theme-neumorphism .current-cycle-row { background-color: transparent; box-shadow: inset 2px 2px 5px #a3b1c6, inset -2px -2px 5px #ffffff; }
+        body.theme-neumorphism .filter-pill { background: #e0e5ec; border: none; box-shadow: 4px 4px 8px #a3b1c6, -4px -4px 8px #ffffff; color: #555; }
+        body.theme-neumorphism .filter-pill.active { box-shadow: inset 4px 4px 8px #a3b1c6, inset -4px -4px 8px #ffffff; color: #ff5d2a; }
+        body.theme-neumorphism .progress { background: #e0e5ec; box-shadow: inset 3px 3px 6px #a3b1c6, inset -3px -3px 6px #ffffff; border: none; }
+        body.theme-neumorphism .calendar-day { border: none; box-shadow: 3px 3px 6px #a3b1c6, -3px -3px 6px #ffffff; }
+        body.theme-neumorphism .calendar-day.active { background: #e0e5ec; color: #ff5d2a; box-shadow: inset 3px 3px 6px #a3b1c6, inset -3px -3px 6px #ffffff; }
+        body.theme-neumorphism .quick-action-btn:hover { box-shadow: inset 6px 6px 12px #a3b1c6, inset -6px -6px 12px #ffffff !important; transform: none; }
+
+        /* =========================================
+           5. GLASSMORPHISM
+           ========================================= */
+        body.theme-glassmorphism { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: #fff; }
+        body.theme-glassmorphism .text-muted, body.theme-glassmorphism .text-dark { color: #f1f1f1 !important; }
+        body.theme-glassmorphism .sidebar { background: rgba(255, 255, 255, 0.1); backdrop-filter: blur(10px); border-right: 1px solid rgba(255, 255, 255, 0.2); box-shadow: none; }
+        body.theme-glassmorphism .sidebar-brand { color: #fff; }
+        body.theme-glassmorphism .sidebar .nav-link { color: rgba(255, 255, 255, 0.7); }
+        body.theme-glassmorphism .sidebar .nav-link:hover, body.theme-glassmorphism .sidebar .nav-link.active { color: #fff; background: rgba(255, 255, 255, 0.2); }
+
+        body.theme-glassmorphism .dashboard-card, body.theme-glassmorphism .modal-content, body.theme-glassmorphism .bg-white, body.theme-glassmorphism .quick-action-btn { background: rgba(255, 255, 255, 0.15) !important; backdrop-filter: blur(15px); border: 1px solid rgba(255, 255, 255, 0.3) !important; box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37) !important; color: #fff !important; }
+        body.theme-glassmorphism .bg-light { background: rgba(0, 0, 0, 0.15) !important; color: #fff !important; border: 1px solid rgba(255,255,255,0.2) !important; }
+        body.theme-glassmorphism .list-group-item { background: transparent; border-color: rgba(255,255,255,0.2); color: #fff; }
+        body.theme-glassmorphism .badge { background-color: rgba(255,255,255,0.2) !important; border-color: rgba(255,255,255,0.4) !important; color: #fff !important; }
+        body.theme-glassmorphism .alert { background: rgba(255, 255, 255, 0.1) !important; border: 1px solid rgba(255, 255, 255, 0.2); color: #fff !important; }
+        
+        body.theme-glassmorphism .info-label { color: #ddd !important; }
+        body.theme-glassmorphism .info-value { color: #fff !important; }
+        body.theme-glassmorphism .nav-pills .nav-link { color: #fff; border: 1px solid transparent; }
+        body.theme-glassmorphism .nav-pills .nav-link.active { background: rgba(255,255,255,0.25); border-color: rgba(255,255,255,0.4); }
+        body.theme-glassmorphism .profile-img-container { border: 2px solid rgba(255,255,255,0.4); }
+        body.theme-glassmorphism .form-control { background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.3); color: #fff; }
+        body.theme-glassmorphism .form-control::placeholder { color: rgba(255,255,255,0.6); }
+        body.theme-glassmorphism .btn-danger, body.theme-glassmorphism .btn-outline-danger { background: rgba(255, 255, 255, 0.15) !important; border: 1px solid rgba(255, 255, 255, 0.3) !important; color: #fff !important; }
+        body.theme-glassmorphism .btn-danger:hover { background: rgba(255, 255, 255, 0.25) !important; }
+        body.theme-glassmorphism .skill-badge { background-color: rgba(255,255,255,0.15) !important; color: #ffffff !important; border: 1px solid rgba(255,255,255,0.3) !important; }
+        body.theme-glassmorphism .table th, body.theme-glassmorphism .table td, body.theme-glassmorphism .breakdown-table th, body.theme-glassmorphism .breakdown-table td, body.theme-glassmorphism .table-custom th, body.theme-glassmorphism .table-custom td { background-color: transparent !important; color: #fff !important; border-color: rgba(255,255,255,0.2) !important; }
+        body.theme-glassmorphism .table-total, body.theme-glassmorphism .table-total td { background-color: rgba(255,255,255,0.1) !important; }
+        body.theme-glassmorphism .current-cycle-row { background-color: rgba(255,255,255,0.1); }
+        body.theme-glassmorphism .filter-pill { background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); color: #fff; }
+        body.theme-glassmorphism .filter-pill.active { background: rgba(255,255,255,0.3); border-color: rgba(255,255,255,0.5); }
+        body.theme-glassmorphism .progress { background: rgba(255,255,255,0.2); }
+        body.theme-glassmorphism .calendar-day { color: #fff; }
+        body.theme-glassmorphism .calendar-day:hover:not(.text-muted) { background-color: rgba(255,255,255,0.2); }
+        body.theme-glassmorphism .calendar-day.active { background-color: rgba(255,255,255,0.4); }
+        body.theme-glassmorphism .cal-approved { background-color: rgba(25, 135, 84, 0.4); border-color: rgba(25, 135, 84, 0.6); color: #fff; }
+        body.theme-glassmorphism .cal-holiday { background-color: rgba(111, 66, 193, 0.4); color: #fff; }
+        body.theme-glassmorphism .cal-weekend { background-color: rgba(255, 255, 255, 0.1); color: #ddd; }
+        body.theme-glassmorphism .cal-present { background-color: rgba(25, 135, 84, 0.4); color: #fff; }
+        body.theme-glassmorphism .cal-absent { background-color: rgba(220, 53, 69, 0.4); color: #fff; }
+        body.theme-glassmorphism .cal-leave { background-color: rgba(255, 193, 7, 0.4); color: #fff; }
+        body.theme-glassmorphism .quick-action-btn:hover { background: rgba(255, 255, 255, 0.25) !important; }
+        
+        /* Glassmorphism List Item Buttons Overrides (Fix text visibility) */
+        body.theme-glassmorphism .btn-light { background: rgba(255,255,255,0.1); color: #ffffff !important; border-color: rgba(255,255,255,0.3); }
+
+        /* =========================================
+           6. ANIMATION / MOTION
+           ========================================= */
+        @keyframes slideInRight { from { opacity: 0; transform: translateX(30px); } to { opacity: 1; transform: translateX(0); } }
+        @keyframes slideInUpFaded { from { opacity: 0; transform: translateY(40px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes pulseBtn { 0% { transform: scale(1); } 50% { transform: scale(1.05); } 100% { transform: scale(1); } }
+        
+        body.theme-animation .col-xl-3 { animation: slideInRight 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94) both; }
+        body.theme-animation .col-xl-3:nth-child(1) { animation-delay: 0.1s; }
+        body.theme-animation .col-xl-3:nth-child(2) { animation-delay: 0.2s; }
+        body.theme-animation .col-xl-3:nth-child(3) { animation-delay: 0.3s; }
+        body.theme-animation .col-xl-3:nth-child(4) { animation-delay: 0.4s; }
+        body.theme-animation .col-xl-4 { animation: slideInRight 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94) both; }
+        body.theme-animation .col-xl-6 { animation: slideInUpFaded 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94) both; }
+        body.theme-animation .col-xl-6:nth-child(2) { animation-delay: 0.1s; }
+        body.theme-animation .col-xl-7 { animation: slideInRight 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94) 0.5s both; }
+        body.theme-animation .col-xl-5 { animation: slideInRight 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94) 0.6s both; }
+        body.theme-animation .col-xl-8 { animation: slideInRight 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94) 0.2s both; }
+        body.theme-animation .dashboard-card { transition: transform 0.3s ease; }
+        body.theme-animation .list-group-item { transition: all 0.3s ease; }
+        body.theme-animation .list-group-item:hover { transform: translateX(5px); background-color: #f8f9fa; }
+        body.theme-animation .calendar-day:hover { transform: scale(1.15) translateY(-2px); z-index: 10; box-shadow: 0 4px 8px rgba(0,0,0,0.1); }
+        body.theme-animation .table-hover tbody tr { transition: all 0.3s ease; }
+        body.theme-animation .table-hover tbody tr:hover { transform: scale(1.01); background-color: #fffaf8; box-shadow: 0 4px 10px rgba(0,0,0,0.05); }
+        body.theme-animation .task-item { animation: slideInUpFaded 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94) both; }
+        body.theme-animation .task-item:nth-child(1) { animation-delay: 0.1s; }
+        body.theme-animation .task-item:nth-child(2) { animation-delay: 0.2s; }
+        body.theme-animation .task-item:nth-child(3) { animation-delay: 0.3s; }
+        body.theme-animation .filter-pill { transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+        body.theme-animation .filter-pill:hover { transform: scale(1.08); }
+        body.theme-animation .progress-bar { transition: width 1.5s cubic-bezier(0.25, 1, 0.5, 1); }
+        body.theme-animation .quick-action-btn:hover { animation: pulseBtn 1s infinite; }
+
+        /* =========================================
+           7. ILLUSTRATION TREND
+           ========================================= */
+        body.theme-illustration { background: #ffe3d8 url('data:image/svg+xml;utf8,<svg width="40" height="40" viewBox="0 0 40 40" xmlns="http://www.w3.org/2000/svg"><circle cx="20" cy="20" r="4" fill="%23ff5d2a" fill-opacity="0.3"/></svg>'); }
+        
+        /* Enhanced Sidebar & Nav */
+        body.theme-illustration .sidebar { background: #fffaf8 url('data:image/svg+xml;utf8,<svg width="20" height="20" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><circle cx="2" cy="2" r="1" fill="%23ff5d2a" fill-opacity="0.1"/></svg>'); border-right: 3px dashed #ff5d2a; box-shadow: 6px 0px 0px rgba(255, 93, 42, 0.1); }
+        body.theme-illustration .sidebar-brand { border-bottom: 3px dashed #ff5d2a; color: #531603; text-shadow: 2px 2px 0px rgba(255, 93, 42, 0.15); }
+        body.theme-illustration .sidebar .nav-link { color: #531603; font-weight: 600; border: 2px solid transparent; border-radius: 12px; margin: 0.2rem 1rem; padding: 0.6rem 1rem; transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+        body.theme-illustration .sidebar .nav-link:hover { background-color: transparent; border: 2px dashed #ff5d2a; color: #ff5d2a; transform: rotate(-1deg) scale(1.02); }
+        body.theme-illustration .sidebar .nav-link.active { background-color: #ffe3d8; border: 2px dashed #ff5d2a; color: #ff5d2a; box-shadow: 4px 4px 0px rgba(255, 93, 42, 0.2); transform: rotate(1deg); }
+        body.theme-illustration .sidebar .bg-dark { background-color: #ffe3d8 !important; color: #ff5d2a !important; border: 2px dashed #ff5d2a; box-shadow: 4px 4px 0px rgba(255, 93, 42, 0.2); }
+        body.theme-illustration .sidebar .bg-dark:hover { transform: translateY(-2px); box-shadow: 4px 6px 0px rgba(255, 93, 42, 0.3); }
+
+        body.theme-illustration .dashboard-card, body.theme-illustration .modal-content { border: 2px dashed #ff5d2a !important; border-radius: 20px; background: #fffaf8 !important; box-shadow: 6px 6px 0px rgba(255, 93, 42, 0.1) !important;}
+        body.theme-illustration .bg-light, body.theme-illustration .alert { background: #fffaf8 !important; border: 1px dashed #ff5d2a !important; }
+        body.theme-illustration .list-group-item { border-bottom: 1px dashed rgba(255,93,42,0.3) !important; background: transparent; }
+        body.theme-illustration .badge { border-radius: 12px; border: 1px dashed rgba(0,0,0,0.2); }
+        body.theme-illustration .form-control { border: 2px dashed #ff5d2a; border-radius: 12px; background: #fffaf8; box-shadow: 2px 2px 0px rgba(255,93,42,0.1); }
+        body.theme-illustration .profile-img-container { border: 3px dashed #ff5d2a; box-shadow: 4px 4px 0px rgba(255,93,42,0.2); }
+        body.theme-illustration .nav-pills .nav-link { color: #531603; }
+        body.theme-illustration .nav-pills .nav-link.active { background: #ffe3d8; color: #ff5d2a; border: 2px dashed #ff5d2a; border-radius: 15px; box-shadow: 3px 3px 0px rgba(255, 93, 42, 0.2); }
+        body.theme-illustration .skill-badge { background-color: #fffaf8 !important; color: #ff5d2a !important; border: 1px dashed #ff5d2a !important; box-shadow: 2px 2px 0px rgba(255,93,42,0.15) !important; }
+        body.theme-illustration .table th, body.theme-illustration .breakdown-table th, body.theme-illustration .table-custom th { border-bottom: 2px dashed #ff5d2a !important; background: transparent; color: #531603; }
+        body.theme-illustration .table td, body.theme-illustration .breakdown-table td, body.theme-illustration .table-custom td { border-bottom: 1px dashed rgba(255, 93, 42, 0.3) !important; background: transparent; }
+        body.theme-illustration .table-total, body.theme-illustration .table-total td { background: #ffe3d8 !important; border-top: 2px dashed #ff5d2a !important; border-bottom: none !important; }
+        body.theme-illustration .progress { background: #fffaf8; border: 1px dashed #ff5d2a; border-radius: 12px !important; }
+        body.theme-illustration .current-cycle-row { background-color: #ffe3d8; }
+        body.theme-illustration .calendar-day { border-radius: 50%; border: 1px dashed #531603; }
+        body.theme-illustration #themeSelector, body.theme-illustration .form-select { border: 2px dashed #ff5d2a; border-radius: 12px; background: #fffaf8; box-shadow: 2px 2px 0px rgba(255,93,42,0.1); }
+
+        /* =========================================
+           8. DARK MODE
+           ========================================= */
+        body.theme-dark { background-color: #121212; color: #e0e0e0; }
+        body.theme-dark .sidebar { background: #121212; border-right: 1px solid #333; box-shadow: none; }
+        body.theme-dark .sidebar-brand { color: #fff; }
+        body.theme-dark .sidebar .nav-link { color: #aaa; }
+        body.theme-dark .sidebar .nav-link:hover, body.theme-dark .sidebar .nav-link.active { color: #fff; background: #1a1a1a; }
+        body.theme-dark .text-dark { color: #ffffff !important; }
+        body.theme-dark .text-muted { color: #aaaaaa !important; }
+        
+        body.theme-dark .dashboard-card, body.theme-dark .bg-white, body.theme-dark .quick-action-btn { background-color: #1a1a1a !important; border-color: #333 !important; color: #fff !important; }
+        body.theme-dark .modal-content { background-color: #1a1a1a !important; border-color: #333 !important; color: #fff !important; }
+        body.theme-dark .bg-light, body.theme-dark .alert { background-color: #252525 !important; color: #e0e0e0 !important; border-color: #333 !important; }
+        body.theme-dark .list-group-item { background-color: transparent; border-color: #333; color: #e0e0e0; }
+        
+        body.theme-dark .info-label { color: #aaa !important; }
+        body.theme-dark .info-value { color: #eee !important; }
+        body.theme-dark .nav-pills .nav-link { color: #aaa; }
+        body.theme-dark .nav-pills .nav-link.active { background-color: #ff5d2a; color: #fff; }
+        body.theme-dark .profile-img-container { border-color: #333; }
+        body.theme-dark .form-control { background-color: #2a2a2a; border-color: #444; color: #e0e0e0; }
+        body.theme-dark .form-control:focus { background-color: #333; color: #fff; border-color: #ff5d2a; }
+        body.theme-dark .form-control::placeholder { color: #888888 !important; opacity: 1; }
+        body.theme-dark .form-check-input { background-color: #333; border-color: #555; }
+        body.theme-dark .form-check-input:checked { background-color: #ff5d2a; border-color: #ff5d2a; }
+        body.theme-dark .skill-badge { background-color: #2a2a2a !important; color: #ff5d2a !important; border: 1px solid #444 !important; }
+        
+        body.theme-dark .table-custom { --bs-table-bg: transparent; --bs-table-color: #e0e0e0; }
+        body.theme-dark .table th, body.theme-dark .breakdown-table th, body.theme-dark .table-custom th { background-color: #222 !important; color: #bbb !important; border-bottom: 1px solid #444 !important; }
+        body.theme-dark .table td, body.theme-dark .breakdown-table td, body.theme-dark .table-custom td { background-color: #1a1a1a !important; color: #eee !important; border-bottom: 1px solid #333 !important; }
+        body.theme-dark .table-custom tbody tr:hover td { background-color: #2a2a2a !important; color: #fff !important; }
+        body.theme-dark .table-total, body.theme-dark .table-total td { background-color: #252525 !important; border-top: 1px solid #444 !important; }
+        body.theme-dark .current-cycle-row { background-color: rgba(255,255,255,0.05); }
+        body.theme-dark .progress { background-color: #333; }
+        body.theme-dark .filter-pill { background: #1a1a1a; border-color: #444; color: #aaa; }
+        body.theme-dark .filter-pill.active { background: #ff5d2a; color: #fff; border-color: #ff5d2a; }
+        body.theme-dark .calendar-day { color: #e0e0e0; }
+        body.theme-dark .calendar-day:hover:not(.text-muted) { background-color: #333; }
+        body.theme-dark .calendar-day.active { background-color: #ff5d2a; color: #fff; }
+        body.theme-dark .cal-approved { background-color: rgba(25, 135, 84, 0.2); color: #75b798; border-color: rgba(25, 135, 84, 0.4); }
+        body.theme-dark .cal-holiday { background-color: rgba(111, 66, 193, 0.2); color: #b689ff; }
+        body.theme-dark .cal-weekend { background-color: rgba(255, 255, 255, 0.05); color: #adb5bd; }
+        body.theme-dark .cal-today { border-color: #ff5d2a; color: #fff; }
+        body.theme-dark .cal-present { background-color: rgba(25, 135, 84, 0.2); color: #75b798; }
+        body.theme-dark .cal-absent { background-color: rgba(220, 53, 69, 0.2); color: #ea868f; }
+        body.theme-dark .cal-leave { background-color: rgba(255, 193, 7, 0.2); color: #ffda6a; }
+        body.theme-dark .cal-empty { color: #555; }
+        body.theme-dark .quick-action-btn:hover { background-color: #2a2a2a !important; }
+        
+        /* Dark Mode List Item Buttons Overrides (Fix text visibility) */
+        body.theme-dark .btn-light { background-color: #2a2a2a !important; color: #ffffff !important; border-color: #444 !important; }
+        body.theme-dark .btn-light:hover { background-color: #3a3a3a !important; }
+    </style>
+</head>
+<body>
+
+    <!-- Mobile Header -->
+    <div class="mobile-header sticky-top">
+        <h4 class="mb-0 fw-bold"><i class="bi bi-layers-fill text-white me-2"></i>Octopyder</h4>
+        <button class="btn btn-outline-light border-0" data-bs-toggle="modal" data-bs-target="#logoutModal" title="Logout">
+            <i class="bi bi-box-arrow-right fs-3"></i>
+        </button>
+    </div>
+
+    <!-- Sidebar -->
+    <nav class="sidebar d-flex flex-column" id="sidebar">
+        
+        <div class="sidebar-brand d-flex align-items-center"><i class="bi bi-layers-fill text-white me-2"></i><span>Octopyder</span></div>
+        <div class="p-3"><small class="text-uppercase fw-bold" style="letter-spacing: 1px; font-size: 0.75rem; color: rgba(255,255,255,0.7);">Employee Portal</small></div>
+        
+        <ul class="nav flex-column mb-auto">
+            <li class="nav-item">
+                <a href="dashboard.html" class="nav-link active">
+                    <i class="bi bi-grid-1x2"></i> <span>Dashboard</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="tasks.html" class="nav-link">
+                    <i class="bi bi-list-task"></i> <span>My Tasks</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="attendance.html" class="nav-link">
+                    <i class="bi bi-geo-alt"></i> <span>Attendance</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="leave.html" class="nav-link">
+                    <i class="bi bi-calendar2-x"></i> <span>Leave</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="salary.html" class="nav-link">
+                    <i class="bi bi-wallet2"></i> <span>Salary</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="profile.html" class="nav-link">
+                    <i class="bi bi-person"></i> <span>Profile</span>
+                </a>
+            </li>
+        </ul>
+        
+        <div class="mt-auto p-3 pb-5">
+            <a href="#" class="nav-link text-white bg-dark bg-opacity-25 rounded text-center fw-bold" data-bs-toggle="modal" data-bs-target="#logoutModal">
+                <i class="bi bi-box-arrow-right me-2"></i> <span>Logout</span>
+            </a>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <!-- Page Header -->
+        <div class="card dashboard-card p-4 mb-4 border-start border-4 border-danger" id="dashboard-welcome">
+            <div class="row align-items-center">
+                <div class="col-lg-7 mb-3 mb-lg-0">
+                    <h2 class="fw-bold mb-1 text-dark">Welcome, Naitik</h2>
+                    <div class="d-flex flex-wrap gap-3 text-muted small mt-2">
+                        <span><i class="bi bi-person-badge text-danger me-1"></i> ID: <strong>EMP-2026-042</strong></span>
+                        <span><i class="bi bi-building text-danger me-1"></i> Dept: <strong>Engineering</strong></span>
+                        <span><i class="bi bi-briefcase text-danger me-1"></i> Role: <strong>Frontend Developer</strong></span>
+                    </div>
+                </div>
+                <div class="col-lg-5 text-lg-end border-lg-start ps-lg-4">
+                    <div class="text-muted small"><i class="bi bi-calendar-event me-1 text-danger"></i> <span id="current-date">Loading date...</span></div>
+                    <div class="fs-4 fw-bold text-dark mt-1"><i class="bi bi-clock me-1 text-danger"></i> <span id="current-time">Loading time...</span></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="mb-4">
+            <h5 class="fw-bold mb-3 text-dark">Quick Actions</h5>
+            <div class="row g-3">
+                <div class="col-sm-6 col-xl-3">
+                    <button class="quick-action-btn" data-bs-toggle="modal" data-bs-target="#attendanceModal">
+                        <i class="bi bi-fingerprint text-danger fs-4 mb-1 d-block"></i>
+                        <span class="fw-semibold">Mark Attendance</span>
+                    </button>
+                </div>
+                <div class="col-sm-6 col-xl-3">
+                    <button class="quick-action-btn" data-bs-toggle="modal" data-bs-target="#leaveModal">
+                        <i class="bi bi-calendar-plus text-danger fs-4 mb-1 d-block"></i>
+                        <span class="fw-semibold">Apply Leave</span>
+                    </button>
+                </div>
+                <div class="col-sm-6 col-xl-3">
+                    <button class="quick-action-btn" data-bs-toggle="modal" data-bs-target="#salaryModal">
+                        <i class="bi bi-file-earmark-text text-danger fs-4 mb-1 d-block"></i>
+                        <span class="fw-semibold">View Salary Slip</span>
+                    </button>
+                </div>
+                <div class="col-sm-6 col-xl-3">
+                    <button class="quick-action-btn" onclick="window.location.href='profile.html'">
+                        <i class="bi bi-person-gear text-danger fs-4 mb-1 d-block"></i>
+                        <span class="fw-semibold">Update Profile</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- KPI Cards Section -->
+        <div class="row g-4 mb-4">
+            <div class="col-sm-6 col-xl-3">
+                <div class="card dashboard-card card-body bg-white">
+                    <div class="d-flex align-items-center">
+                        <div class="card-icon bg-success bg-opacity-15 text-success me-3"><i class="bi bi-check-circle-fill"></i></div>
+                        <div><h6 class="text-muted mb-1 small fw-semibold">Today's Attendance</h6><h5 class="fw-bold mb-0 text-dark">Present</h5></div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-6 col-xl-3">
+                <div class="card dashboard-card card-body bg-white">
+                    <div class="d-flex align-items-center">
+                        <div class="card-icon bg-primary bg-opacity-15 text-primary me-3"><i class="bi bi-list-task"></i></div>
+                        <div><h6 class="text-muted mb-1 small fw-semibold">Assigned Tasks</h6><h5 class="fw-bold mb-0 text-dark">12 Tasks</h5></div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-6 col-xl-3">
+                <div class="card dashboard-card card-body bg-white">
+                    <div class="d-flex align-items-center">
+                        <div class="card-icon bg-warning bg-opacity-15 text-warning-emphasis me-3"><i class="bi bi-hourglass-split"></i></div>
+                        <div><h6 class="text-muted mb-1 small fw-semibold">Pending Tasks</h6><h5 class="fw-bold mb-0 text-dark">3 Tasks</h5></div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-6 col-xl-3">
+                <div class="card dashboard-card card-body bg-white">
+                    <div class="d-flex align-items-center">
+                        <div class="card-icon bg-info bg-opacity-15 text-info me-3"><i class="bi bi-patch-check-fill"></i></div>
+                        <div><h6 class="text-muted mb-1 small fw-semibold">Completed Tasks</h6><h5 class="fw-bold mb-0 text-dark">9 Tasks</h5></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Charts Section -->
+        <div class="row g-4 mb-4">
+            <!-- Attendance Percentage -->
+            <div class="col-md-6">
+                <div class="card dashboard-card h-100 p-4 bg-white">
+                    <h5 class="fw-bold mb-3 text-dark">Attendance Percentage</h5>
+                    <div class="d-flex align-items-center justify-content-center bg-light rounded p-4 h-100 text-center border border-secondary-subtle">
+                        <div>
+                            <h1 class="display-4 fw-bold text-success mb-1">96%</h1>
+                            <p class="text-muted small mb-0">Based on present vs working days this cycle</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Leave Usage -->
+            <div class="col-md-6">
+                <div class="card dashboard-card h-100 p-4 bg-white">
+                    <h5 class="fw-bold mb-3 text-dark">Leave Usage</h5>
+                    <div class="d-flex align-items-center justify-content-center bg-light rounded p-4 h-100 text-center border border-secondary-subtle">
+                        <div>
+                            <h1 class="display-4 fw-bold text-warning-emphasis mb-1">2 / 12 Days</h1>
+                            <p class="text-muted small mb-0">Paid leaves utilized this fiscal year</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- Logout Confirmation Modal -->
+    <div class="modal fade" id="logoutModal" tabindex="-1" aria-labelledby="logoutModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-sm">
+            <div class="modal-content border-0 shadow">
+                <div class="modal-body text-center p-4">
+                    <h5 class="mb-4 fw-bold text-dark">Are you sure you want to logout?</h5>
+                    <div class="d-flex justify-content-center gap-3">
+                        <button type="button" class="btn btn-light fw-semibold px-4" data-bs-dismiss="modal">Cancel</button>
+                        <a href="../index.html" class="btn btn-danger fw-semibold px-4">Logout</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 1. Mark Attendance Modal -->
+    <div class="modal fade" id="attendanceModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content border-0 shadow">
+                <div class="modal-header bg-danger text-white">
+                    <h5 class="modal-title fw-bold"><i class="bi bi-geo-alt-fill me-2"></i> Remote Attendance Check-in</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body text-center p-4">
+                    <div id="attendance-pre">
+                        <i class="bi bi-fingerprint text-danger opacity-50" style="font-size: 4rem;"></i>
+                        <p class="text-muted mt-3 mb-4">Click below to record your precise geographic coordinates, timestamp, and device data.</p>
+                        <button class="btn btn-danger btn-lg w-100 fw-bold" onclick="executeMarkAttendance()">Mark Attendance Now</button>
+                    </div>
+                    <div id="attendance-post" class="d-none text-start">
+                        <div class="alert alert-warning border-warning-subtle mb-3 text-dark">
+                            <i class="bi bi-hourglass-split me-2"></i> <strong>Status:</strong> Pending Manager approval.
+                        </div>
+                        <ul class="list-group list-group-flush small border rounded bg-transparent">
+                            <li class="list-group-item bg-transparent"><i class="bi bi-geo-alt text-danger me-2"></i> <strong>Location:</strong> <span id="modal-geo-coords">Fetching...</span></li>
+                            <li class="list-group-item bg-transparent"><i class="bi bi-clock text-danger me-2"></i> <strong>Timestamp:</strong> <span id="modal-timestamp"></span></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 2. Apply Leave Modal -->
+    <div class="modal fade" id="leaveModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content border-0 shadow">
+                <div class="modal-header bg-danger text-white">
+                    <h5 class="modal-title fw-bold"><i class="bi bi-calendar-plus me-2"></i> Apply for Leave</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body p-4">
+                    <form onsubmit="event.preventDefault(); alert('Leave request submitted!'); bootstrap.Modal.getInstance(document.getElementById('leaveModal')).hide();">
+                        <div class="mb-3">
+                            <label class="form-label fw-medium small text-dark">Select Date(s)</label>
+                            <input type="date" class="form-control" required>
+                        </div>
+                        <div class="mb-4">
+                            <label class="form-label fw-medium small text-dark">Reason for Leave</label>
+                            <textarea class="form-control" rows="3" placeholder="Enter reason here..." required></textarea>
+                        </div>
+                        <button type="submit" class="btn btn-danger w-100 fw-bold">Submit Leave Request</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 3. View Salary Slip Modal -->
+    <div class="modal fade" id="salaryModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content border-0 shadow">
+                <div class="modal-header bg-danger text-white">
+                    <h5 class="modal-title fw-bold"><i class="bi bi-receipt me-2"></i> Salary Slip Overview</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body p-4">
+                    <h6 class="text-center fw-bold mb-4 text-dark">Current Cycle Payroll Breakdown</h6>
+                    <table class="table table-bordered mb-0 bg-transparent table-custom">
+                        <tbody>
+                            <tr><td class="text-muted border-secondary-subtle">Base Salary</td><td class="text-end fw-bold text-dark border-secondary-subtle">₹50,000</td></tr>
+                            <tr><td class="text-muted border-secondary-subtle">Default Released</td><td class="text-end fw-bold text-success border-secondary-subtle">₹25,000</td></tr>
+                            <tr><td class="text-muted border-secondary-subtle">Retained</td><td class="text-end fw-bold text-warning-emphasis border-secondary-subtle">- ₹3,300</td></tr>
+                            <tr><td class="fw-bold text-dark border-secondary-subtle">Net Salary</td><td class="text-end fw-bold text-danger fs-5 border-secondary-subtle">₹46,700</td></tr>
+                        </tbody>
+                    </table>
+                    <div class="text-center mt-4">
+                        <button class="btn btn-outline-danger btn-sm" onclick="alert('Downloading PDF...')"><i class="bi bi-download me-1"></i> Download PDF</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS Bundle -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const savedTheme = localStorage.getItem('payrollTheme');
+            if (savedTheme && savedTheme !== 'default') { document.body.classList.add(savedTheme); }
+        });
+        
+        function updateDateTime() {
+            const now = new Date();
+            const options = { weekday: 'long', year: 'numeric', month: 'short', day: 'numeric' };
+            const cd = document.getElementById('current-date');
+            const ct = document.getElementById('current-time');
+            if(cd) cd.innerText = now.toLocaleDateString('en-US', options);
+            if(ct) ct.innerText = now.toLocaleTimeString('en-US');
+        }
+        setInterval(updateDateTime, 1000);
+        updateDateTime();
+
+        function executeMarkAttendance() {
+            document.getElementById('attendance-pre').classList.add('d-none');
+            document.getElementById('attendance-post').classList.remove('d-none');
+            document.getElementById('modal-timestamp').innerText = new Date().toLocaleString();
+            document.getElementById('modal-geo-coords').innerText = "22.5726° N, 88.3639° E"; // Simulated GPS
+        }
+    </script>
+</body>
+</html>

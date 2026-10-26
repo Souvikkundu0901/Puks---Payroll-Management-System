@@ -1,0 +1,1070 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Payroll Management - Payroll System</title>
+
+    <!-- Fonts & Icons -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;900&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
+
+    <style>
+        body, html {
+            height: 100%;
+            font-family: 'Inter', sans-serif;
+            background-color: #f8f9fa;
+            transition: background-color 0.4s ease, color 0.4s ease;
+            overflow-x: hidden;
+        }
+
+        /* =========================================
+           SHARED & DESKTOP STYLES
+           ========================================= */
+        .app-container { height: 100vh; width: 100vw; overflow: hidden; }
+        .sidebar { width: 80px; background-color: #111111; flex-direction: column; align-items: center; justify-content: space-between; padding: 1.5rem 0; z-index: 1040; transition: all 0.4s ease; }
+        .sidebar-brand { width: 45px; height: 45px; background: #ffffff; color: #111; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; text-decoration: none; margin-bottom: 2rem; }
+        .sidebar-nav { display: flex; flex-direction: column; gap: 1.25rem; align-items: center; width: 100%; }
+        .sidebar-nav a { color: #a0aec0; font-size: 1.25rem; padding: 0.75rem; border-radius: 12px; transition: all 0.2s ease; text-decoration: none; }
+        .sidebar-nav a:hover, .sidebar-nav a.active { background-color: rgba(255, 255, 255, 0.1); color: #ffffff; }
+        .main-content { flex: 1; display: flex; flex-direction: column; height: 100vh; overflow-y: auto; background-color: transparent; }
+        .top-navbar { background-color: #ffffff; border-bottom: 1px solid #eaeaea; padding: 1rem 2rem; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 1030; transition: all 0.4s ease; }
+        .search-bar-wrapper { position: relative; width: 300px; }
+        .search-bar-wrapper input { border-radius: 50rem; padding-left: 2.5rem; border: 1px solid #ced4da; font-size: 0.875rem; }
+        .search-bar-wrapper i { position: absolute; left: 1rem; top: 50%; transform: translateY(-50%); color: #6c757d; }
+        .top-nav-right { display: flex; align-items: center; gap: 1.25rem; }
+        .icon-btn { background: none; border: none; font-size: 1.25rem; color: #4a5568; position: relative; cursor: pointer; }
+        .notification-badge { position: absolute; top: -2px; right: -4px; font-size: 0.6rem; padding: 0.25em 0.4em; }
+        .profile-dropdown img { width: 40px; height: 40px; border-radius: 50%; object-fit: cover; }
+        .page-body { padding: 2rem; }
+
+        /* --- Cards & General --- */
+        .card-custom { background: #ffffff; border: 1px solid #eaeaea; border-radius: 1rem; padding: 1.5rem; box-shadow: 0 2px 6px rgba(0,0,0,0.02); transition: all 0.3s ease; }
+        
+        /* Table overrides */
+        .table-custom { margin-bottom: 0; }
+        .table-custom th { border-bottom-width: 1px; color: #6c757d; font-weight: 600; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.5px; }
+        .table-custom td { vertical-align: middle; border-bottom-color: #eaeaea; }
+
+        /* Rule Card specific */
+        .rule-card { background: linear-gradient(145deg, #f8f9fa 0%, #ffffff 100%); border-left: 4px solid #0d6efd; }
+        .rule-tier { border-left: 2px dashed #dee2e6; padding-left: 15px; position: relative; }
+        .rule-tier::before { content: ''; position: absolute; left: -6px; top: 5px; width: 10px; height: 10px; border-radius: 50%; background-color: #ced4da; }
+        .rule-tier.success::before { background-color: #198754; }
+        .rule-tier.warning::before { background-color: #ffc107; }
+        .rule-tier.danger::before { background-color: #dc3545; }
+
+        /* Payslip */
+        .payslip-logo { width: 50px; height: 50px; background: #111; color: #fff; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; margin: 0 auto; }
+        .payslip-row { display: flex; justify-content: space-between; border-bottom: 1px dashed #dee2e6; padding: 8px 0; }
+        
+        /* Charts */
+        .donut-chart-wrapper { position: relative; width: 120px; height: 120px; display: flex; align-items: center; justify-content: center; }
+        .donut-chart { width: 100%; height: 100%; border-radius: 50%; -webkit-mask-image: radial-gradient(circle, transparent 50%, black 52%); mask-image: radial-gradient(circle, transparent 50%, black 52%); }
+
+        /* =========================================
+           MOBILE STYLES (App-Like Interface)
+           ========================================= */
+        .mobile-app-container { background-color: #f5f6fa; min-height: 100vh; padding-bottom: 80px; }
+        .mobile-topbar { position: sticky; top: 0; z-index: 1040; background-color: #ffffff; padding: 1rem; display: flex; align-items: center; justify-content: space-between; box-shadow: 0 2px 10px rgba(0,0,0,0.05); }
+        .mobile-body { padding: 1rem; display: flex; flex-direction: column; gap: 1rem; }
+        
+        .mobile-kpi-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; }
+        .mobile-kpi-card { background: #ffffff; border-radius: 1rem; padding: 1rem; border: 1px solid #eaeaea; box-shadow: 0 2px 4px rgba(0,0,0,0.02); }
+        
+        /* Mobile Cards */
+        .list-mobile-card { background: #ffffff; border-radius: 1rem; padding: 1rem; border: 1px solid #eaeaea; margin-bottom: 1rem; display: flex; flex-direction: column; gap: 0.75rem; box-shadow: 0 2px 4px rgba(0,0,0,0.02); }
+        .list-mobile-card-actions { display: flex; gap: 0.5rem; border-top: 1px solid #eaeaea; padding-top: 0.75rem; margin-top: 0.25rem; }
+
+        /* Chart Carousels */
+        .carousel-indicators { bottom: -15px; }
+        .carousel-indicators [data-bs-target] { background-color: #adb5bd; width: 8px; height: 8px; border-radius: 50%; }
+        .carousel-indicators .active { background-color: #0d6efd; }
+
+        /* Bottom Nav & FAB */
+        .bottom-nav { position: fixed; bottom: 0; left: 0; right: 0; height: 65px; background: #ffffff; box-shadow: 0 -2px 10px rgba(0,0,0,0.05); display: flex; justify-content: space-around; align-items: center; z-index: 1040; border-top-left-radius: 20px; border-top-right-radius: 20px; }
+        .bottom-nav-item { display: flex; flex-direction: column; align-items: center; color: #a0aec0; text-decoration: none; font-size: 0.75rem; gap: 2px; }
+        .bottom-nav-item.active { color: #0d6efd; font-weight: 600; }
+        .bottom-nav-item i { font-size: 1.25rem; }
+        
+        .fab-container { position: fixed; bottom: 85px; right: 15px; z-index: 1050; display: flex; flex-direction: column-reverse; align-items: center; gap: 10px; }
+        .fab-main { width: 56px; height: 56px; border-radius: 50%; background-color: #0d6efd; color: white; border: none; box-shadow: 0 4px 12px rgba(13, 110, 253, 0.4); font-size: 24px; display: flex; align-items: center; justify-content: center; transition: transform 0.3s; }
+        .fab-options { display: none; flex-direction: column-reverse; gap: 10px; align-items: center; }
+        .fab-container.active .fab-options { display: flex; animation: slideUp 0.2s ease forwards; }
+        .fab-container.active .fab-main { transform: rotate(45deg); }
+        .fab-option-btn { width: 45px; height: 45px; border-radius: 50%; background-color: #ffffff; color: #212529; border: 1px solid #eaeaea; box-shadow: 0 4px 8px rgba(0,0,0,0.1); display: flex; align-items: center; justify-content: center; position: relative; }
+        @keyframes slideUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* Toast positioning */
+        .toast-container { position: fixed; top: 80px; right: 20px; z-index: 1150; }
+
+        /* =========================================
+           UNIFIED THEME FIXES & OVERRIDES
+           ========================================= */
+
+        /* 1. Flat Theme */
+        body.theme-flat .sidebar, body.theme-flat .mobile-topbar, body.theme-flat .bottom-nav { background: #ff5d2a; border-radius: 0; }
+        body.theme-flat .top-navbar { background: #ff5d2a; border-bottom: 2px solid #333; }
+        body.theme-flat .top-navbar .icon-btn, body.theme-flat .top-navbar .search-bar-wrapper i { color: #fff; }
+        body.theme-flat .search-bar-wrapper input { border: 2px solid #333; border-radius: 0; }
+        body.theme-flat .card-custom, body.theme-flat .mobile-card, body.theme-flat .mobile-kpi-card, body.theme-flat .list-mobile-card, body.theme-flat .modal-content, body.theme-flat .accordion-item { border-radius: 0; border: 2px solid #333; }
+        
+        /* 2. Bauhaus Theme */
+        body.theme-bauhaus .sidebar, body.theme-bauhaus .mobile-topbar { background: #E3000F; border-right: 4px solid #000; color: white;}
+        body.theme-bauhaus .top-navbar { background: #FFD100; border-bottom: 4px solid #000; }
+        body.theme-bauhaus .bottom-nav { border-top: 4px solid #000; border-radius: 0; }
+        body.theme-bauhaus .search-bar-wrapper input { border: 4px solid #000; border-radius: 0; box-shadow: 4px 4px 0px #000; }
+        body.theme-bauhaus .card-custom, body.theme-bauhaus .mobile-card, body.theme-bauhaus .mobile-kpi-card, body.theme-bauhaus .list-mobile-card, body.theme-bauhaus .modal-content, body.theme-bauhaus .accordion-item { border: 4px solid #000; box-shadow: 6px 6px 0px #000; border-radius: 0; }
+        
+        /* 3. Neumorphism */
+        body.theme-neumorphism { background-color: #e0e5ec; }
+        body.theme-neumorphism .main-content, body.theme-neumorphism .mobile-app-container { background-color: transparent; }
+        body.theme-neumorphism .top-navbar, body.theme-neumorphism .sidebar, body.theme-neumorphism .mobile-topbar, body.theme-neumorphism .bottom-nav { background: #e0e5ec !important; border: none !important; box-shadow: 6px 6px 12px #a3b1c6, -6px -6px 12px #ffffff; z-index: 1040; }
+        body.theme-neumorphism .card-custom, body.theme-neumorphism .mobile-card, body.theme-neumorphism .mobile-kpi-card, body.theme-neumorphism .list-mobile-card, body.theme-neumorphism .modal-content, body.theme-neumorphism .dropdown-menu, body.theme-neumorphism .offcanvas, body.theme-neumorphism .accordion-item, body.theme-neumorphism .list-group-item { background: #e0e5ec !important; border: none !important; box-shadow: 6px 6px 12px #a3b1c6, -6px -6px 12px #ffffff !important; color: #333; }
+        body.theme-neumorphism .form-control, body.theme-neumorphism .form-select, body.theme-neumorphism input { background: #e0e5ec !important; border: none !important; box-shadow: inset 4px 4px 8px #a3b1c6, inset -4px -4px 8px #ffffff !important; }
+        body.theme-neumorphism .table-custom td, body.theme-neumorphism .table-custom th { background: transparent; border-color: #a3b1c6; }
+        body.theme-neumorphism .btn-light { box-shadow: 4px 4px 8px #a3b1c6, -4px -4px 8px #ffffff; border: none; }
+        body.theme-neumorphism .rule-card { background: #e0e5ec !important; }
+
+        /* 4. Glassmorphism */
+        body.theme-glassmorphism { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: #fff; min-height: 100vh; }
+        body.theme-glassmorphism .main-content, body.theme-glassmorphism .mobile-app-container { background: transparent; }
+        body.theme-glassmorphism .top-navbar, body.theme-glassmorphism .sidebar, body.theme-glassmorphism .mobile-topbar, body.theme-glassmorphism .bottom-nav { background: rgba(255, 255, 255, 0.1) !important; backdrop-filter: blur(15px); border-color: rgba(255, 255, 255, 0.2) !important; color: #fff; }
+        body.theme-glassmorphism .sidebar-brand { background: rgba(255, 255, 255, 0.2); color: #fff; border: none; }
+        body.theme-glassmorphism .card-custom, body.theme-glassmorphism .mobile-card, body.theme-glassmorphism .mobile-kpi-card, body.theme-glassmorphism .list-mobile-card, body.theme-glassmorphism .modal-content, body.theme-glassmorphism .dropdown-menu, body.theme-glassmorphism .offcanvas, body.theme-glassmorphism .list-group-item, body.theme-glassmorphism .offcanvas-header { background: rgba(255, 255, 255, 0.15) !important; backdrop-filter: blur(15px); border: 1px solid rgba(255, 255, 255, 0.3) !important; box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37); color: #fff !important; }
+        body.theme-glassmorphism .dropdown-item { color: #fff; }
+        body.theme-glassmorphism .dropdown-item:hover { background: rgba(255, 255, 255, 0.2); color: #fff; }
+        body.theme-glassmorphism .text-dark, body.theme-glassmorphism .text-muted, body.theme-glassmorphism h2, body.theme-glassmorphism h3, body.theme-glassmorphism h4, body.theme-glassmorphism h5, body.theme-glassmorphism h6, body.theme-glassmorphism span, body.theme-glassmorphism p, body.theme-glassmorphism small, body.theme-glassmorphism strong, body.theme-glassmorphism .fw-bold { color: #ffffff !important; }
+        body.theme-glassmorphism .table-custom td, body.theme-glassmorphism .table-custom th, body.theme-glassmorphism .border-bottom, body.theme-glassmorphism hr { background: transparent !important; color: white !important; border-color: rgba(255,255,255,0.2) !important; }
+        body.theme-glassmorphism .form-control, body.theme-glassmorphism .form-select, body.theme-glassmorphism .input-group-text { background: rgba(255,255,255,0.1) !important; color: white !important; border-color: rgba(255,255,255,0.3) !important; }
+        body.theme-glassmorphism .form-control::placeholder { color: rgba(255,255,255,0.7) !important; }
+        body.theme-glassmorphism .bg-white, body.theme-glassmorphism .bg-light, body.theme-glassmorphism .table-light { background-color: rgba(255,255,255,0.15) !important; color: #fff !important; border-color: rgba(255,255,255,0.3) !important; }
+        body.theme-glassmorphism .table-light th { color: #fff !important; border-bottom: 1px solid rgba(255,255,255,0.3) !important; }
+        body.theme-glassmorphism .btn-light, body.theme-glassmorphism .btn-outline-secondary, body.theme-glassmorphism .fab-option-btn { background: rgba(255,255,255,0.15) !important; color: #fff !important; border: 1px solid rgba(255,255,255,0.3) !important; }
+        body.theme-glassmorphism .btn-light:hover { background: rgba(255,255,255,0.25) !important; }
+        body.theme-glassmorphism .icon-btn, body.theme-glassmorphism .bottom-nav-item, body.theme-glassmorphism .search-bar-wrapper i, body.theme-glassmorphism .sidebar-nav a { color: rgba(255,255,255,0.8); }
+        body.theme-glassmorphism .bottom-nav-item.active { color: #fff; font-weight: 700; }
+        body.theme-glassmorphism .accordion-item, body.theme-glassmorphism .accordion-button, body.theme-glassmorphism .accordion-body { background: rgba(255,255,255,0.1) !important; color: #fff !important; border-color: rgba(255,255,255,0.2) !important; }
+        body.theme-glassmorphism .accordion-button::after { filter: brightness(0) invert(1); }
+        body.theme-glassmorphism .rule-card { background: rgba(255,255,255,0.15) !important; border-left-color: #0d6efd; }
+        body.theme-glassmorphism .rule-tier { border-left-color: rgba(255,255,255,0.2); }
+        body.theme-glassmorphism .payslip-row { border-bottom-color: rgba(255,255,255,0.2); }
+        body.theme-glassmorphism .payslip-logo { background-color: rgba(255,255,255,0.2); }
+
+        /* 5. Dark Mode */
+        body.theme-dark { background-color: #121212; color: #e0e0e0; }
+        body.theme-dark .main-content, body.theme-dark .mobile-app-container { background-color: #121212; }
+        body.theme-dark .top-navbar, body.theme-dark .sidebar, body.theme-dark .mobile-topbar, body.theme-dark .bottom-nav { background-color: #1a1a1a !important; border-color: #333 !important; }
+        body.theme-dark .sidebar-brand { background: #333; color: #fff; }
+        body.theme-dark .card-custom, body.theme-dark .mobile-card, body.theme-dark .mobile-kpi-card, body.theme-dark .list-mobile-card, body.theme-dark .modal-content, body.theme-dark .dropdown-menu, body.theme-dark .offcanvas, body.theme-dark .list-group-item { background-color: #1e1e1e !important; border: 1px solid #333 !important; box-shadow: none; color: #fff !important; }
+        body.theme-dark .text-dark, body.theme-dark h2, body.theme-dark h3, body.theme-dark h4, body.theme-dark h5, body.theme-dark h6, body.theme-dark .fw-bold { color: #ffffff !important; }
+        body.theme-dark .text-muted { color: #aaaaaa !important; }
+        body.theme-dark .table-custom td, body.theme-dark .table-custom th, body.theme-dark .border-bottom, body.theme-dark hr { background: transparent !important; color: white !important; border-color: #333 !important; }
+        body.theme-dark .form-control, body.theme-dark .form-select, body.theme-dark .input-group-text { background-color: #2a2a2a !important; color: white !important; border-color: #444 !important; }
+        body.theme-dark .bg-white, body.theme-dark .bg-light, body.theme-dark .table-light { background-color: #2a2a2a !important; color: #fff !important; border-color: #333 !important; }
+        body.theme-dark .table-light th { color: #ccc !important; border-bottom-color: #444 !important; }
+        body.theme-dark .btn-light, body.theme-dark .btn-outline-secondary, body.theme-dark .fab-option-btn { background-color: #2a2a2a !important; border-color: #444 !important; color: #e0e0e0 !important; }
+        body.theme-dark .btn-light:hover { background-color: #333 !important; }
+        body.theme-dark .dropdown-item { color: #e0e0e0; }
+        body.theme-dark .dropdown-item:hover { background-color: #333; color: #fff; }
+        body.theme-dark .offcanvas-header, body.theme-dark .modal-header { border-color: #333 !important; }
+        body.theme-dark .icon-btn, body.theme-dark .bottom-nav-item, body.theme-dark .search-bar-wrapper i { color: #aaa; }
+        body.theme-dark .bottom-nav-item.active { color: #0d6efd; }
+        body.theme-dark .accordion-item, body.theme-dark .accordion-button, body.theme-dark .accordion-body { background-color: #1e1e1e !important; color: #fff !important; border-color: #333 !important; }
+        body.theme-dark .accordion-button::after { filter: invert(1); }
+        body.theme-dark .rule-card { background: #1e1e1e !important; border-left-color: #0d6efd; }
+        body.theme-dark .rule-tier { border-left-color: #333; }
+        body.theme-dark .payslip-row { border-bottom-color: #333; }
+        body.theme-dark .payslip-logo { background-color: #333; color: #fff; }
+
+        /* 6. Illustration Trend */
+        body.theme-illustration { background: #ffe3d8; }
+        body.theme-illustration .main-content, body.theme-illustration .mobile-app-container { background: transparent; }
+        body.theme-illustration .sidebar { background: #fffaf8; border-right: 3px dashed #ff5d2a; }
+        body.theme-illustration .sidebar-brand { background: #ffe3d8; border: 2px dashed #ff5d2a; }
+        body.theme-illustration .sidebar-nav a { color: #ff5d2a; }
+        body.theme-illustration .top-navbar, body.theme-illustration .mobile-topbar { background: #fffaf8 !important; border-bottom: 3px dashed #ff5d2a !important; }
+        body.theme-illustration .bottom-nav { background: #fffaf8 !important; border-top: 3px dashed #ff5d2a !important; border-bottom: none; }
+        body.theme-illustration .card-custom, body.theme-illustration .mobile-card, body.theme-illustration .mobile-kpi-card, body.theme-illustration .list-mobile-card, body.theme-illustration .modal-content {
+            background: #fffaf8; border: 2px dashed #ff5d2a; border-radius: 20px; box-shadow: 6px 6px 0px rgba(255, 93, 42, 0.15);
+        }
+        body.theme-illustration .table-custom td, body.theme-illustration .table-custom th { background: transparent; border-color: #ffc2b3; }
+
+        /* 7. Animation / Motion Theme */
+        @keyframes slideInUpDash { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        body.theme-animation .page-body > div, body.theme-animation .mobile-body > div { animation: slideInUpDash 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94) both; }
+        body.theme-animation .page-body > div:nth-child(1), body.theme-animation .mobile-body > div:nth-child(1) { animation-delay: 0.05s; }
+        body.theme-animation .page-body > div:nth-child(2), body.theme-animation .mobile-body > div:nth-child(2) { animation-delay: 0.15s; }
+        body.theme-animation .page-body > div:nth-child(3), body.theme-animation .mobile-body > div:nth-child(3) { animation-delay: 0.25s; }
+        body.theme-animation .page-body > div:nth-child(4), body.theme-animation .mobile-body > div:nth-child(4) { animation-delay: 0.35s; }
+        
+        body.theme-animation .card-custom, body.theme-animation .mobile-kpi-card, body.theme-animation .list-mobile-card, body.theme-animation .accordion-item { transition: transform 0.3s cubic-bezier(0.25, 0.8, 0.25, 1), box-shadow 0.3s ease; }
+        body.theme-animation .card-custom:hover, body.theme-animation .list-mobile-card:hover { transform: translateY(-4px); box-shadow: 0 10px 20px rgba(0,0,0,0.06); }
+        body.theme-animation .mobile-kpi-card:hover, body.theme-animation .accordion-item:hover { transform: translateY(-2px); box-shadow: 0 6px 12px rgba(0,0,0,0.05); }
+    </style>
+</head>
+
+<body class="theme-default">
+
+    <!-- STEP 15: Global Success Toasts -->
+    <div class="toast-container">
+        <div id="successToast" class="toast align-items-center text-white bg-success border-0 shadow" role="alert" aria-live="assertive" aria-atomic="true">
+            <div class="d-flex">
+                <div class="toast-body fw-medium" id="toastMessage">Action completed successfully.</div>
+                <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ==========================================
+         DESKTOP VIEW
+         ========================================== -->
+    <div class="app-container d-none d-lg-flex">
+        
+        <!-- Sidebar -->
+        <aside class="sidebar d-flex">
+            <div>
+                <a href="dashboard.html" class="sidebar-brand"><i class="bi bi-layers-fill"></i></a>
+                <nav class="sidebar-nav">
+                    <a href="dashboard.html" title="Dashboard"><i class="bi bi-grid-1x2-fill"></i></a>
+                    <a href="employees.html" title="Employees"><i class="bi bi-people-fill"></i></a>
+                    <a href="managers.html" title="Managers"><i class="bi bi-shield-shaded"></i></a>
+                    <a href="payroll.html" class="active" title="Payroll"><i class="bi bi-wallet2"></i></a>
+                    <a href="attendance.html" title="Attendance & Leave"><i class="bi bi-clock-history"></i></a>
+                    <a href="tasks.html" title="Tasks"><i class="bi bi-kanban-fill"></i></a>
+                </nav>
+            </div>
+            <div class="sidebar-nav">
+                <a href="settings.html" title="Settings"><i class="bi bi-gear-fill"></i></a>
+                <a href="../index.html" title="Logout"><i class="bi bi-box-arrow-right text-danger"></i></a>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Top Navbar -->
+            <header class="top-navbar">
+                <div class="search-bar-wrapper">
+                    <i class="bi bi-search"></i>
+                    <input type="text" class="form-control" placeholder="Search Employee Payroll...">
+                </div>
+
+                <div class="top-nav-right">
+                    <select id="themeSelector" class="form-select form-select-sm bg-transparent" style="width: 150px;">
+                        <option value="default" selected>Default Style</option>
+                        <option value="theme-flat">Flat Design</option>
+                        <option value="theme-bauhaus">Bauhaus Style</option>
+                        <option value="theme-bold-type">Bold Typography</option>
+                        <option value="theme-neumorphism">Neumorphism</option>
+                        <option value="theme-glassmorphism">Glassmorphism</option>
+                        <option value="theme-animation">Animation / Motion</option>
+                        <option value="theme-illustration">Illustration Trend</option>
+                        <option value="theme-dark">Dark Mode</option>
+                    </select>
+                    <div class="dropdown">
+                        <button class="icon-btn" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            <i class="bi bi-bell"></i>
+                            <span class="position-absolute translate-middle badge rounded-pill bg-danger notification-badge">2</span>
+                        </button>
+                        <ul class="dropdown-menu dropdown-menu-end shadow" style="width: 300px;">
+                            <li><h6 class="dropdown-header">Notifications</h6></li>
+                            <li><a class="dropdown-item small" href="#">Payroll generated for IT</a></li>
+                        </ul>
+                    </div>
+                    <div class="dropdown profile-dropdown">
+                        <a href="#" class="d-flex align-items-center text-decoration-none dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+                            <img src="https://plus.unsplash.com/premium_photo-1661302846246-e8faef18255d?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MXx8QWRtaW58ZW58MHx8MHx8fDA%3D" alt="Admin Avatar">
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu-end shadow">
+                            <li><h6 class="dropdown-header">System Administrator</h6></li>
+                            <li><a class="dropdown-item" href="profile.html">Profile</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </header>
+
+            <!-- Page Body -->
+            <div class="page-body">
+                
+                <!-- STEP 1: Page Header -->
+                <div class="d-flex justify-content-between align-items-end mb-4">
+                    <div>
+                        <h2 class="fw-bold text-dark mb-1">Payroll Management</h2>
+                        <p class="text-muted small mb-0">Generate, monitor and release employee salaries based on attendance and task completion.</p>
+                        <span class="badge bg-primary mt-2">Current Cycle: July 2026</span>
+                    </div>
+                    <div class="d-flex gap-2">
+                        <button class="btn btn-outline-secondary" onclick="simulateDataLoad()"><i class="bi bi-arrow-clockwise me-2"></i>Refresh</button>
+                        <button class="btn btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#exportModal"><i class="bi bi-cloud-arrow-down me-2"></i>Export</button>
+                        <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#generatePayrollModal"><i class="bi bi-cash-stack me-2"></i>Generate Payroll</button>
+                    </div>
+                </div>
+
+                <!-- STEP 2: Statistics Cards -->
+                <div class="row g-3 mb-4">
+                    <div class="col-md-3">
+                        <div class="card-custom text-center border-bottom border-primary border-3">
+                            <span class="text-muted small d-block mb-1">💰 Total Payroll</span>
+                            <h3 class="fw-bold text-dark mb-0">₹12,45,000</h3>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="card-custom text-center border-bottom border-success border-3">
+                            <span class="text-muted small d-block mb-1">✅ Released</span>
+                            <h3 class="fw-bold text-success mb-0">₹9,80,000</h3>
+                        </div>
+                    </div>
+                    <div class="col-md-2">
+                        <div class="card-custom text-center border-bottom border-warning border-3">
+                            <span class="text-muted small d-block mb-1">🟡 Pending</span>
+                            <h3 class="fw-bold text-warning mb-0">₹1,20,000</h3>
+                        </div>
+                    </div>
+                    <div class="col-md-2">
+                        <div class="card-custom text-center border-bottom border-danger border-3">
+                            <span class="text-muted small d-block mb-1">🔴 Retained</span>
+                            <h3 class="fw-bold text-danger mb-0">₹1,45,000</h3>
+                        </div>
+                    </div>
+                    <div class="col-md-2">
+                        <div class="card-custom text-center bg-light border-0">
+                            <span class="text-muted small d-block mb-1">Employees Paid</span>
+                            <h3 class="fw-bold text-dark mb-0">118 <span class="fs-6 text-muted">/ 125</span></h3>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row g-4">
+                    <!-- Main Table Column -->
+                    <div class="col-xl-9 col-lg-8">
+                        <div class="card-custom mb-4 h-100">
+                            <!-- STEP 3: Search & Filters -->
+                            <div class="row g-2 mb-4 align-items-center">
+                                <div class="col-md-3">
+                                    <div class="input-group">
+                                        <span class="input-group-text bg-light border-end-0"><i class="bi bi-search"></i></span>
+                                        <input type="text" class="form-control bg-light border-start-0 ps-0" placeholder="Search Employee...">
+                                    </div>
+                                </div>
+                                <div class="col-md-2">
+                                    <select class="form-select text-muted bg-light">
+                                        <option selected>Department</option>
+                                        <option>IT</option>
+                                        <option>HR</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-2">
+                                    <select class="form-select text-muted bg-light">
+                                        <option selected>Salary Status</option>
+                                        <option>Generated</option>
+                                        <option>Released</option>
+                                        <option>Pending</option>
+                                        <option>Retained</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-2">
+                                    <select class="form-select text-muted bg-light">
+                                        <option selected>Task %</option>
+                                        <option>≥ 70%</option>
+                                        <option>50-69%</option>
+                                        <option>< 50%</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-3 d-flex gap-2 text-end">
+                                    <button class="btn btn-primary w-100" title="Search">Search</button>
+                                    <button class="btn btn-light text-muted w-100" title="Reset Filters"><i class="bi bi-arrow-counterclockwise"></i></button>
+                                </div>
+                            </div>
+
+                            <!-- STEP 14: Loading State (Hidden by default) -->
+                            <div id="desktopLoader" class="d-none py-5 text-center">
+                                <div class="spinner-border text-primary" role="status"><span class="visually-hidden">Loading...</span></div>
+                                <p class="text-muted mt-2">Loading Payroll Data...</p>
+                            </div>
+
+                            <!-- STEP 4: Payroll Table -->
+                            <div class="table-responsive" id="desktopTableContainer">
+                                <table class="table table-custom table-hover align-middle">
+                                    <thead>
+                                        <tr>
+                                            <th>Employee</th>
+                                            <th>Dept</th>
+                                            <th>Base Salary</th>
+                                            <th>Task %</th>
+                                            <th>Released (50%+)</th>
+                                            <th>Retained</th>
+                                            <th>Status</th>
+                                            <th class="text-end">Action</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <!-- Row 1: >= 70% Task Completion -->
+                                        <tr>
+                                            <td><div class="fw-bold">Amit Kumar</div><small class="text-muted">EMP001</small></td>
+                                            <td>IT</td>
+                                            <td>₹50,000</td>
+                                            <td><span class="badge bg-success bg-opacity-10 text-success">80%</span></td>
+                                            <td class="fw-medium text-success">₹50,000</td>
+                                            <td class="text-muted">₹0</td>
+                                            <td><span class="badge bg-success">Released</span></td>
+                                            <td class="text-end">
+                                                <button class="btn btn-sm btn-light text-primary" title="View Details" data-bs-toggle="modal" data-bs-target="#payrollDetailsModal"><i class="bi bi-eye"></i></button>
+                                                <button class="btn btn-sm btn-light text-success" title="Release Salary" disabled><i class="bi bi-cash"></i></button>
+                                                <button class="btn btn-sm btn-light text-secondary" title="Payslip" data-bs-toggle="modal" data-bs-target="#payslipModal"><i class="bi bi-receipt"></i></button>
+                                            </td>
+                                        </tr>
+                                        <!-- Row 2: 50-69% Task Completion -->
+                                        <tr>
+                                            <td><div class="fw-bold">Ravi Singh</div><small class="text-muted">EMP002</small></td>
+                                            <td>IT</td>
+                                            <td>₹45,000</td>
+                                            <td><span class="badge bg-warning bg-opacity-10 text-warning">60%</span></td>
+                                            <td class="fw-medium">₹22,500 <small class="text-muted">(50%)</small></td>
+                                            <td class="text-danger fw-medium">₹3,000 <small>(2 Days)</small></td>
+                                            <td><span class="badge bg-danger">Retained</span></td>
+                                            <td class="text-end">
+                                                <button class="btn btn-sm btn-light text-primary" data-bs-toggle="modal" data-bs-target="#payrollDetailsModal"><i class="bi bi-eye"></i></button>
+                                                <button class="btn btn-sm btn-primary" title="Force Release" data-bs-toggle="modal" data-bs-target="#releaseSalaryModal"><i class="bi bi-cash"></i></button>
+                                                <button class="btn btn-sm btn-light text-secondary" disabled><i class="bi bi-receipt"></i></button>
+                                            </td>
+                                        </tr>
+                                        <!-- Row 3: < 50% Task Completion -->
+                                        <tr>
+                                            <td><div class="fw-bold">Priya Patel</div><small class="text-muted">EMP003</small></td>
+                                            <td>HR</td>
+                                            <td>₹40,000</td>
+                                            <td><span class="badge bg-danger bg-opacity-10 text-danger">40%</span></td>
+                                            <td class="fw-medium">₹20,000 <small class="text-muted">(50%)</small></td>
+                                            <td class="text-danger fw-medium">₹9,333 <small>(7 Days)</small></td>
+                                            <td><span class="badge bg-warning text-dark">Pending</span></td>
+                                            <td class="text-end">
+                                                <button class="btn btn-sm btn-light text-primary" data-bs-toggle="modal" data-bs-target="#payrollDetailsModal"><i class="bi bi-eye"></i></button>
+                                                <button class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#releaseSalaryModal"><i class="bi bi-cash"></i></button>
+                                                <button class="btn btn-sm btn-light text-secondary" disabled><i class="bi bi-receipt"></i></button>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+
+                            <!-- STEP 13: Empty State (Hidden) -->
+                            <div id="desktopEmptyState" class="d-none py-5 text-center">
+                                <i class="bi bi-wallet2 text-muted" style="font-size: 3rem;"></i>
+                                <h5 class="mt-3 text-dark fw-bold">Payroll Not Generated</h5>
+                                <p class="text-muted">Generate payroll for the current month to view records.</p>
+                                <button class="btn btn-primary mt-2" data-bs-toggle="modal" data-bs-target="#generatePayrollModal">Generate Payroll</button>
+                            </div>
+
+                            <!-- Pagination -->
+                            <div class="d-flex justify-content-between align-items-center mt-4 pt-3 border-top" id="desktopPagination">
+                                <span class="text-muted small">Showing 1-10 of 125 Records</span>
+                                <ul class="pagination pagination-sm mb-0">
+                                    <li class="page-item disabled"><a class="page-link" href="#">Previous</a></li>
+                                    <li class="page-item active"><a class="page-link" href="#">1</a></li>
+                                    <li class="page-item"><a class="page-link" href="#">2</a></li>
+                                    <li class="page-item"><a class="page-link" href="#">Next</a></li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Right Column: Rules & Analytics -->
+                    <div class="col-xl-3 col-lg-4">
+                        
+                        <!-- STEP 7: Salary Rule Card -->
+                        <div class="card-custom rule-card mb-4">
+                            <h6 class="fw-bold text-dark mb-3"><i class="bi bi-shield-check text-primary me-2"></i>Salary Release Logic</h6>
+                            <div class="p-2 bg-light rounded text-center mb-3">
+                                <h5 class="text-primary fw-bold mb-0">50%</h5>
+                                <small class="text-muted">Automatically Released</small>
+                            </div>
+                            <hr class="text-muted">
+                            <small class="text-muted d-block mb-3 fw-medium text-center">Remaining 50% based on Approved Tasks:</small>
+                            
+                            <div class="d-flex flex-column gap-2 small">
+                                <div class="rule-tier success">
+                                    <strong class="text-success d-block">Task ≥ 70%</strong>
+                                    <span class="text-muted">100% Salary Released</span>
+                                </div>
+                                <div class="rule-tier warning">
+                                    <strong class="text-warning d-block">Task 50% – 69%</strong>
+                                    <span class="text-muted">2 Days Salary Retained</span>
+                                </div>
+                                <div class="rule-tier danger border-0">
+                                    <strong class="text-danger d-block">Task < 50%</strong>
+                                    <span class="text-muted">7 Days Salary Retained</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- STEP 12: Payroll Analytics -->
+                        <div class="card-custom">
+                            <h6 class="fw-bold text-dark mb-4">Salary Distribution</h6>
+                            <div class="d-flex align-items-center justify-content-center mb-4">
+                                <div class="donut-chart-wrapper" style="width: 100px; height: 100px;">
+                                    <div class="donut-chart" style="background: conic-gradient(#198754 0% 80%, #ffc107 80% 90%, #dc3545 90% 100%);"></div>
+                                </div>
+                            </div>
+                            <div class="d-flex flex-column gap-2 small border-bottom pb-3 mb-3">
+                                <div class="d-flex justify-content-between"><span><span class="d-inline-block bg-success rounded-circle me-1" style="width:10px;height:10px;"></span>Released (80%)</span><strong class="text-dark">₹9.8L</strong></div>
+                                <div class="d-flex justify-content-between"><span><span class="d-inline-block bg-warning rounded-circle me-1" style="width:10px;height:10px;"></span>Pending (10%)</span><strong class="text-dark">₹1.2L</strong></div>
+                                <div class="d-flex justify-content-between"><span><span class="d-inline-block bg-danger rounded-circle me-1" style="width:10px;height:10px;"></span>Retained (10%)</span><strong class="text-dark">₹1.4L</strong></div>
+                            </div>
+                            
+                            <h6 class="fw-bold text-dark mb-3">Dept. Payroll</h6>
+                            <div class="d-flex flex-column gap-2 small">
+                                <div class="d-flex justify-content-between text-muted"><span>IT</span><strong class="text-dark">₹4,50,000</strong></div>
+                                <div class="d-flex justify-content-between text-muted"><span>Finance</span><strong class="text-dark">₹3,00,000</strong></div>
+                                <div class="d-flex justify-content-between text-muted"><span>HR</span><strong class="text-dark">₹2,20,000</strong></div>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+
+            </div>
+        </main>
+    </div>
+
+
+    <!-- ==========================================
+         MOBILE VIEW
+         ========================================== -->
+    <div class="mobile-app-container d-block d-lg-none">
+        
+        <!-- Top App Bar -->
+        <div class="mobile-topbar">
+            <button class="icon-btn text-dark" data-bs-toggle="offcanvas" data-bs-target="#mobileMenu"><i class="bi bi-list fs-3"></i></button>
+            <h5 class="mb-0 fw-bold text-dark">Payroll</h5>
+            <div class="d-flex align-items-center gap-2">
+                <select id="mobileThemeSelector" class="form-select form-select-sm bg-light text-dark shadow-sm rounded-pill" style="width: 100px; font-size: 0.75rem;">
+                    <option value="default" selected>Default</option>
+                    <option value="theme-flat">Flat</option>
+                    <option value="theme-bauhaus">Bauhaus</option>
+                    <option value="theme-bold-type">Bold</option>
+                    <option value="theme-neumorphism">Neumorph</option>
+                    <option value="theme-glassmorphism">Glass</option>
+                    <option value="theme-animation">Motion</option>
+                    <option value="theme-illustration">Illustrate</option>
+                    <option value="theme-dark">Dark</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="mobile-body">
+            
+            <!-- STEP 1: Page Header -->
+            <div class="d-flex justify-content-between align-items-center mb-1">
+                <div>
+                    <h4 class="fw-bold text-dark mb-0">July 2026</h4>
+                    <p class="text-muted small mb-0">Current Cycle</p>
+                </div>
+                <button class="btn btn-sm btn-primary rounded-circle" data-bs-toggle="modal" data-bs-target="#generatePayrollModal"><i class="bi bi-cash-stack"></i></button>
+            </div>
+
+            <!-- STEP 2: Statistics (2x2 Grid) -->
+            <div class="mobile-kpi-grid mt-2">
+                <div class="mobile-kpi-card text-center"><span class="text-muted small d-block">Payroll</span><h5 class="fw-bold text-dark mb-0">₹12.4L</h5></div>
+                <div class="mobile-kpi-card text-center"><span class="text-muted small d-block">Released</span><h5 class="fw-bold text-success mb-0">₹9.8L</h5></div>
+                <div class="mobile-kpi-card text-center"><span class="text-muted small d-block">Pending</span><h5 class="fw-bold text-warning mb-0">₹1.2L</h5></div>
+                <div class="mobile-kpi-card text-center"><span class="text-muted small d-block">Retained</span><h5 class="fw-bold text-danger mb-0">₹1.4L</h5></div>
+            </div>
+
+            <!-- STEP 7: Salary Rules (Accordion Mobile) -->
+            <div class="accordion mt-3" id="rulesAccordion">
+                <div class="accordion-item border-0 rounded overflow-hidden shadow-sm">
+                    <h2 class="accordion-header">
+                        <button class="accordion-button collapsed bg-white fw-bold text-primary" type="button" data-bs-toggle="collapse" data-bs-target="#rulesCollapse">
+                            <i class="bi bi-shield-check me-2"></i> Salary Release Logic
+                        </button>
+                    </h2>
+                    <div id="rulesCollapse" class="accordion-collapse collapse bg-light" data-bs-parent="#rulesAccordion">
+                        <div class="accordion-body small">
+                            <div class="text-center mb-2"><strong class="text-primary">50% Automatically Released</strong></div>
+                            <div class="text-muted text-center border-bottom pb-2 mb-3">Remaining 50% strictly tied to Approved Tasks:</div>
+                            <div class="d-flex justify-content-between mb-2"><span class="fw-bold text-success">Task ≥ 70%</span><span class="text-dark">100% Released</span></div>
+                            <div class="d-flex justify-content-between mb-2"><span class="fw-bold text-warning">Task 50%–69%</span><span class="text-dark">2 Days Retained</span></div>
+                            <div class="d-flex justify-content-between"><span class="fw-bold text-danger">Task < 50%</span><span class="text-dark">7 Days Retained</span></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- STEP 3: Search (Mobile) -->
+            <div class="d-flex gap-2 align-items-center mt-3">
+                <div class="input-group">
+                    <span class="input-group-text bg-white border-end-0 rounded-start-pill"><i class="bi bi-search text-muted"></i></span>
+                    <input type="text" class="form-control border-start-0 rounded-end-pill" placeholder="Search Employee...">
+                </div>
+                <button class="btn btn-light border rounded-pill px-3" data-bs-toggle="offcanvas" data-bs-target="#mobileFilterSheet"><i class="bi bi-funnel"></i></button>
+            </div>
+
+            <!-- Mobile Filter Bottom Sheet -->
+            <div class="offcanvas offcanvas-bottom" tabindex="-1" id="mobileFilterSheet" style="height: auto; border-top-left-radius: 20px; border-top-right-radius: 20px;">
+                <div class="offcanvas-header border-bottom">
+                    <h5 class="offcanvas-title fw-bold">Filters</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="offcanvas"></button>
+                </div>
+                <div class="offcanvas-body">
+                    <div class="mb-3"><label class="form-label small text-muted">Department</label><select class="form-select"><option>All</option><option>IT</option><option>HR</option></select></div>
+                    <div class="mb-3"><label class="form-label small text-muted">Month</label><select class="form-select"><option>July 2026</option><option>June 2026</option></select></div>
+                    <div class="mb-4"><label class="form-label small text-muted">Status</label><select class="form-select"><option>All</option><option>Released</option><option>Retained</option></select></div>
+                    <div class="d-flex gap-2">
+                        <button class="btn btn-light w-50" data-bs-dismiss="offcanvas">Reset</button>
+                        <button class="btn btn-primary w-50" data-bs-dismiss="offcanvas">Apply</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- STEP 14: Loading State (Mobile) -->
+            <div id="mobileLoader" class="d-none py-4 text-center">
+                <div class="spinner-border text-primary" role="status"><span class="visually-hidden">Loading...</span></div>
+            </div>
+
+            <!-- STEP 4: Payroll Cards (Mobile) -->
+            <h6 class="fw-bold text-dark mt-3 mb-1">Payroll Records</h6>
+            <div id="mobCardsContainer">
+                
+                <!-- Card 1 -->
+                <div class="list-mobile-card">
+                    <div class="d-flex justify-content-between align-items-start">
+                        <div>
+                            <h6 class="fw-bold text-dark mb-0">Amit Kumar</h6>
+                            <span class="text-muted small">EMP001 &bull; Base: ₹50K</span>
+                        </div>
+                        <span class="badge bg-success">Released</span>
+                    </div>
+                    <div class="bg-light p-2 rounded mt-2 small border">
+                        <div class="d-flex justify-content-between mb-1"><span class="text-muted">Task Progress</span><strong class="text-success">80% (100% Release)</strong></div>
+                        <div class="d-flex justify-content-between"><span class="text-muted">Final Salary</span><strong class="text-dark fs-6">₹50,000</strong></div>
+                    </div>
+                    <div class="list-mobile-card-actions">
+                        <button class="btn btn-sm btn-light flex-grow-1 text-primary fw-medium" data-bs-toggle="modal" data-bs-target="#payrollDetailsModal">View <i class="bi bi-chevron-right ms-1"></i></button>
+                        <button class="btn btn-sm btn-light text-secondary px-3" data-bs-toggle="modal" data-bs-target="#payslipModal" title="Payslip"><i class="bi bi-receipt"></i></button>
+                    </div>
+                </div>
+
+                <!-- Card 2 -->
+                <div class="list-mobile-card">
+                    <div class="d-flex justify-content-between align-items-start">
+                        <div>
+                            <h6 class="fw-bold text-dark mb-0">Ravi Singh</h6>
+                            <span class="text-muted small">EMP002 &bull; Base: ₹45K</span>
+                        </div>
+                        <span class="badge bg-danger">Retained</span>
+                    </div>
+                    <div class="bg-light p-2 rounded mt-2 small border">
+                        <div class="d-flex justify-content-between mb-1"><span class="text-muted">Task Progress</span><strong class="text-warning">60% (2 Days Retained)</strong></div>
+                        <div class="d-flex justify-content-between mb-1"><span class="text-muted">Released (50%)</span><strong class="text-dark">₹22,500</strong></div>
+                        <div class="d-flex justify-content-between"><span class="text-danger">Retained</span><strong class="text-danger">₹3,000</strong></div>
+                    </div>
+                    <div class="list-mobile-card-actions">
+                        <button class="btn btn-sm btn-light flex-grow-1 text-primary fw-medium" data-bs-toggle="modal" data-bs-target="#payrollDetailsModal">View</button>
+                        <button class="btn btn-sm btn-primary flex-grow-1 fw-medium" data-bs-toggle="modal" data-bs-target="#releaseSalaryModal"><i class="bi bi-cash me-1"></i>Release</button>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- STEP 12: Analytics Carousel (Mobile) -->
+            <div class="mobile-card mt-3 p-0 overflow-hidden pb-4">
+                <div id="mobileChartCarousel" class="carousel slide" data-bs-touch="true" data-bs-interval="false">
+                    <div class="carousel-inner p-3">
+                        <div class="carousel-item active text-center">
+                            <h6 class="fw-bold text-dark mb-3">📊 Payroll Distribution</h6>
+                            <div class="d-flex align-items-center justify-content-center gap-4">
+                                <div class="donut-chart-wrapper" style="width: 90px; height: 90px;"><div class="donut-chart" style="background: conic-gradient(#198754 0% 80%, #ffc107 80% 90%, #dc3545 90% 100%);"></div></div>
+                                <div class="small text-start text-muted">
+                                    <div class="mb-1"><span class="d-inline-block bg-success rounded-circle me-1" style="width:10px;height:10px;"></span>Rel: 80%</div>
+                                    <div class="mb-1"><span class="d-inline-block bg-warning rounded-circle me-1" style="width:10px;height:10px;"></span>Pnd: 10%</div>
+                                    <div><span class="d-inline-block bg-danger rounded-circle me-1" style="width:10px;height:10px;"></span>Ret: 10%</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="carousel-item">
+                            <h6 class="fw-bold text-dark mb-3 text-center">🏢 Dept Payroll</h6>
+                            <div class="d-flex flex-column gap-2 small px-4">
+                                <div class="d-flex justify-content-between text-muted"><span>IT</span><strong class="text-dark">₹4.5L</strong></div>
+                                <div class="d-flex justify-content-between text-muted"><span>Finance</span><strong class="text-dark">₹3.0L</strong></div>
+                                <div class="d-flex justify-content-between text-muted"><span>HR</span><strong class="text-dark">₹2.2L</strong></div>
+                            </div>
+                        </div>
+                        <div class="carousel-item text-center">
+                            <h6 class="fw-bold text-dark mb-3">📅 Monthly Trend</h6>
+                            <div class="d-flex align-items-end justify-content-between h-100 pt-3 px-4" style="height: 100px;">
+                                <div class="d-flex flex-column align-items-center gap-1 w-100"><div class="bg-primary w-50 rounded-top" style="height: 40px;"></div><span class="small text-muted">May</span></div>
+                                <div class="d-flex flex-column align-items-center gap-1 w-100"><div class="bg-primary w-50 rounded-top" style="height: 60px;"></div><span class="small text-muted">Jun</span></div>
+                                <div class="d-flex flex-column align-items-center gap-1 w-100"><div class="bg-primary w-50 rounded-top" style="height: 70px;"></div><span class="small text-dark fw-bold">Jul</span></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="carousel-indicators mb-1">
+                        <button type="button" data-bs-target="#mobileChartCarousel" data-bs-slide-to="0" class="active"></button>
+                        <button type="button" data-bs-target="#mobileChartCarousel" data-bs-slide-to="1"></button>
+                        <button type="button" data-bs-target="#mobileChartCarousel" data-bs-slide-to="2"></button>
+                    </div>
+                </div>
+            </div>
+
+            <button class="btn btn-outline-primary w-100 mt-2 fw-medium" id="mobileLoadMore">Load More <i class="bi bi-arrow-down-short"></i></button>
+        </div>
+
+        <!-- STEP 16: Floating Action Button (Mobile) -->
+        <div class="fab-container" id="fab">
+            <button class="fab-main" onclick="document.getElementById('fab').classList.toggle('active')"><i class="bi bi-plus"></i></button>
+            <div class="fab-options">
+                <button class="fab-option-btn" data-bs-toggle="modal" data-bs-target="#generatePayrollModal" title="Generate Payroll"><i class="bi bi-cash-stack text-primary"></i></button>
+                <button class="fab-option-btn" data-bs-toggle="modal" data-bs-target="#exportModal" title="Export"><i class="bi bi-cloud-arrow-down text-info"></i></button>
+                <button class="fab-option-btn" title="Reports"><i class="bi bi-file-earmark-bar-graph text-secondary"></i></button>
+            </div>
+        </div>
+
+        <!-- Bottom Navigation -->
+        <nav class="bottom-nav">
+            <a href="dashboard.html" class="bottom-nav-item"><i class="bi bi-house-door"></i>Home</a>
+            <a href="employees.html" class="bottom-nav-item"><i class="bi bi-people"></i>Employees</a>
+            <a href="managers.html" class="bottom-nav-item"><i class="bi bi-shield-shaded"></i>Managers</a>
+            <a href="tasks.html" class="bottom-nav-item "><i class="bi bi-kanban-fill"></i>Tasks</a>
+            <a href="profile.html" class="bottom-nav-item"><i class="bi bi-person"></i>Profile</a>
+        </nav>
+
+        <!-- Offcanvas Mobile Menu -->
+        <div class="offcanvas offcanvas-start" tabindex="-1" id="mobileMenu" style="width: 280px; background: #111;">
+            <div class="offcanvas-header border-bottom border-secondary">
+                <h5 class="offcanvas-title text-white fw-bold"><i class="bi bi-layers-fill me-2"></i>Octopyder</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="offcanvas"></button>
+            </div>
+            <div class="offcanvas-body d-flex flex-column justify-content-between">
+                <nav class="d-flex flex-column gap-3">
+                    <a href="dashboard.html" class="text-secondary text-decoration-none fs-5"><i class="bi bi-grid-1x2-fill me-3"></i>Dashboard</a>
+                    <a href="payroll.html" class="text-secondary text-decoration-none fs-5"><i class="bi bi-wallet2 me-3"></i>Payroll</a>
+                    <a href="attendance.html" class="text-secondary text-decoration-none fs-5"><i class="bi bi-clock-history me-3"></i>Attendance</a>
+                    <a href="settings.html" class="text-secondary text-decoration-none fs-5"><i class="bi bi-gear-fill me-3"></i>Settings</a>
+                </nav>
+                <a href="../index.html" class="text-danger text-decoration-none fs-5"><i class="bi bi-box-arrow-right me-3"></i>Logout</a>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- ==========================================
+         MODALS (Shared between Desktop & Mobile)
+         ========================================== -->
+
+    <!-- STEP 5: Generate Payroll Modal -->
+    <div class="modal fade" id="generatePayrollModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-sm modal-fullscreen-md-down">
+            <div class="modal-content border-0 shadow h-100">
+                <div class="modal-header border-bottom-0 pb-0">
+                    <h5 class="modal-title fw-bold">Generate Payroll</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body p-4">
+                    <div id="genConfig">
+                        <div class="mb-3"><label class="form-label small text-muted">Payroll Month</label><select class="form-select"><option>July 2026</option></select></div>
+                        <div class="mb-4"><label class="form-label small text-muted">Department</label><select class="form-select"><option>All Departments</option><option>IT</option><option>HR</option></select></div>
+                        <label class="form-label small text-muted d-block mb-2">Generate Based On:</label>
+                        <div class="form-check mb-2"><input class="form-check-input" type="checkbox" checked disabled><label class="form-check-label small text-dark">50% Base Salary</label></div>
+                        <div class="form-check mb-2"><input class="form-check-input" type="checkbox" checked><label class="form-check-label small text-dark">Attendance / Deductions</label></div>
+                        <div class="form-check mb-2"><input class="form-check-input" type="checkbox" checked><label class="form-check-label small text-dark">Task Completion (Retention Logic)</label></div>
+                        <div class="form-check mb-4"><input class="form-check-input" type="checkbox" checked><label class="form-check-label small text-dark">Approved Leaves</label></div>
+                        <button type="button" class="btn btn-primary w-100" onclick="startPayrollGeneration()">Generate Payroll</button>
+                    </div>
+                    
+                    <div id="genProgress" class="d-none text-center py-3">
+                        <h6 class="fw-bold text-primary mb-3">Calculating Salary...</h6>
+                        <div class="progress mb-2" style="height: 10px;">
+                            <div class="progress-bar progress-bar-striped progress-bar-animated bg-primary" id="genProgressBar" style="width: 0%"></div>
+                        </div>
+                        <small class="text-muted" id="genProgressText">0%</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- STEP 6 & 8: Payroll Details & Salary Calculation Modal -->
+    <div class="modal fade" id="payrollDetailsModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-lg modal-dialog-scrollable">
+            <div class="modal-content border-0 shadow">
+                <div class="modal-header bg-light">
+                    <div>
+                        <h5 class="modal-title fw-bold mb-0">Employee Salary Details</h5>
+                        <span class="text-muted small">Amit Kumar &bull; EMP001 &bull; IT Department</span>
+                    </div>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body p-4 bg-light">
+                    <div class="row g-4">
+                        <!-- Salary Breakup -->
+                        <div class="col-md-7">
+                            <div class="bg-white p-3 rounded border h-100">
+                                <h6 class="fw-bold text-dark border-bottom pb-2 mb-3">Salary Breakup</h6>
+                                <div class="d-flex justify-content-between mb-2 small"><span class="text-muted">Basic Salary</span><strong class="text-dark">₹40,000</strong></div>
+                                <div class="d-flex justify-content-between mb-2 small"><span class="text-muted">Allowances</span><strong class="text-dark">₹8,000</strong></div>
+                                <div class="d-flex justify-content-between mb-3 small"><span class="text-muted">Bonus</span><strong class="text-dark">₹2,000</strong></div>
+                                <div class="d-flex justify-content-between mb-3 border-bottom pb-2 bg-light p-2 rounded"><span class="fw-bold text-dark">Gross Salary</span><strong class="text-primary">₹50,000</strong></div>
+                                
+                                <h6 class="fw-bold text-dark border-bottom pb-2 mb-3 mt-4">Deductions</h6>
+                                <div class="d-flex justify-content-between mb-2 small"><span class="text-muted">Late Deduction</span><strong class="text-danger">- ₹0</strong></div>
+                                <div class="d-flex justify-content-between mb-2 small"><span class="text-muted">Leave Deduction</span><strong class="text-danger">- ₹0</strong></div>
+                                <div class="d-flex justify-content-between mb-3 small"><span class="text-muted">Tax (TDS)</span><strong class="text-danger">- ₹0</strong></div>
+                                <div class="d-flex justify-content-between mb-2 border-bottom pb-2 bg-light p-2 rounded"><span class="fw-bold text-dark">Total Deductions</span><strong class="text-danger">₹0</strong></div>
+                            </div>
+                        </div>
+
+                        <!-- Calculation & Task Rule (Step 8) -->
+                        <div class="col-md-5">
+                            <div class="bg-white p-3 rounded border h-100 border-primary">
+                                <h6 class="fw-bold text-primary border-bottom pb-2 mb-3"><i class="bi bi-shield-check me-2"></i>Task Completion Logic</h6>
+                                
+                                <div class="d-flex justify-content-between mb-2 small"><span class="text-muted">Approved Tasks</span><strong class="text-success fs-6">80%</strong></div>
+                                <p class="small text-muted mb-3 pb-2 border-bottom">Since tasks are ≥ 70%, 100% of the remaining salary is released.</p>
+
+                                <div class="d-flex justify-content-between mb-2 small"><span class="text-muted">50% Auto Released</span><strong class="text-dark">₹25,000</strong></div>
+                                <div class="d-flex justify-content-between mb-2 small"><span class="text-muted">Task Based Release</span><strong class="text-success">+ ₹25,000</strong></div>
+                                <div class="d-flex justify-content-between mb-4 small"><span class="text-muted">Retained Salary</span><strong class="text-danger">- ₹0</strong></div>
+                                
+                                <div class="bg-primary bg-opacity-10 p-3 rounded border border-primary text-center mt-auto">
+                                    <span class="d-block small fw-bold text-primary mb-1">Final Net Salary</span>
+                                    <h3 class="fw-bold text-dark mb-0">₹50,000</h3>
+                                    <span class="badge bg-success mt-2">Released</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- STEP 9: Release Salary Confirmation Modal -->
+    <div class="modal fade" id="releaseSalaryModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-sm">
+            <div class="modal-content border-0 shadow text-center">
+                <div class="modal-body p-4">
+                    <i class="bi bi-cash-stack text-primary display-4 mb-3 d-block"></i>
+                    <h5 class="fw-bold mb-2">Release Salary</h5>
+                    <p class="text-dark fw-bold mb-1">Ravi Singh</p>
+                    <p class="text-muted small mb-2">Total Amount to Release:</p>
+                    <h4 class="text-success fw-bold mb-4">₹22,500</h4>
+                    
+                    <div class="alert alert-warning p-2 small mb-4 text-start">
+                        <i class="bi bi-exclamation-triangle me-1"></i> <strong>Note:</strong> ₹3,000 (2 Days) is retained due to 60% task completion.
+                    </div>
+
+                    <div class="d-flex gap-2 w-100">
+                        <button type="button" class="btn btn-light flex-grow-1" data-bs-dismiss="modal">Cancel</button>
+                        <button type="button" class="btn btn-primary flex-grow-1" onclick="handleAction('Salary Released Successfully', '#releaseSalaryModal')">Confirm</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- STEP 10: Payslip Preview Modal -->
+    <div class="modal fade" id="payslipModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-md">
+            <div class="modal-content border-0 shadow">
+                <div class="modal-body p-5">
+                    
+                    <!-- Payslip Content -->
+                    <div class="text-center mb-4">
+                        <div class="payslip-logo mb-2"><i class="bi bi-layers-fill"></i></div>
+                        <h5 class="fw-bold text-dark mb-0">Octopyder Solutions</h5>
+                        <p class="text-muted small">Payroll Management System &bull; July 2026</p>
+                    </div>
+
+                    <div class="border-top border-bottom py-2 mb-4 small">
+                        <div class="row">
+                            <div class="col-6"><span class="text-muted">Employee:</span> <strong class="text-dark">Amit Kumar</strong></div>
+                            <div class="col-6 text-end"><span class="text-muted">Emp ID:</span> <strong class="text-dark">EMP001</strong></div>
+                            <div class="col-6"><span class="text-muted">Dept:</span> <strong class="text-dark">IT</strong></div>
+                            <div class="col-6 text-end"><span class="text-muted">Task %:</span> <strong class="text-dark">80%</strong></div>
+                        </div>
+                    </div>
+
+                    <div class="d-flex flex-column gap-1 small mb-4">
+                        <div class="payslip-row"><span class="text-muted">Basic Salary</span><strong class="text-dark">₹40,000</strong></div>
+                        <div class="payslip-row"><span class="text-muted">Allowances & Bonus</span><strong class="text-dark">₹10,000</strong></div>
+                        <div class="payslip-row"><span class="text-muted">Deductions</span><strong class="text-dark">₹0</strong></div>
+                        <div class="payslip-row"><span class="text-muted">Task-Based Retained</span><strong class="text-dark">₹0</strong></div>
+                        <div class="payslip-row bg-light p-2 rounded mt-2 border-0"><span class="fw-bold text-dark">Final Salary</span><strong class="text-primary fs-6">₹50,000</strong></div>
+                    </div>
+
+                    <div class="text-center mt-4">
+                        <button type="button" class="btn btn-outline-secondary w-100" onclick="handleAction('Payslip Downloaded', '#payslipModal')"><i class="bi bi-file-earmark-pdf me-2"></i>Download PDF</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- STEP 11: Export Modal -->
+    <div class="modal fade" id="exportModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-sm">
+            <div class="modal-content border-0 shadow text-center">
+                <div class="modal-header border-bottom-0 pb-0">
+                    <h5 class="modal-title fw-bold w-100">Export Payroll</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body p-4">
+                    <div class="d-flex flex-column gap-2">
+                        <button class="btn btn-outline-danger" onclick="handleAction('Payroll Exported as PDF', '#exportModal')"><i class="bi bi-file-earmark-pdf me-2"></i> Export as PDF</button>
+                        <button class="btn btn-outline-success" onclick="handleAction('Payroll Exported as Excel', '#exportModal')"><i class="bi bi-file-earmark-excel me-2"></i> Export as Excel</button>
+                        <button class="btn btn-outline-secondary" onclick="handleAction('Payroll Exported as CSV', '#exportModal')"><i class="bi bi-filetype-csv me-2"></i> Export as CSV</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- Bootstrap JS Bundle -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
+    <!-- UI Logic Script -->
+    <script>
+        // Theme Management
+        const themeSelector = document.getElementById('themeSelector');
+        const mobileThemeSelector = document.getElementById('mobileThemeSelector');
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const savedTheme = localStorage.getItem('payrollTheme');
+            if (savedTheme) {
+                if(themeSelector) themeSelector.value = savedTheme;
+                if(mobileThemeSelector) mobileThemeSelector.value = savedTheme;
+                if (savedTheme !== 'default') document.body.classList.add(savedTheme);
+            }
+        });
+
+        function syncTheme(e) {
+            document.body.className = '';
+            const selectedTheme = e.target.value;
+            if (selectedTheme !== 'default') document.body.classList.add(selectedTheme);
+            if(themeSelector) themeSelector.value = selectedTheme;
+            if(mobileThemeSelector) mobileThemeSelector.value = selectedTheme;
+            localStorage.setItem('payrollTheme', selectedTheme);
+        }
+
+        if(themeSelector) themeSelector.addEventListener('change', syncTheme);
+        if(mobileThemeSelector) mobileThemeSelector.addEventListener('change', syncTheme);
+
+        // Success Toasts (STEP 15)
+        function showToast(message) {
+            document.getElementById('toastMessage').innerText = message;
+            const toastEl = document.getElementById('successToast');
+            const toast = new bootstrap.Toast(toastEl, { delay: 3000 });
+            toast.show();
+        }
+
+        // Action Handlers
+        function handleAction(successMessage, modalId) {
+            if(modalId) {
+                const modalEl = document.querySelector(modalId);
+                if(modalEl) {
+                    const modal = bootstrap.Modal.getInstance(modalEl);
+                    if (modal) { modal.hide(); }
+                }
+            }
+            setTimeout(() => { showToast(successMessage); }, 400);
+            if (successMessage.includes("Released")) simulateDataLoad();
+        }
+
+        // Generate Payroll Simulation (STEP 5)
+        function startPayrollGeneration() {
+            document.getElementById('genConfig').classList.add('d-none');
+            document.getElementById('genProgress').classList.remove('d-none');
+            
+            let progress = 0;
+            const bar = document.getElementById('genProgressBar');
+            const text = document.getElementById('genProgressText');
+            
+            const interval = setInterval(() => {
+                progress += 20;
+                bar.style.width = progress + '%';
+                text.innerText = progress + '%';
+                
+                if (progress >= 100) {
+                    clearInterval(interval);
+                    setTimeout(() => {
+                        const modal = bootstrap.Modal.getInstance(document.getElementById('generatePayrollModal'));
+                        modal.hide();
+                        showToast("Payroll Generated Successfully");
+                        
+                        // Reset modal for next time
+                        setTimeout(() => {
+                            document.getElementById('genConfig').classList.remove('d-none');
+                            document.getElementById('genProgress').classList.add('d-none');
+                            bar.style.width = '0%';
+                            text.innerText = '0%';
+                            simulateDataLoad();
+                        }, 500);
+                    }, 500);
+                }
+            }, 300);
+        }
+
+        // Loading Simulation (STEP 14)
+        function simulateDataLoad() {
+            // Desktop
+            const dTable = document.getElementById('desktopTableContainer');
+            const dLoader = document.getElementById('desktopLoader');
+            const dPag = document.getElementById('desktopPagination');
+            
+            if (dTable && dLoader) {
+                dTable.classList.add('d-none');
+                dPag.classList.add('d-none');
+                dLoader.classList.remove('d-none');
+                setTimeout(() => {
+                    dLoader.classList.add('d-none');
+                    dTable.classList.remove('d-none');
+                    dPag.classList.remove('d-none');
+                }, 800);
+            }
+
+            // Mobile
+            const mCards = document.getElementById('mobCardsContainer');
+            const mLoader = document.getElementById('mobileLoader');
+            const mBtn = document.getElementById('mobileLoadMore');
+            
+            if (mCards && mLoader) {
+                mCards.classList.add('d-none');
+                if(mBtn) mBtn.classList.add('d-none');
+                mLoader.classList.remove('d-none');
+                setTimeout(() => {
+                    mLoader.classList.add('d-none');
+                    mCards.classList.remove('d-none');
+                    if(mBtn) mBtn.classList.remove('d-none');
+                }, 800);
+            }
+        }
+
+        // Mobile Load More
+        const loadMoreBtn = document.getElementById('mobileLoadMore');
+        if(loadMoreBtn) {
+            loadMoreBtn.addEventListener('click', function() {
+                const originalText = this.innerHTML;
+                this.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Loading...';
+                this.disabled = true;
+                setTimeout(() => {
+                    this.innerHTML = originalText;
+                    this.disabled = false;
+                    showToast("More records loaded");
+                }, 1000);
+            });
+        }
+
+        // Close FAB when modal opens
+        document.querySelectorAll('[data-bs-toggle="modal"], [data-bs-toggle="offcanvas"]').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const fab = document.getElementById('fab');
+                if(fab) fab.classList.remove('active');
+            });
+        });
+
+    </script>
+</body>
+</html>

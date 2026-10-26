@@ -1,0 +1,850 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>System Settings - Payroll System</title>
+
+    <!-- Fonts & Icons -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;900&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
+
+    <style>
+        body, html {
+            height: 100%;
+            font-family: 'Inter', sans-serif;
+            background-color: #f8f9fa;
+            transition: background-color 0.4s ease, color 0.4s ease;
+            overflow-x: hidden;
+        }
+
+        /* =========================================
+           SHARED & DESKTOP STYLES
+           ========================================= */
+        .app-container { height: 100vh; width: 100vw; overflow: hidden; }
+        .sidebar { width: 80px; background-color: #111111; flex-direction: column; align-items: center; justify-content: space-between; padding: 1.5rem 0; z-index: 1040; transition: all 0.4s ease; }
+        .sidebar-brand { width: 45px; height: 45px; background: #ffffff; color: #111; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; text-decoration: none; margin-bottom: 2rem; }
+        .sidebar-nav { display: flex; flex-direction: column; gap: 1.25rem; align-items: center; width: 100%; }
+        .sidebar-nav a { color: #a0aec0; font-size: 1.25rem; padding: 0.75rem; border-radius: 12px; transition: all 0.2s ease; text-decoration: none; }
+        .sidebar-nav a:hover, .sidebar-nav a.active { background-color: rgba(255, 255, 255, 0.1); color: #ffffff; }
+        .main-content { flex: 1; display: flex; flex-direction: column; height: 100vh; overflow-y: auto; background-color: transparent; }
+        
+        .top-navbar { background-color: #ffffff; border-bottom: 1px solid #eaeaea; padding: 1rem 2rem; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 1030; transition: all 0.4s ease; }
+        .search-bar-wrapper { position: relative; width: 300px; }
+        .search-bar-wrapper input { border-radius: 50rem; padding-left: 2.5rem; border: 1px solid #ced4da; font-size: 0.875rem; }
+        .search-bar-wrapper i { position: absolute; left: 1rem; top: 50%; transform: translateY(-50%); color: #6c757d; }
+        .top-nav-right { display: flex; align-items: center; gap: 1.25rem; }
+        .icon-btn { background: none; border: none; font-size: 1.25rem; color: #4a5568; position: relative; cursor: pointer; }
+        .notification-badge { position: absolute; top: -2px; right: -4px; font-size: 0.6rem; padding: 0.25em 0.4em; }
+        .profile-dropdown img { width: 40px; height: 40px; border-radius: 50%; object-fit: cover; }
+        
+        .page-body { padding: 2rem; max-width: 1200px; margin: 0 auto; width: 100%; }
+
+        /* --- Cards & General --- */
+        .card-custom { background: #ffffff; border: 1px solid #eaeaea; border-radius: 1rem; box-shadow: 0 2px 6px rgba(0,0,0,0.02); transition: all 0.3s ease; }
+        
+        /* Table overrides */
+        .table-custom { margin-bottom: 0; }
+        .table-custom th { border-bottom-width: 1px; color: #6c757d; font-weight: 600; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.5px; border-top: none; }
+        .table-custom td { vertical-align: middle; border-bottom-color: #eaeaea; }
+
+        /* Form styling */
+        .form-label { font-size: 0.85rem; font-weight: 500; color: #4a5568; margin-bottom: 0.25rem; }
+        .form-control, .form-select { border-radius: 0.5rem; border-color: #e2e8f0; font-size: 0.9rem; padding: 0.6rem 1rem; }
+        .form-control:focus, .form-select:focus { border-color: #0d6efd; box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.1); }
+        .form-switch .form-check-input { width: 2.5em; height: 1.25em; cursor: pointer; }
+        
+        .settings-icon-bg { width: 40px; height: 40px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 1.2rem; }
+
+        /* =========================================
+           HYBRID ACCORDION (Desktop Cards / Mobile Accordions)
+           ========================================= */
+        @media (min-width: 992px) {
+            .settings-accordion .accordion-item { border: none; background: transparent; margin-bottom: 1.5rem !important; }
+            .settings-accordion .accordion-collapse { display: block !important; }
+            .settings-accordion .accordion-button { display: none; }
+            .settings-accordion .card-custom { padding: 1.5rem; }
+        }
+        @media (max-width: 991.98px) {
+            .settings-accordion .card-custom { padding: 0; box-shadow: 0 4px 12px rgba(0,0,0,0.03); border: none; border-radius: 1rem; overflow: hidden; margin-bottom: 1rem !important; }
+            .settings-accordion .accordion-body { padding: 1.25rem; border-top: 1px solid #eaeaea; }
+            .settings-accordion .accordion-button { font-weight: 600; border-radius: 1rem !important; padding: 1.25rem; background-color: #ffffff; color: #212529; }
+            .settings-accordion .accordion-button:not(.collapsed) { background-color: rgba(13, 110, 253, 0.05); color: #0d6efd; box-shadow: none; border-bottom-left-radius: 0 !important; border-bottom-right-radius: 0 !important; }
+            .settings-accordion .accordion-button:focus { box-shadow: none; }
+            
+            .desktop-header-actions { display: none !important; }
+            .page-body { padding: 1rem; }
+        }
+
+        /* =========================================
+           MOBILE STYLES (App-Like Interface)
+           ========================================= */
+        .mobile-app-container { background-color: #f5f6fa; min-height: 100vh; padding-bottom: 80px; }
+        .mobile-topbar { position: sticky; top: 0; z-index: 1040; background-color: #ffffff; padding: 1rem; display: flex; align-items: center; justify-content: space-between; box-shadow: 0 2px 10px rgba(0,0,0,0.05); }
+
+        /* Bottom Nav */
+        .bottom-nav { position: fixed; bottom: 0; left: 0; right: 0; height: 65px; background: #ffffff; box-shadow: 0 -2px 10px rgba(0,0,0,0.05); display: flex; justify-content: space-around; align-items: center; z-index: 1040; border-top-left-radius: 20px; border-top-right-radius: 20px; }
+        .bottom-nav-item { display: flex; flex-direction: column; align-items: center; color: #a0aec0; text-decoration: none; font-size: 0.75rem; gap: 2px; }
+        .bottom-nav-item.active { color: #0d6efd; font-weight: 600; }
+        .bottom-nav-item i { font-size: 1.25rem; }
+        
+        .fab-container { position: fixed; bottom: 85px; right: 15px; z-index: 1050; display: flex; flex-direction: column-reverse; align-items: center; gap: 10px; }
+        .fab-main { width: 56px; height: 56px; border-radius: 50%; background-color: #0d6efd; color: white; border: none; box-shadow: 0 4px 12px rgba(13, 110, 253, 0.4); font-size: 24px; display: flex; align-items: center; justify-content: center; transition: transform 0.3s; }
+        .fab-options { display: none; flex-direction: column-reverse; gap: 10px; align-items: center; }
+        .fab-container.active .fab-options { display: flex; animation: slideUp 0.2s ease forwards; }
+        .fab-container.active .fab-main { transform: rotate(45deg); }
+        .fab-option-btn { width: 45px; height: 45px; border-radius: 50%; background-color: #ffffff; color: #212529; border: 1px solid #eaeaea; box-shadow: 0 4px 8px rgba(0,0,0,0.1); display: flex; align-items: center; justify-content: center; position: relative; }
+        @keyframes slideUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* Toast positioning */
+        .toast-container { position: fixed; top: 80px; right: 20px; z-index: 1150; }
+
+        /* =========================================
+           UNIFIED THEME FIXES & OVERRIDES
+           ========================================= */
+
+        /* 1. Flat Theme */
+        body.theme-flat .sidebar, body.theme-flat .mobile-topbar, body.theme-flat .bottom-nav { background: #ff5d2a; border-radius: 0; }
+        body.theme-flat .top-navbar { background: #ff5d2a; border-bottom: 2px solid #333; }
+        body.theme-flat .top-navbar .icon-btn, body.theme-flat .top-navbar .search-bar-wrapper i { color: #fff; }
+        body.theme-flat .search-bar-wrapper input { border: 2px solid #333; border-radius: 0; }
+        body.theme-flat .card-custom, body.theme-flat .modal-content, body.theme-flat .accordion-item { border-radius: 0; border: 2px solid #333; }
+        body.theme-flat .accordion-button { border-radius: 0 !important; }
+        
+        /* 2. Bauhaus Theme */
+        body.theme-bauhaus .sidebar, body.theme-bauhaus .mobile-topbar { background: #E3000F; border-right: 4px solid #000; color: white;}
+        body.theme-bauhaus .top-navbar { background: #FFD100; border-bottom: 4px solid #000; }
+        body.theme-bauhaus .bottom-nav { border-top: 4px solid #000; border-radius: 0; }
+        body.theme-bauhaus .search-bar-wrapper input { border: 4px solid #000; border-radius: 0; box-shadow: 4px 4px 0px #000; }
+        body.theme-bauhaus .card-custom, body.theme-bauhaus .modal-content, body.theme-bauhaus .accordion-item { border: 4px solid #000; box-shadow: 6px 6px 0px #000; border-radius: 0; }
+        body.theme-bauhaus .accordion-button { border-radius: 0 !important; }
+        
+        /* 3. Neumorphism */
+        body.theme-neumorphism { background-color: #e0e5ec; }
+        body.theme-neumorphism .main-content, body.theme-neumorphism .mobile-app-container { background-color: transparent; }
+        body.theme-neumorphism .top-navbar, body.theme-neumorphism .sidebar, body.theme-neumorphism .mobile-topbar, body.theme-neumorphism .bottom-nav { background: #e0e5ec !important; border: none !important; box-shadow: 6px 6px 12px #a3b1c6, -6px -6px 12px #ffffff; z-index: 1040; }
+        body.theme-neumorphism .card-custom, body.theme-neumorphism .modal-content, body.theme-neumorphism .accordion-item, body.theme-neumorphism .accordion-button, body.theme-neumorphism .dropdown-menu, body.theme-neumorphism .offcanvas { background: #e0e5ec !important; border: none !important; box-shadow: 6px 6px 12px #a3b1c6, -6px -6px 12px #ffffff !important; color: #333; }
+        body.theme-neumorphism .form-control, body.theme-neumorphism .form-select, body.theme-neumorphism input { background: #e0e5ec !important; border: none !important; box-shadow: inset 4px 4px 8px #a3b1c6, inset -4px -4px 8px #ffffff !important; }
+        body.theme-neumorphism .table-custom td, body.theme-neumorphism .table-custom th { background: transparent; border-color: #a3b1c6; }
+        body.theme-neumorphism .accordion-body { border-top: 1px solid #a3b1c6; }
+        body.theme-neumorphism .btn-light { box-shadow: 4px 4px 8px #a3b1c6, -4px -4px 8px #ffffff; border: none; }
+
+        /* 4. Glassmorphism */
+        body.theme-glassmorphism { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: #fff; min-height: 100vh; }
+        body.theme-glassmorphism .main-content, body.theme-glassmorphism .mobile-app-container { background: transparent; }
+        body.theme-glassmorphism .top-navbar, body.theme-glassmorphism .sidebar, body.theme-glassmorphism .mobile-topbar, body.theme-glassmorphism .bottom-nav { background: rgba(255, 255, 255, 0.1) !important; backdrop-filter: blur(15px); border-color: rgba(255, 255, 255, 0.2) !important; color: #fff; }
+        body.theme-glassmorphism .sidebar-brand { background: rgba(255, 255, 255, 0.2); color: #fff; border: none; }
+        body.theme-glassmorphism .card-custom, body.theme-glassmorphism .modal-content, body.theme-glassmorphism .dropdown-menu, body.theme-glassmorphism .offcanvas, body.theme-glassmorphism .offcanvas-header { background: rgba(255, 255, 255, 0.15) !important; backdrop-filter: blur(15px); border: 1px solid rgba(255, 255, 255, 0.3) !important; box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37); color: #fff !important; }
+        body.theme-glassmorphism .dropdown-item { color: #fff; }
+        body.theme-glassmorphism .dropdown-item:hover { background: rgba(255, 255, 255, 0.2) !important; color: #fff; }
+        body.theme-glassmorphism .text-dark, body.theme-glassmorphism .text-muted, body.theme-glassmorphism h2, body.theme-glassmorphism h3, body.theme-glassmorphism h4, body.theme-glassmorphism h5, body.theme-glassmorphism h6, body.theme-glassmorphism span, body.theme-glassmorphism p, body.theme-glassmorphism small, body.theme-glassmorphism strong, body.theme-glassmorphism .fw-bold { color: #ffffff !important; }
+        body.theme-glassmorphism .table-custom td, body.theme-glassmorphism .table-custom th, body.theme-glassmorphism .border-bottom, body.theme-glassmorphism hr { background: transparent !important; color: white !important; border-color: rgba(255,255,255,0.2) !important; }
+        body.theme-glassmorphism .form-control, body.theme-glassmorphism .form-select, body.theme-glassmorphism .input-group-text { background: rgba(255,255,255,0.1) !important; color: white !important; border-color: rgba(255,255,255,0.3) !important; }
+        body.theme-glassmorphism .form-control::placeholder { color: rgba(255,255,255,0.7) !important; }
+        body.theme-glassmorphism .bg-white, body.theme-glassmorphism .bg-light, body.theme-glassmorphism .table-light { background-color: rgba(255,255,255,0.15) !important; color: #fff !important; border-color: rgba(255,255,255,0.3) !important; }
+        body.theme-glassmorphism .table-light th { color: #fff !important; border-bottom: 1px solid rgba(255,255,255,0.3) !important; }
+        body.theme-glassmorphism .btn-light, body.theme-glassmorphism .btn-outline-secondary, body.theme-glassmorphism .fab-option-btn { background: rgba(255,255,255,0.15) !important; color: #fff !important; border: 1px solid rgba(255,255,255,0.3) !important; }
+        body.theme-glassmorphism .btn-light:hover { background: rgba(255,255,255,0.25) !important; }
+        body.theme-glassmorphism .icon-btn, body.theme-glassmorphism .bottom-nav-item, body.theme-glassmorphism .search-bar-wrapper i, body.theme-glassmorphism .sidebar-nav a { color: rgba(255,255,255,0.8); }
+        body.theme-glassmorphism .bottom-nav-item.active { color: #fff; font-weight: 700; }
+        /* Settings Accordion specific */
+        body.theme-glassmorphism .accordion-item, body.theme-glassmorphism .accordion-button, body.theme-glassmorphism .accordion-body { background: rgba(255,255,255,0.1) !important; color: #fff !important; border-color: rgba(255,255,255,0.2) !important; }
+        body.theme-glassmorphism .accordion-button::after { filter: brightness(0) invert(1); }
+        body.theme-glassmorphism .settings-icon-bg { background-color: rgba(255,255,255,0.2) !important; color: #fff !important; }
+
+        /* 5. Dark Mode */
+        body.theme-dark { background-color: #121212; color: #e0e0e0; }
+        body.theme-dark .main-content, body.theme-dark .mobile-app-container { background-color: #121212; }
+        body.theme-dark .top-navbar, body.theme-dark .sidebar, body.theme-dark .mobile-topbar, body.theme-dark .bottom-nav { background-color: #1a1a1a !important; border-color: #333 !important; }
+        body.theme-dark .sidebar-brand { background: #333; color: #fff; }
+        body.theme-dark .card-custom, body.theme-dark .modal-content, body.theme-dark .dropdown-menu, body.theme-dark .offcanvas { background-color: #1e1e1e !important; border: 1px solid #333 !important; box-shadow: none; color: #fff !important; }
+        body.theme-dark .text-dark, body.theme-dark h2, body.theme-dark h3, body.theme-dark h4, body.theme-dark h5, body.theme-dark h6, body.theme-dark .fw-bold { color: #ffffff !important; }
+        body.theme-dark .text-muted, body.theme-dark .form-label { color: #aaaaaa !important; }
+        body.theme-dark .table-custom td, body.theme-dark .table-custom th, body.theme-dark .border-bottom, body.theme-dark hr { background: transparent !important; color: white !important; border-color: #333 !important; }
+        body.theme-dark .form-control, body.theme-dark .form-select, body.theme-dark .input-group-text { background-color: #2a2a2a !important; color: white !important; border-color: #444 !important; }
+        body.theme-dark .bg-white, body.theme-dark .bg-light, body.theme-dark .table-light { background-color: #2a2a2a !important; color: #fff !important; border-color: #333 !important; }
+        body.theme-dark .table-light th { color: #ccc !important; border-bottom-color: #444 !important; }
+        body.theme-dark .btn-light, body.theme-dark .btn-outline-secondary, body.theme-dark .fab-option-btn { background-color: #2a2a2a !important; border-color: #444 !important; color: #e0e0e0 !important; }
+        body.theme-dark .btn-light:hover { background-color: #333 !important; }
+        body.theme-dark .dropdown-item { color: #e0e0e0; }
+        body.theme-dark .dropdown-item:hover { background-color: #333 !important; color: #fff; }
+        body.theme-dark .offcanvas-header, body.theme-dark .modal-header { border-color: #333 !important; }
+        body.theme-dark .icon-btn, body.theme-dark .bottom-nav-item, body.theme-dark .search-bar-wrapper i { color: #aaa; }
+        body.theme-dark .bottom-nav-item.active { color: #0d6efd; }
+        /* Settings Accordion specific */
+        body.theme-dark .accordion-item, body.theme-dark .accordion-button, body.theme-dark .accordion-body { background-color: #1e1e1e !important; color: #fff !important; border-color: #333 !important; }
+        body.theme-dark .accordion-button:not(.collapsed) { background-color: #2a2a2a !important; color: #fff !important; }
+        body.theme-dark .accordion-button::after { filter: invert(1); }
+
+        /* 6. Illustration Trend */
+        body.theme-illustration { background: #ffe3d8; }
+        body.theme-illustration .main-content, body.theme-illustration .mobile-app-container { background: transparent; }
+        body.theme-illustration .sidebar { background: #fffaf8; border-right: 3px dashed #ff5d2a; }
+        body.theme-illustration .sidebar-brand { background: #ffe3d8; border: 2px dashed #ff5d2a; }
+        body.theme-illustration .sidebar-nav a { color: #ff5d2a; }
+        body.theme-illustration .top-navbar, body.theme-illustration .mobile-topbar { background: #fffaf8 !important; border-bottom: 3px dashed #ff5d2a !important; }
+        body.theme-illustration .bottom-nav { background: #fffaf8 !important; border-top: 3px dashed #ff5d2a !important; border-bottom: none; }
+        body.theme-illustration .card-custom, body.theme-illustration .modal-content, body.theme-illustration .accordion-item {
+            background: #fffaf8; border: 2px dashed #ff5d2a; border-radius: 20px; box-shadow: 6px 6px 0px rgba(255, 93, 42, 0.15);
+        }
+        body.theme-illustration .accordion-button { background: transparent; border-radius: 20px !important; }
+        body.theme-illustration .accordion-button:not(.collapsed) { background-color: #ffe3d8; }
+        body.theme-illustration .accordion-body { border-top: 2px dashed #ffc2b3; }
+        body.theme-illustration .table-custom td, body.theme-illustration .table-custom th { background: transparent; border-color: #ffc2b3; }
+
+        /* 7. Animation / Motion Theme */
+        @keyframes slideInUpDash { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        body.theme-animation .page-body > div, body.theme-animation .mobile-body > div { animation: slideInUpDash 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94) both; }
+        body.theme-animation .page-body > div:nth-child(1), body.theme-animation .mobile-body > div:nth-child(1) { animation-delay: 0.05s; }
+        body.theme-animation .page-body > div:nth-child(2), body.theme-animation .mobile-body > div:nth-child(2) { animation-delay: 0.15s; }
+        body.theme-animation .page-body > div:nth-child(3), body.theme-animation .mobile-body > div:nth-child(3) { animation-delay: 0.25s; }
+        body.theme-animation .page-body > div:nth-child(4), body.theme-animation .mobile-body > div:nth-child(4) { animation-delay: 0.35s; }
+        
+        body.theme-animation .card-custom, body.theme-animation .accordion-item { transition: transform 0.3s cubic-bezier(0.25, 0.8, 0.25, 1), box-shadow 0.3s ease; }
+        body.theme-animation .card-custom:hover, body.theme-animation .accordion-item:hover { transform: translateY(-4px); box-shadow: 0 10px 20px rgba(0,0,0,0.06); }
+    </style>
+</head>
+
+<body class="theme-default">
+
+    <!-- STEP 9 & 10: Global Success Toasts -->
+    <div class="toast-container">
+        <div id="successToast" class="toast align-items-center text-white bg-success border-0 shadow" role="alert" aria-live="assertive" aria-atomic="true">
+            <div class="d-flex">
+                <div class="toast-body fw-medium" id="toastMessage">Settings Updated Successfully.</div>
+                <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ==========================================
+         DESKTOP VIEW (Visible on lg and above)
+         ========================================== -->
+    <div class="app-container d-none d-lg-flex">
+        
+        <!-- Sidebar -->
+        <aside class="sidebar d-flex">
+            <div>
+                <a href="dashboard.html" class="sidebar-brand"><i class="bi bi-layers-fill"></i></a>
+                <nav class="sidebar-nav">
+                    <a href="dashboard.html" title="Dashboard"><i class="bi bi-grid-1x2-fill"></i></a>
+                    <a href="employees.html" title="Employees"><i class="bi bi-people-fill"></i></a>
+                    <a href="managers.html" title="Managers"><i class="bi bi-shield-shaded"></i></a>
+                    <a href="payroll.html" title="Payroll"><i class="bi bi-wallet2"></i></a>
+                    <a href="attendance.html" title="Attendance & Leave"><i class="bi bi-clock-history"></i></a>
+                    <a href="tasks.html" title="Tasks"><i class="bi bi-kanban-fill"></i></a>
+                </nav>
+            </div>
+            <div class="sidebar-nav">
+                <a href="settings.html" class="active" title="Settings"><i class="bi bi-gear-fill"></i></a>
+                <a href="../index.html" title="Logout"><i class="bi bi-box-arrow-right text-danger"></i></a>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Top Navbar -->
+            <header class="top-navbar">
+                <div class="search-bar-wrapper">
+                    <i class="bi bi-search"></i>
+                    <input type="text" class="form-control" placeholder="Search Settings...">
+                </div>
+
+                <div class="top-nav-right">
+                    <select id="themeSelector" class="form-select form-select-sm bg-transparent" style="width: 150px;">
+                        <option value="default" selected>Default Style</option>
+                        <option value="theme-flat">Flat Design</option>
+                        <option value="theme-bauhaus">Bauhaus Style</option>
+                        <option value="theme-bold-type">Bold Typography</option>
+                        <option value="theme-neumorphism">Neumorphism</option>
+                        <option value="theme-glassmorphism">Glassmorphism</option>
+                        <option value="theme-animation">Animation / Motion</option>
+                        <option value="theme-illustration">Illustration Trend</option>
+                        <option value="theme-dark">Dark Mode</option>
+                    </select>
+
+                    <div class="dropdown">
+                        <button class="icon-btn" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            <i class="bi bi-bell"></i>
+                            <span class="position-absolute translate-middle badge rounded-pill bg-danger notification-badge">1</span>
+                        </button>
+                        <ul class="dropdown-menu dropdown-menu-end shadow" style="width: 300px;">
+                            <li><h6 class="dropdown-header">Notifications</h6></li>
+                            <li><a class="dropdown-item small" href="#">System backup successful</a></li>
+                        </ul>
+                    </div>
+                    <div class="dropdown profile-dropdown">
+                        <a href="#" class="d-flex align-items-center text-decoration-none dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+                            <img src="https://plus.unsplash.com/premium_photo-1661302846246-e8faef18255d?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MXx8QWRtaW58ZW58MHx8MHx8fDA%3D" alt="Admin Avatar">
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu-end shadow">
+                            <li><h6 class="dropdown-header">System Administrator</h6></li>
+                            <li><a class="dropdown-item" href="profile.html">Profile</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </header>
+
+            <!-- Page Body -->
+            <div class="page-body">
+                
+                <!-- STEP 1: Page Header -->
+                <div class="d-flex justify-content-between align-items-end mb-4">
+                    <div>
+                        <h2 class="fw-bold text-dark mb-1">System Settings</h2>
+                        <p class="text-muted small mb-0">Configure company information, payroll rules, attendance, security and backup preferences.</p>
+                    </div>
+                    <div class="d-flex gap-2 desktop-header-actions">
+                        <button class="btn btn-outline-secondary" onclick="simulateDataLoad()"><i class="bi bi-arrow-clockwise me-2"></i>Refresh</button>
+                        <button class="btn btn-outline-danger" data-bs-toggle="modal" data-bs-target="#resetModal"><i class="bi bi-arrow-counterclockwise me-2"></i>Reset</button>
+                        <button class="btn btn-primary px-4" data-bs-toggle="modal" data-bs-target="#saveModal"><i class="bi bi-hdd me-2"></i>Save Changes</button>
+                    </div>
+                </div>
+
+                <!-- STEP 11: Loading State (Hidden by default) -->
+                <div id="desktopLoader" class="d-none py-5 text-center">
+                    <div class="spinner-border text-primary" role="status"><span class="visually-hidden">Loading...</span></div>
+                    <p class="text-muted mt-2">Syncing Configurations...</p>
+                </div>
+
+                <!-- Hybrid Accordion/Card Container -->
+                <div class="accordion settings-accordion" id="settingsAccordionDesktop">
+                    
+                    <!-- STEP 2: Company Settings -->
+                    <div class="accordion-item card-custom">
+                        <div class="d-none d-lg-flex align-items-center mb-4 pb-3 border-bottom">
+                            <div class="settings-icon-bg bg-primary bg-opacity-10 text-primary me-3"><i class="bi bi-building"></i></div>
+                            <h5 class="fw-bold text-dark mb-0">Company Information</h5>
+                        </div>
+                        <div class="accordion-collapse collapse show">
+                            <div class="accordion-body p-0">
+                                <div class="row g-4">
+                                    <div class="col-md-12 d-flex align-items-center gap-4">
+                                        <div class="bg-light border rounded p-4 d-flex align-items-center justify-content-center text-muted" style="width: 100px; height: 100px;"><i class="bi bi-camera fs-2"></i></div>
+                                        <div>
+                                            <label class="form-label">Company Logo</label>
+                                            <input type="file" class="form-control form-control-sm w-auto mb-2">
+                                            <small class="text-muted d-block">Recommended size 200x200px (PNG, JPG).</small>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6"><label class="form-label">Company Name</label><input type="text" class="form-control" value="Octopyder Pvt. Ltd."></div>
+                                    <div class="col-md-6"><label class="form-label">GST Number</label><input type="text" class="form-control" value="19ABCDE1234F1Z5"></div>
+                                    <div class="col-md-12"><label class="form-label">Company Address</label><textarea class="form-control" rows="2">Sector V, Salt Lake, Kolkata</textarea></div>
+                                    <div class="col-md-4"><label class="form-label">Email Address</label><input type="email" class="form-control" value="admin@octopyder.com"></div>
+                                    <div class="col-md-4"><label class="form-label">Phone Number</label><input type="tel" class="form-control" value="+91 9876543210"></div>
+                                    <div class="col-md-4"><label class="form-label">Website</label><input type="url" class="form-control" value="https://www.octopyder.com"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- STEP 3: Payroll Settings -->
+                    <div class="accordion-item card-custom">
+                        <div class="d-none d-lg-flex align-items-center mb-4 pb-3 border-bottom">
+                            <div class="settings-icon-bg bg-success bg-opacity-10 text-success me-3"><i class="bi bi-cash-stack"></i></div>
+                            <h5 class="fw-bold text-dark mb-0">Payroll Settings</h5>
+                        </div>
+                        <div class="accordion-collapse collapse show">
+                            <div class="accordion-body p-0">
+                                <div class="row g-4">
+                                    <div class="col-md-3"><label class="form-label">Salary Cycle</label><select class="form-select"><option selected>Monthly</option><option>Bi-weekly</option><option>Weekly</option></select></div>
+                                    <div class="col-md-3"><label class="form-label">Working Days (per month)</label><input type="number" class="form-control" value="26"></div>
+                                    <div class="col-md-3"><label class="form-label">Salary Generation Date</label><select class="form-select"><option selected>28th Every Month</option><option>Last Day of Month</option></select></div>
+                                    <div class="col-md-3"><label class="form-label">Salary Release Date</label><select class="form-select"><option selected>30th Every Month</option><option>1st of Next Month</option></select></div>
+                                    <div class="col-md-12 d-flex align-items-center justify-content-between p-3 bg-light rounded border"><div class="mb-0"><strong class="d-block text-dark small">Enable Overtime</strong><small class="text-muted">Calculate OT for additional hours worked.</small></div><div class="form-check form-switch mb-0"><input class="form-check-input" type="checkbox" checked></div></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- STEP 4: Leave Settings -->
+                    <div class="accordion-item card-custom">
+                        <div class="d-none d-lg-flex align-items-center mb-4 pb-3 border-bottom">
+                            <div class="settings-icon-bg bg-info bg-opacity-10 text-info me-3"><i class="bi bi-cup-hot"></i></div>
+                            <h5 class="fw-bold text-dark mb-0">Leave Settings</h5>
+                        </div>
+                        <div class="accordion-collapse collapse show">
+                            <div class="accordion-body p-0">
+                                <div class="row g-4">
+                                    <div class="col-md-4"><label class="form-label">Monthly Leave Credit</label><select class="form-select"><option selected>1 Leave</option><option>2 Leaves</option></select></div>
+                                    <div class="col-md-4"><label class="form-label">Annual Reset Date</label><select class="form-select"><option selected>1 April</option><option>1 January</option></select></div>
+                                    <div class="col-md-4"><label class="form-label">Maximum Carry Forward</label><input type="number" class="form-control" value="12"></div>
+                                    <div class="col-md-6 d-flex align-items-center justify-content-between p-3 bg-light rounded border"><div class="mb-0"><strong class="d-block text-dark small">Carry Forward</strong><small class="text-muted">Unused leaves roll over monthly.</small></div><div class="form-check form-switch mb-0"><input class="form-check-input" type="checkbox" checked></div></div>
+                                    <div class="col-md-6 d-flex align-items-center justify-content-between p-3 bg-light rounded border"><div class="mb-0"><strong class="d-block text-dark small">Manager Approval</strong><small class="text-muted">Required for leave usage.</small></div><div class="form-check form-switch mb-0"><input class="form-check-input" type="checkbox" checked disabled></div></div>
+                                    <div class="col-md-12">
+                                        <label class="form-label">Leave Types Provided</label>
+                                        <div class="d-flex gap-2">
+                                            <span class="badge bg-primary px-3 py-2">Paid Leave</span>
+                                            <span class="badge bg-success px-3 py-2">Casual Leave</span>
+                                            <span class="badge bg-danger px-3 py-2">Medical Leave</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- STEP 5: Attendance Settings -->
+                    <div class="accordion-item card-custom">
+                        <div class="d-none d-lg-flex align-items-center mb-4 pb-3 border-bottom">
+                            <div class="settings-icon-bg bg-warning bg-opacity-10 text-warning me-3"><i class="bi bi-clock-history"></i></div>
+                            <h5 class="fw-bold text-dark mb-0">Attendance Settings</h5>
+                        </div>
+                        <div class="accordion-collapse collapse show">
+                            <div class="accordion-body p-0">
+                                <div class="row g-4">
+                                    <div class="col-md-3"><label class="form-label">Office Start Time</label><input type="time" class="form-control" value="09:00"></div>
+                                    <div class="col-md-3"><label class="form-label">Office End Time</label><input type="time" class="form-control" value="18:00"></div>
+                                    <div class="col-md-3"><label class="form-label">Late Policy Grace</label><select class="form-select"><option selected>15 Minutes</option><option>30 Minutes</option></select></div>
+                                    <div class="col-md-3"><label class="form-label">Geofence Radius</label><div class="input-group"><input type="number" class="form-control" value="100"><span class="input-group-text">meters</span></div></div>
+                                    <div class="col-md-4 d-flex align-items-center justify-content-between p-3 bg-light rounded border"><div class="mb-0"><strong class="d-block text-dark small">GPS Verification</strong><small class="text-muted">Enforce coordinates.</small></div><div class="form-check form-switch mb-0"><input class="form-check-input" type="checkbox" checked></div></div>
+                                    <div class="col-md-4 d-flex align-items-center justify-content-between p-3 bg-light rounded border"><div class="mb-0"><strong class="d-block text-dark small">Remote Attendance</strong><small class="text-muted">Allow check-in anywhere.</small></div><div class="form-check form-switch mb-0"><input class="form-check-input" type="checkbox" checked></div></div>
+                                    <div class="col-md-4 d-flex align-items-center justify-content-between p-3 bg-light rounded border"><div class="mb-0"><strong class="d-block text-dark small">Manager Approval</strong><small class="text-muted">Validate remote attendance.</small></div><div class="form-check form-switch mb-0"><input class="form-check-input" type="checkbox" checked disabled></div></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- STEP 6: Security Settings -->
+                    <div class="accordion-item card-custom">
+                        <div class="d-none d-lg-flex align-items-center mb-4 pb-3 border-bottom">
+                            <div class="settings-icon-bg bg-danger bg-opacity-10 text-danger me-3"><i class="bi bi-shield-lock"></i></div>
+                            <h5 class="fw-bold text-dark mb-0">Security</h5>
+                        </div>
+                        <div class="accordion-collapse collapse show">
+                            <div class="accordion-body p-0">
+                                <div class="row g-4">
+                                    <div class="col-md-12 d-flex align-items-center justify-content-between p-3 bg-light rounded border border-danger border-opacity-25"><div class="mb-0"><strong class="d-block text-dark small">Two Factor Authentication (2FA)</strong><small class="text-muted">Require OTP for all administrative logins.</small></div><div class="form-check form-switch mb-0"><input class="form-check-input" type="checkbox" checked></div></div>
+                                    <div class="col-md-4"><label class="form-label">Password Minimum Length</label><input type="number" class="form-control" value="8"></div>
+                                    <div class="col-md-8">
+                                        <label class="form-label">Password Complexity Options</label>
+                                        <div class="d-flex gap-3 flex-wrap mt-2">
+                                            <div class="form-check"><input class="form-check-input" type="checkbox" checked><label class="form-check-label small">Uppercase</label></div>
+                                            <div class="form-check"><input class="form-check-input" type="checkbox" checked><label class="form-check-label small">Lowercase</label></div>
+                                            <div class="form-check"><input class="form-check-input" type="checkbox" checked><label class="form-check-label small">Numbers</label></div>
+                                            <div class="form-check"><input class="form-check-input" type="checkbox" checked><label class="form-check-label small">Special Character</label></div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4"><label class="form-label">Session Timeout</label><select class="form-select"><option selected>30 Minutes</option><option>1 Hour</option></select></div>
+                                    <div class="col-md-4"><label class="form-label">Maximum Login Attempts</label><input type="number" class="form-control" value="5"></div>
+                                    <div class="col-md-4"><label class="form-label">Auto Lock System After</label><select class="form-select"><option selected>15 Minutes</option><option>Never</option></select></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- STEP 7: Appearance -->
+                    <div class="accordion-item card-custom">
+                        <div class="d-none d-lg-flex align-items-center mb-4 pb-3 border-bottom">
+                            <div class="settings-icon-bg bg-purple bg-opacity-10 text-purple me-3" style="color: #6f42c1; background-color: rgba(111, 66, 193, 0.1);"><i class="bi bi-palette"></i></div>
+                            <h5 class="fw-bold text-dark mb-0">Appearance</h5>
+                        </div>
+                        <div class="accordion-collapse collapse show">
+                            <div class="accordion-body p-0">
+                                <div class="row g-4">
+                                    <div class="col-md-6">
+                                        <label class="form-label">System Theme Style</label>
+                                        <select class="form-select" id="settingsThemeSelector">
+                                            <option value="default" selected>Default Style</option>
+                                            <option value="theme-flat">Flat Design</option>
+                                            <option value="theme-bauhaus">Bauhaus Style</option>
+                                            <option value="theme-bold-type">Bold Typography</option>
+                                            <option value="theme-neumorphism">Neumorphism</option>
+                                            <option value="theme-glassmorphism">Glassmorphism</option>
+                                            <option value="theme-animation">Animation / Motion</option>
+                                            <option value="theme-illustration">Illustration Trend</option>
+                                            <option value="theme-dark">Dark Mode</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-md-6 d-flex align-items-center justify-content-between p-3 bg-light rounded border mt-auto"><div class="mb-0"><strong class="d-block text-dark small">Enable UI Animations</strong><small class="text-muted">Slide in effects.</small></div><div class="form-check form-switch mb-0"><input class="form-check-input" type="checkbox" checked></div></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- STEP 8: Backup & Restore -->
+                    <div class="accordion-item card-custom">
+                        <div class="d-none d-lg-flex align-items-center justify-content-between mb-4 pb-3 border-bottom">
+                            <div class="d-flex align-items-center">
+                                <div class="settings-icon-bg bg-secondary bg-opacity-10 text-secondary me-3"><i class="bi bi-cloud-arrow-up"></i></div>
+                                <h5 class="fw-bold text-dark mb-0">Backup & Restore</h5>
+                            </div>
+                            <button class="btn btn-sm btn-primary" onclick="showToast('Initiating Backup process...')"><i class="bi bi-cloud-arrow-up me-1"></i>Backup Now</button>
+                        </div>
+                        <div class="accordion-collapse collapse show">
+                            <div class="accordion-body p-0">
+                                <div class="row g-4 mb-4">
+                                    <div class="col-md-4">
+                                        <div class="p-3 bg-light rounded border h-100">
+                                            <span class="text-muted small d-block mb-1">Last Backup</span>
+                                            <strong class="text-dark d-block mb-1">31 July 2026, 10:45 PM</strong>
+                                            <span class="badge bg-success">Successful</span>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4"><label class="form-label">Backup Frequency</label><select class="form-select"><option selected>Daily</option><option>Weekly</option></select></div>
+                                    <div class="col-md-4 d-flex align-items-center justify-content-between p-3 bg-light rounded border h-100"><div class="mb-0"><strong class="d-block text-dark small">Cloud Auto-Backup</strong><small class="text-muted">Sync securely.</small></div><div class="form-check form-switch mb-0"><input class="form-check-input" type="checkbox" checked></div></div>
+                                </div>
+                                <div class="table-responsive border rounded">
+                                    <table class="table table-sm table-hover align-middle mb-0 small">
+                                        <thead class="table-light text-muted">
+                                            <tr><th>Date & Time</th><th>Size</th><th>Status</th><th class="text-end">Action</th></tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr><td>31 Jul 2026, 10:45 PM</td><td>45.2 MB</td><td><span class="text-success fw-medium"><i class="bi bi-check-circle me-1"></i>Success</span></td><td class="text-end"><button class="btn btn-sm btn-light text-primary" title="Download"><i class="bi bi-download"></i></button> <button class="btn btn-sm btn-light text-danger" title="Restore" onclick="handleAction('System Restored', null)"><i class="bi bi-arrow-counterclockwise"></i></button></td></tr>
+                                            <tr><td>30 Jul 2026, 10:45 PM</td><td>44.8 MB</td><td><span class="text-success fw-medium"><i class="bi bi-check-circle me-1"></i>Success</span></td><td class="text-end"><button class="btn btn-sm btn-light text-primary"><i class="bi bi-download"></i></button> <button class="btn btn-sm btn-light text-danger" onclick="handleAction('System Restored', null)"><i class="bi bi-arrow-counterclockwise"></i></button></td></tr>
+                                            <tr><td>29 Jul 2026, 10:45 PM</td><td>44.5 MB</td><td><span class="text-success fw-medium"><i class="bi bi-check-circle me-1"></i>Success</span></td><td class="text-end"><button class="btn btn-sm btn-light text-primary"><i class="bi bi-download"></i></button> <button class="btn btn-sm btn-light text-danger" onclick="handleAction('System Restored', null)"><i class="bi bi-arrow-counterclockwise"></i></button></td></tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </main>
+    </div>
+
+
+    <!-- ==========================================
+         MOBILE VIEW (Visible below lg break)
+         ========================================== -->
+    <div class="mobile-app-container d-block d-lg-none">
+        
+        <!-- Top App Bar -->
+        <div class="mobile-topbar">
+            <button class="icon-btn text-dark" data-bs-toggle="offcanvas" data-bs-target="#mobileMenu"><i class="bi bi-list fs-3"></i></button>
+            <h5 class="mb-0 fw-bold text-dark">Settings</h5>
+            <div class="d-flex align-items-center gap-2">
+                <select id="mobileThemeSelector" class="form-select form-select-sm bg-light text-dark shadow-sm rounded-pill" style="width: 100px; font-size: 0.75rem;">
+                    <option value="default" selected>Default</option>
+                    <option value="theme-flat">Flat</option>
+                    <option value="theme-bauhaus">Bauhaus</option>
+                    <option value="theme-bold-type">Bold</option>
+                    <option value="theme-neumorphism">Neumorph</option>
+                    <option value="theme-glassmorphism">Glass</option>
+                    <option value="theme-animation">Motion</option>
+                    <option value="theme-illustration">Illustrate</option>
+                    <option value="theme-dark">Dark</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="mobile-body">
+            <h6 class="fw-bold text-dark mb-2 mt-1">System Configuration</h6>
+            <p class="small text-muted mb-3">Adjust policies and preferences.</p>
+
+            <!-- Mobile Hybrid Accordion Container -->
+            <div class="accordion settings-accordion" id="settingsAccordionMobile">
+                
+                <!-- Company -->
+                <div class="accordion-item card-custom">
+                    <h2 class="accordion-header" id="mobH1">
+                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#mobC1">
+                            <i class="bi bi-building text-primary me-2 fs-5"></i> Company Information
+                        </button>
+                    </h2>
+                    <div id="mobC1" class="accordion-collapse collapse" data-bs-parent="#settingsAccordionMobile">
+                        <div class="accordion-body">
+                            <div class="mb-3 text-center">
+                                <div class="bg-light border rounded p-4 d-inline-flex align-items-center justify-content-center text-muted mb-2" style="width: 80px; height: 80px;"><i class="bi bi-camera fs-3"></i></div>
+                                <input type="file" class="form-control form-control-sm">
+                            </div>
+                            <div class="mb-3"><label class="form-label">Name</label><input type="text" class="form-control" value="Octopyder Pvt. Ltd."></div>
+                            <div class="mb-3"><label class="form-label">GST Number</label><input type="text" class="form-control" value="19ABCDE1234F1Z5"></div>
+                            <div class="mb-3"><label class="form-label">Phone</label><input type="tel" class="form-control" value="+91 9876543210"></div>
+                            <div class="mb-4"><label class="form-label">Address</label><textarea class="form-control" rows="2">Sector V, Salt Lake, Kolkata</textarea></div>
+                            <button class="btn btn-primary w-100 fw-medium" data-bs-toggle="modal" data-bs-target="#saveModal">Save Company Details</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Payroll -->
+                <div class="accordion-item card-custom">
+                    <h2 class="accordion-header" id="mobH2">
+                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#mobC2">
+                            <i class="bi bi-cash-stack text-success me-2 fs-5"></i> Payroll Settings
+                        </button>
+                    </h2>
+                    <div id="mobC2" class="accordion-collapse collapse" data-bs-parent="#settingsAccordionMobile">
+                        <div class="accordion-body">
+                            <div class="mb-3"><label class="form-label">Cycle</label><select class="form-select"><option selected>Monthly</option></select></div>
+                            <div class="mb-3"><label class="form-label">Work Days</label><input type="number" class="form-control" value="26"></div>
+                            <div class="mb-4 d-flex justify-content-between align-items-center p-2 bg-light border rounded"><span class="small fw-medium text-dark">Overtime Active</span><div class="form-check form-switch mb-0"><input class="form-check-input" type="checkbox" checked></div></div>
+                            <button class="btn btn-primary w-100 fw-medium" data-bs-toggle="modal" data-bs-target="#saveModal">Save Payroll Settings</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Leave -->
+                <div class="accordion-item card-custom">
+                    <h2 class="accordion-header" id="mobH3">
+                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#mobC3">
+                            <i class="bi bi-cup-hot text-info me-2 fs-5"></i> Leave Settings
+                        </button>
+                    </h2>
+                    <div id="mobC3" class="accordion-collapse collapse" data-bs-parent="#settingsAccordionMobile">
+                        <div class="accordion-body">
+                            <div class="mb-3"><label class="form-label">Monthly Credit</label><select class="form-select"><option selected>1 Leave</option></select></div>
+                            <div class="mb-3"><label class="form-label">Reset Date</label><select class="form-select"><option selected>1 April</option></select></div>
+                            <div class="mb-3 d-flex justify-content-between align-items-center p-2 bg-light border rounded"><span class="small fw-medium text-dark">Carry Forward</span><div class="form-check form-switch mb-0"><input class="form-check-input" type="checkbox" checked></div></div>
+                            <div class="mb-4 d-flex justify-content-between align-items-center p-2 bg-light border rounded"><span class="small fw-medium text-dark">Manager Approval</span><div class="form-check form-switch mb-0"><input class="form-check-input" type="checkbox" checked disabled></div></div>
+                            <button class="btn btn-primary w-100 fw-medium" data-bs-toggle="modal" data-bs-target="#saveModal">Save Leave Settings</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Attendance -->
+                <div class="accordion-item card-custom">
+                    <h2 class="accordion-header" id="mobH4">
+                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#mobC4">
+                            <i class="bi bi-clock-history text-warning me-2 fs-5"></i> Attendance Settings
+                        </button>
+                    </h2>
+                    <div id="mobC4" class="accordion-collapse collapse" data-bs-parent="#settingsAccordionMobile">
+                        <div class="accordion-body">
+                            <div class="row g-2 mb-3">
+                                <div class="col-6"><label class="form-label">Start Time</label><input type="time" class="form-control" value="09:00"></div>
+                                <div class="col-6"><label class="form-label">End Time</label><input type="time" class="form-control" value="18:00"></div>
+                            </div>
+                            <div class="mb-3 d-flex justify-content-between align-items-center p-2 bg-light border rounded"><span class="small fw-medium text-dark">GPS Verification</span><div class="form-check form-switch mb-0"><input class="form-check-input" type="checkbox" checked></div></div>
+                            <div class="mb-4 d-flex justify-content-between align-items-center p-2 bg-light border rounded"><span class="small fw-medium text-dark">Remote Attendance</span><div class="form-check form-switch mb-0"><input class="form-check-input" type="checkbox" checked></div></div>
+                            <button class="btn btn-primary w-100 fw-medium" data-bs-toggle="modal" data-bs-target="#saveModal">Save Attendance Settings</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Security -->
+                <div class="accordion-item card-custom">
+                    <h2 class="accordion-header" id="mobH5">
+                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#mobC5">
+                            <i class="bi bi-shield-lock text-danger me-2 fs-5"></i> Security
+                        </button>
+                    </h2>
+                    <div id="mobC5" class="accordion-collapse collapse" data-bs-parent="#settingsAccordionMobile">
+                        <div class="accordion-body">
+                            <div class="mb-3 d-flex justify-content-between align-items-center p-3 bg-danger bg-opacity-10 border border-danger rounded"><span class="small fw-bold text-danger">Enforce 2FA</span><div class="form-check form-switch mb-0"><input class="form-check-input" type="checkbox" checked></div></div>
+                            <div class="mb-3"><label class="form-label">Min Password Length</label><input type="number" class="form-control" value="8"></div>
+                            <div class="mb-4"><label class="form-label">Auto Lock Session</label><select class="form-select"><option selected>15 Minutes</option></select></div>
+                            <button class="btn btn-primary w-100 fw-medium" data-bs-toggle="modal" data-bs-target="#saveModal">Save Security Settings</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Appearance -->
+                <div class="accordion-item card-custom">
+                    <h2 class="accordion-header" id="mobH6">
+                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#mobC6">
+                            <i class="bi bi-palette text-purple me-2 fs-5" style="color: #6f42c1;"></i> Appearance
+                        </button>
+                    </h2>
+                    <div id="mobC6" class="accordion-collapse collapse" data-bs-parent="#settingsAccordionMobile">
+                        <div class="accordion-body">
+                            <div class="mb-4">
+                                <label class="form-label">Theme Style</label>
+                                <select class="form-select" id="mobileThemeSelectSync">
+                                    <option value="default" selected>Default</option>
+                                    <option value="theme-flat">Flat</option>
+                                    <option value="theme-bauhaus">Bauhaus</option>
+                                    <option value="theme-bold-type">Bold</option>
+                                    <option value="theme-neumorphism">Neumorph</option>
+                                    <option value="theme-glassmorphism">Glass</option>
+                                    <option value="theme-animation">Motion</option>
+                                    <option value="theme-illustration">Illustrate</option>
+                                    <option value="theme-dark">Dark</option>
+                                </select>
+                            </div>
+                            <button class="btn btn-primary w-100 fw-medium" data-bs-toggle="modal" data-bs-target="#saveModal">Apply Theme</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Backup -->
+                <div class="accordion-item card-custom">
+                    <h2 class="accordion-header" id="mobH7">
+                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#mobC7">
+                            <i class="bi bi-cloud-arrow-up text-secondary me-2 fs-5"></i> Backup & Restore
+                        </button>
+                    </h2>
+                    <div id="mobC7" class="accordion-collapse collapse" data-bs-parent="#settingsAccordionMobile">
+                        <div class="accordion-body">
+                            <div class="p-3 bg-light rounded border mb-3 text-center">
+                                <span class="text-muted small d-block mb-1">Last Backup</span>
+                                <strong class="text-dark d-block">31 July 2026, 10:45 PM</strong>
+                            </div>
+                            <div class="mb-4 d-flex justify-content-between align-items-center p-2 bg-light border rounded"><span class="small fw-medium text-dark">Cloud Auto-Backup</span><div class="form-check form-switch mb-0"><input class="form-check-input" type="checkbox" checked></div></div>
+                            <div class="d-flex gap-2">
+                                <button class="btn btn-outline-danger w-50 fw-medium" onclick="handleAction('System Restored', null)">Restore</button>
+                                <button class="btn btn-primary w-50 fw-medium" onclick="showToast('Initiating Backup process...')">Backup Now</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+        <!-- FAB -->
+        <div class="fab-container" id="fab">
+            <button class="fab-main" onclick="document.getElementById('fab').classList.toggle('active')"><i class="bi bi-plus"></i></button>
+            <div class="fab-options">
+                <button class="fab-option-btn" data-bs-toggle="modal" data-bs-target="#saveModal" title="Save All"><i class="bi bi-hdd text-primary"></i></button>
+                <button class="fab-option-btn" data-bs-toggle="modal" data-bs-target="#resetModal" title="Reset All"><i class="bi bi-arrow-counterclockwise text-danger"></i></button>
+            </div>
+        </div>
+
+        <!-- Bottom Navigation -->
+        <nav class="bottom-nav">
+            <a href="dashboard.html" class="bottom-nav-item"><i class="bi bi-house-door"></i>Home</a>
+            <a href="employees.html" class="bottom-nav-item"><i class="bi bi-people"></i>Employees</a>
+            <a href="managers.html" class="bottom-nav-item"><i class="bi bi-shield-shaded"></i>Managers</a>
+            <a href="payroll.html" class="bottom-nav-item"><i class="bi bi-wallet2"></i>Payroll</a>
+            <a href="profile.html" class="bottom-nav-item"><i class="bi bi-person"></i>Profile</a>
+        </nav>
+
+        <!-- Offcanvas Mobile Menu -->
+        <div class="offcanvas offcanvas-start" tabindex="-1" id="mobileMenu" style="width: 280px; background: #111;">
+            <div class="offcanvas-header border-bottom border-secondary">
+                <h5 class="offcanvas-title text-white fw-bold"><i class="bi bi-layers-fill me-2"></i>Octopyder</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="offcanvas"></button>
+            </div>
+            <div class="offcanvas-body d-flex flex-column justify-content-between">
+                <nav class="d-flex flex-column gap-3">
+                    <a href="dashboard.html" class="text-secondary text-decoration-none fs-5"><i class="bi bi-grid-1x2-fill me-3"></i>Dashboard</a>
+                    <a href="payroll.html" class="text-secondary text-decoration-none fs-5"><i class="bi bi-wallet2 me-3"></i>Payroll</a>
+                    <a href="attendance.html" class="text-secondary text-decoration-none fs-5"><i class="bi bi-clock-history me-3"></i>Attendance</a>
+                    <a href="settings.html" class="text-secondary text-decoration-none fs-5"><i class="bi bi-gear-fill me-3"></i>Settings</a>
+                </nav>
+                <a href="../index.html" class="text-danger text-decoration-none fs-5"><i class="bi bi-box-arrow-right me-3"></i>Logout</a>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- ==========================================
+         MODALS (STEP 9 & 10)
+         ========================================== -->
+
+    <!-- Save Confirmation Modal -->
+    <div class="modal fade" id="saveModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-sm">
+            <div class="modal-content border-0 shadow text-center">
+                <div class="modal-body p-4">
+                    <i class="bi bi-hdd text-primary display-4 mb-3 d-block"></i>
+                    <h5 class="fw-bold mb-2">Save Settings?</h5>
+                    <p class="text-muted small mb-4">Your changes will be applied system-wide.</p>
+                    <div class="d-flex gap-2 w-100">
+                        <button type="button" class="btn btn-light flex-grow-1" data-bs-dismiss="modal">Cancel</button>
+                        <button type="button" class="btn btn-primary flex-grow-1" onclick="handleAction('Settings Updated Successfully', '#saveModal')">Save</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Reset Confirmation Modal -->
+    <div class="modal fade" id="resetModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-sm">
+            <div class="modal-content border-0 shadow text-center">
+                <div class="modal-body p-4">
+                    <i class="bi bi-exclamation-triangle text-danger display-4 mb-3 d-block"></i>
+                    <h5 class="fw-bold mb-2">Reset Changes?</h5>
+                    <p class="text-muted small mb-4">Revert all inputs to their last saved state.</p>
+                    <div class="d-flex gap-2 w-100">
+                        <button type="button" class="btn btn-light flex-grow-1" data-bs-dismiss="modal">Cancel</button>
+                        <button type="button" class="btn btn-danger flex-grow-1" onclick="handleAction('Settings Reset', '#resetModal')">Reset</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- Bootstrap JS Bundle -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
+    <!-- UI Logic Script -->
+    <script>
+        // Theme Management (Desktop & Mobile Sync)
+        const themeSelector = document.getElementById('themeSelector');
+        const mobSelectorTop = document.getElementById('mobileThemeSelector');
+        const setSelector = document.getElementById('settingsThemeSelector');
+        const mobSelector = document.getElementById('mobileThemeSelectSync');
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const savedTheme = localStorage.getItem('payrollTheme');
+            if (savedTheme) {
+                if(themeSelector) themeSelector.value = savedTheme;
+                if(mobSelectorTop) mobSelectorTop.value = savedTheme;
+                if(setSelector) setSelector.value = savedTheme;
+                if(mobSelector) mobSelector.value = savedTheme;
+                if (savedTheme !== 'default') document.body.classList.add(savedTheme);
+            }
+        });
+
+        function syncTheme(e) {
+            document.body.className = '';
+            const selectedTheme = e.target.value;
+            if (selectedTheme !== 'default') document.body.classList.add(selectedTheme);
+            if(themeSelector) themeSelector.value = selectedTheme;
+            if(mobSelectorTop) mobSelectorTop.value = selectedTheme;
+            if(setSelector) setSelector.value = selectedTheme;
+            if(mobSelector) mobSelector.value = selectedTheme;
+            localStorage.setItem('payrollTheme', selectedTheme);
+        }
+
+        if(themeSelector) themeSelector.addEventListener('change', syncTheme);
+        if(mobSelectorTop) mobSelectorTop.addEventListener('change', syncTheme);
+        if(setSelector) setSelector.addEventListener('change', syncTheme);
+        if(mobSelector) mobSelector.addEventListener('change', syncTheme);
+
+        // Success Toasts
+        function showToast(message) {
+            document.getElementById('toastMessage').innerText = message;
+            const toastEl = document.getElementById('successToast');
+            const toast = new bootstrap.Toast(toastEl, { delay: 3000 });
+            toast.show();
+        }
+
+        // Action Handlers
+        function handleAction(successMessage, modalId) {
+            if(modalId) {
+                const modalEl = document.querySelector(modalId);
+                if(modalEl) {
+                    const modal = bootstrap.Modal.getInstance(modalEl);
+                    if (modal) { modal.hide(); }
+                }
+            }
+            setTimeout(() => { showToast(successMessage); }, 400);
+        }
+
+        // Loading Simulation (STEP 11)
+        function simulateDataLoad() {
+            // Desktop
+            const dAccordion = document.getElementById('settingsAccordionDesktop');
+            const dLoader = document.getElementById('desktopLoader');
+            
+            if (dAccordion && dLoader) {
+                dAccordion.classList.add('d-none');
+                dLoader.classList.remove('d-none');
+                setTimeout(() => {
+                    dLoader.classList.add('d-none');
+                    dAccordion.classList.remove('d-none');
+                    showToast("Configuration Synced");
+                }, 800);
+            }
+        }
+
+        // Close FAB when modal opens
+        document.querySelectorAll('[data-bs-toggle="modal"], [data-bs-toggle="collapse"]').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const fab = document.getElementById('fab');
+                if(fab) fab.classList.remove('active');
+            });
+        });
+
+    </script>
+</body>
+</html>

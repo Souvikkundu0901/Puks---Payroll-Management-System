@@ -1,0 +1,1520 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Approve Attendance - Octopyder</title>
+
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <style>
+        /* Typography & Core Variables */
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
+        :root {
+            --bg-body: #959ca8;
+            --bg-dashboard: linear-gradient(135deg, #fdf8eb 0%, #f7ebd3 100%);
+            --glass-bg: rgba(255, 255, 255, 0.55);
+            --glass-border: rgba(255, 255, 255, 0.8);
+            --dark: #2a2a2a;
+            --yellow: #fcd54a;
+            --text-main: #1d1d1d;
+            --text-muted: #6b6b6b;
+            --shadow-soft: 0 10px 30px rgba(0, 0, 0, 0.03);
+            --radius-lg: 32px;
+            --radius-md: 20px;
+            --radius-sm: 12px;
+        }
+
+        * {
+            box-sizing: border-box;
+            font-family: 'Inter', sans-serif;
+        }
+
+        h1, h2, h3, h4, p {
+            margin: 0;
+            padding: 0;
+        }
+
+        /* Make screen scrollable naturally */
+        body {
+            background-color: var(--bg-body);
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            min-height: 100vh;
+            width: 100vw;
+            overflow-x: hidden;
+            transition: all 0.4s ease;
+        }
+
+        .dashboard {
+            width: 100%;
+            max-width: 1600px;
+            min-height: 100vh;
+            background: var(--bg-dashboard);
+            padding: 2.5vh 2.5vw;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.1);
+            display: flex;
+            flex-direction: column;
+            transition: all 0.4s ease;
+            margin: 0 auto;
+        }
+
+        .glass {
+            background: var(--glass-bg);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid var(--glass-border);
+            border-radius: var(--radius-md);
+            box-shadow: var(--shadow-soft);
+            transition: all 0.4s ease;
+        }
+
+        /* --- View Visibility Utilities --- */
+        .mobile-only {
+            display: none !important;
+        }
+
+        /* --- Top Navigation / Quick Actions --- */
+        .top-nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 3vh;
+        }
+
+        .logo {
+            font-size: max(18px, 1.2vw);
+            font-weight: 500;
+            border: 1px solid var(--text-main);
+            padding: 6px 1.5vw;
+            border-radius: 30px;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 0.8vw;
+            background: rgba(255, 255, 255, 0.3);
+            padding: 6px;
+            border-radius: 30px;
+            border: 1px solid rgba(255, 255, 255, 0.5);
+            transition: all 0.4s ease;
+        }
+
+        .nav-links a {
+            text-decoration: none !important;
+            color: var(--text-main);
+            font-size: max(11px, 0.75vw);
+            font-weight: 500;
+            padding: 6px 1.2vw;
+            border-radius: 20px;
+            transition: all 0.3s ease;
+            white-space: nowrap;
+            cursor: pointer;
+        }
+
+        .nav-links a.active,
+        .nav-links a:hover {
+            background: var(--dark);
+            color: #fff;
+        }
+
+        .nav-actions {
+            display: flex;
+            gap: 1vw;
+            align-items: center;
+        }
+
+        /* Styled Theme Selector */
+        #desktopThemeSelector, #mobileThemeSelector {
+            border-radius: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.5);
+            background: rgba(255, 255, 255, 0.5);
+            color: var(--text-main);
+            font-size: 12px;
+            font-weight: 500;
+            cursor: pointer;
+            height: 35px;
+            min-width: 140px;
+            box-shadow: none;
+            backdrop-filter: blur(5px);
+            padding: 0 10px;
+        }
+
+        .action-btn {
+            background: rgba(255, 255, 255, 0.6);
+            border: none;
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.4s ease;
+        }
+
+        .setting-btn {
+            background: rgba(255, 255, 255, 0.6);
+            border: none;
+            padding: 6px 1vw;
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 13px;
+            font-weight: 500;
+            cursor: pointer;
+            white-space: nowrap;
+            transition: all 0.4s ease;
+        }
+
+        /* Global Button Style for Forms */
+        .btn-create {
+            background: var(--dark);
+            color: #fff;
+            border: none;
+            width: 100%;
+            padding: 12px;
+            border-radius: 15px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .btn-create:hover {
+            opacity: 0.9;
+        }
+
+        /* --- Image-Based Main Layout --- */
+        .task-layout {
+            display: grid;
+            grid-template-columns: 1.4fr 1fr;
+            gap: 2vw;
+            flex: 1;
+        }
+
+        .left-col,
+        .right-col {
+            display: flex;
+            flex-direction: column;
+            gap: 2vh;
+        }
+
+        /* --- Left Column Elements --- */
+        .create-task-card {
+            padding: 3vh 2vw;
+            border-radius: var(--radius-lg);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .card-header-flex {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2vh;
+        }
+
+        .card-header-flex h2 {
+            font-size: max(22px, 1.8vw);
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .card-header-flex h2 .icon {
+            background: rgba(0, 0, 0, 0.05);
+            padding: 8px;
+            border-radius: 10px;
+            font-size: 16px;
+        }
+
+        .form-control,
+        .form-select {
+            background: rgba(255, 255, 255, 0.5);
+            border: 1px solid rgba(0, 0, 0, 0.05);
+            border-radius: 12px;
+            font-size: 13px;
+            box-shadow: none !important;
+        }
+
+        .form-control:focus,
+        .form-select:focus {
+            border-color: var(--dark);
+            background: #fff;
+        }
+
+        .form-label {
+            font-size: 11px;
+            font-weight: 600;
+            color: var(--text-muted);
+            margin-bottom: 4px;
+            margin-top: 10px;
+        }
+
+        .bottom-left-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            /* Modified for History layout */
+            gap: 2vw;
+        }
+
+        .employees-card,
+        .promo-card {
+            padding: 2.5vh;
+            border-radius: var(--radius-lg);
+        }
+
+        .section-title {
+            font-size: 15px;
+            font-weight: 600;
+            margin-bottom: 1.5vh;
+        }
+
+        .see-all {
+            font-size: 11px;
+            color: var(--text-muted);
+            text-decoration: none;
+            cursor: pointer;
+        }
+
+        .see-all:hover {
+            text-decoration: underline;
+        }
+
+        .employee-list-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            background: rgba(255, 255, 255, 0.4);
+            padding: 10px;
+            border-radius: 16px;
+            margin-bottom: 1vh;
+            border: 1px solid rgba(255, 255, 255, 0.6);
+        }
+
+        .emp-info h4 {
+            font-size: 13px;
+            font-weight: 500;
+            color: var(--text-main);
+        }
+
+        .emp-info p {
+            font-size: 10px;
+            color: var(--text-muted);
+        }
+
+        .tag-senior {
+            background: #ff6b6b;
+            color: #fff;
+            font-size: 9px;
+            padding: 2px 6px;
+            border-radius: 10px;
+            font-weight: 600;
+            margin-left: 5px;
+        }
+
+        .tag-mid {
+            background: #4dabf7;
+            color: #fff;
+            font-size: 9px;
+            padding: 2px 6px;
+            border-radius: 10px;
+            font-weight: 600;
+            margin-left: 5px;
+        }
+
+        .tag-status {
+            background: #2b8a3e;
+            color: #fff;
+            font-size: 9px;
+            padding: 2px 6px;
+            border-radius: 10px;
+            font-weight: 600;
+        }
+
+        .tag-reject {
+            background: #ff6b6b;
+            color: #fff;
+            font-size: 9px;
+            padding: 2px 6px;
+            border-radius: 10px;
+            font-weight: 600;
+        }
+
+        /* --- Right Column Elements --- */
+        .tasks-container {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5vh;
+            max-height: 70vh;
+            overflow-y: auto;
+            padding-right: 10px;
+        }
+
+        .tasks-container::-webkit-scrollbar {
+            width: 5px;
+        }
+
+        .tasks-container::-webkit-scrollbar-thumb {
+            background: rgba(0, 0, 0, 0.15);
+            border-radius: 10px;
+        }
+
+        body.theme-dark .tasks-container::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        .task-card {
+            background: rgba(255, 255, 255, 0.6);
+            border: 1px solid var(--glass-border);
+            border-radius: var(--radius-md);
+            padding: 2vh;
+            transition: all 0.3s ease;
+        }
+
+        .task-card:hover {
+            background: #fff;
+            box-shadow: var(--shadow-soft);
+        }
+
+        .task-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+        }
+
+        .task-title-group {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+        }
+
+        .task-icon-box {
+            width: 40px;
+            height: 40px;
+            background: #ff6b6b;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #fff;
+            font-weight: bold;
+        }
+
+        .task-icon-box.blue {
+            background: #4dabf7;
+        }
+
+        .task-icon-box.dark {
+            background: var(--dark);
+        }
+
+        .task-icon-box.green {
+            background: #20c997;
+        }
+
+        .task-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text-main);
+        }
+
+        .priority-badge {
+            font-size: 10px;
+            font-weight: 600;
+            padding: 3px 8px;
+            border-radius: 12px;
+            background: var(--dark);
+            color: #fff;
+            margin-left: 10px;
+        }
+
+        .task-tags {
+            display: flex;
+            gap: 8px;
+            margin-top: 10px;
+        }
+
+        .task-tag {
+            background: rgba(0, 0, 0, 0.05);
+            padding: 4px 10px;
+            border-radius: 15px;
+            font-size: 11px;
+            color: var(--text-muted);
+            font-weight: 500;
+        }
+
+        .task-desc {
+            font-size: 11px;
+            color: var(--text-muted);
+            margin-top: 12px;
+            line-height: 1.5;
+        }
+
+        .task-footer {
+            display: flex;
+            gap: 15px;
+            margin-top: 12px;
+            font-size: 10px;
+            color: #888;
+            font-weight: 500;
+        }
+
+        .expand-btn {
+            background: rgba(0, 0, 0, 0.05);
+            border: none;
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: 0.2s;
+            color: var(--text-main);
+        }
+
+        .expand-btn:hover {
+            background: rgba(0, 0, 0, 0.1);
+        }
+
+        .task-controls {
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 1px dashed rgba(0, 0, 0, 0.1);
+        }
+
+        .control-group {
+            display: flex;
+            justify-content: flex-end;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .btn-action {
+            font-size: 11px;
+            padding: 6px 16px;
+            border-radius: 12px;
+            border: none;
+            font-weight: 600;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        .btn-edit {
+            background: var(--yellow);
+            color: var(--dark);
+        }
+
+        .btn-delete {
+            background: #ffe3e3;
+            color: #ff6b6b;
+        }
+
+        .btn-approve {
+            background: #d3f9d8;
+            color: #2b8a3e;
+        }
+
+        .btn-approve:hover {
+            background: #b2f2bb;
+        }
+
+        .btn-delete:hover {
+            background: #ffc9c9;
+        }
+
+        .gps-map {
+            width: 100%;
+            height: 80px;
+            background: url('https://www.transparenttextures.com/patterns/grid-me.png'), #e9ecef;
+            border-radius: 12px;
+            margin-top: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 10px;
+            color: #6c757d;
+            border: 1px solid rgba(0, 0, 0, 0.05);
+            position: relative;
+        }
+
+        .gps-pin {
+            position: absolute;
+            color: #ff6b6b;
+            font-size: 20px;
+        }
+
+        /* Icons */
+        .icon-setting::before {
+            content: '⚙️';
+        }
+
+        .icon-bell::before {
+            content: '🔔';
+        }
+
+        .icon-user::before {
+            content: '👤';
+        }
+
+        /* =========================================
+           THEME IMPLEMENTATIONS
+           ========================================= */
+        .theme-selector-input option {
+            color: #212529;
+            background: #fff;
+        }
+
+        /* 1. FLAT DESIGN */
+        body.theme-flat {
+            --bg-dashboard: #ff5d2a;
+        }
+
+        body.theme-flat .glass,
+        body.theme-flat .task-card,
+        body.theme-flat .nav-links,
+        body.theme-flat .modal-content {
+            background: #fff !important;
+            border: 2px solid #333 !important;
+            border-radius: 0 !important;
+            box-shadow: none !important;
+        }
+
+        body.theme-flat .action-btn,
+        body.theme-flat .setting-btn,
+        body.theme-flat .btn-create {
+            background: #fff !important;
+            border: 2px solid #333 !important;
+            border-radius: 0 !important;
+            color: #333 !important;
+        }
+
+        body.theme-flat .employee-list-item,
+        body.theme-flat .form-control,
+        body.theme-flat .form-select,
+        body.theme-flat .gps-map {
+            border: 2px solid #333 !important;
+            border-radius: 0 !important;
+            background: #fff;
+        }
+
+        /* 2. BAUHAUS STYLE */
+        body.theme-bauhaus {
+            --bg-dashboard: #FFCC00;
+        }
+
+        body.theme-bauhaus h1,
+        body.theme-bauhaus h2,
+        body.theme-bauhaus h3,
+        body.theme-bauhaus h4,
+        body.theme-bauhaus .modal-title {
+            color: #000 !important;
+            font-weight: 700;
+        }
+
+        body.theme-bauhaus .glass,
+        body.theme-bauhaus .task-card,
+        body.theme-bauhaus .nav-links,
+        body.theme-bauhaus .modal-content {
+            background: #fff !important;
+            border: 4px solid #000 !important;
+            border-radius: 0 !important;
+            box-shadow: 6px 6px 0px #000 !important;
+        }
+
+        body.theme-bauhaus .action-btn,
+        body.theme-bauhaus .setting-btn,
+        body.theme-bauhaus .btn-create {
+            background: #005BB8 !important;
+            border: 3px solid #000 !important;
+            border-radius: 0 !important;
+            box-shadow: 3px 3px 0px #000 !important;
+            color: #fff !important;
+        }
+
+        body.theme-bauhaus .employee-list-item,
+        body.theme-bauhaus .form-control,
+        body.theme-bauhaus .form-select,
+        body.theme-bauhaus .gps-map {
+            border: 3px solid #000 !important;
+            border-radius: 0 !important;
+        }
+
+        /* 3. BOLD TYPOGRAPHY */
+        body.theme-bold-type h2 {
+            font-size: 2.5vw !important;
+            font-weight: 900 !important;
+            letter-spacing: -1.5px;
+            text-transform: uppercase;
+        }
+
+        body.theme-bold-type h3,
+        body.theme-bold-type .section-title,
+        body.theme-bold-type .modal-title {
+            text-transform: uppercase;
+            font-weight: 800;
+        }
+
+        /* 4. NEUMORPHISM */
+        body.theme-neumorphism {
+            --bg-dashboard: #e0e5ec;
+        }
+
+        body.theme-neumorphism .glass,
+        body.theme-neumorphism .task-card,
+        body.theme-neumorphism .modal-content {
+            background-color: #e0e5ec !important;
+            border: none !important;
+            box-shadow: 6px 6px 12px #a3b1c6, -6px -6px 12px #ffffff !important;
+        }
+
+        body.theme-neumorphism .action-btn,
+        body.theme-neumorphism .setting-btn,
+        body.theme-neumorphism .nav-links,
+        body.theme-neumorphism .btn-create,
+        body.theme-neumorphism .form-control,
+        body.theme-neumorphism .form-select,
+        body.theme-neumorphism .employee-list-item,
+        body.theme-neumorphism .gps-map {
+            background-color: #e0e5ec !important;
+            border: none !important;
+            box-shadow: 4px 4px 8px #a3b1c6, -4px -4px 8px #ffffff !important;
+        }
+
+        /* 5. GLASSMORPHISM */
+        body.theme-glassmorphism {
+            --bg-dashboard: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --text-main: #ffffff;
+            --text-muted: rgba(255, 255, 255, 0.8);
+        }
+
+        body.theme-glassmorphism,
+        body.theme-glassmorphism h1,
+        body.theme-glassmorphism h2,
+        body.theme-glassmorphism h3,
+        body.theme-glassmorphism h4,
+        body.theme-glassmorphism .modal-title {
+            color: var(--text-main) !important;
+        }
+
+        body.theme-glassmorphism .text-muted,
+        body.theme-glassmorphism p,
+        body.theme-glassmorphism .section-title {
+            color: var(--text-muted) !important;
+        }
+
+        body.theme-glassmorphism .glass,
+        body.theme-glassmorphism .task-card,
+        body.theme-glassmorphism .nav-links,
+        body.theme-glassmorphism .modal-content,
+        body.theme-glassmorphism .theme-dropdown-menu {
+            background: rgba(255, 255, 255, 0.15) !important;
+            backdrop-filter: blur(15px);
+            border: 1px solid rgba(255, 255, 255, 0.3) !important;
+            box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37) !important;
+        }
+
+        body.theme-glassmorphism .action-btn,
+        body.theme-glassmorphism .setting-btn,
+        body.theme-glassmorphism .btn-create {
+            background: rgba(255, 255, 255, 0.2) !important;
+            border: 1px solid rgba(255, 255, 255, 0.4) !important;
+            color: #fff !important;
+        }
+
+        body.theme-glassmorphism .theme-selector-input {
+            background: rgba(255, 255, 255, 0.2) !important;
+            color: #fff !important;
+            border: 1px solid rgba(255, 255, 255, 0.4) !important;
+        }
+
+        body.theme-glassmorphism .dropdown-item {
+            color: #fff !important;
+        }
+        body.theme-glassmorphism .dropdown-item:hover {
+            background: rgba(255, 255, 255, 0.2) !important;
+        }
+
+        /* 6. ANIMATION / MOTION */
+        @keyframes float-dash {
+            0% {
+                transform: translateY(0px);
+            }
+
+            50% {
+                transform: translateY(-8px);
+            }
+
+            100% {
+                transform: translateY(0px);
+            }
+        }
+
+        body.theme-animation .task-card {
+            animation: float-dash 4s ease-in-out infinite;
+        }
+
+        body.theme-animation .task-card:nth-child(even) {
+            animation-delay: 1s;
+        }
+
+        body.theme-animation .left-col {
+            animation: float-dash 6s ease-in-out infinite 0.5s;
+        }
+
+        /* 7. ILLUSTRATION TREND */
+        body.theme-illustration {
+            --bg-dashboard: #ffe3d8;
+        }
+
+        body.theme-illustration .glass,
+        body.theme-illustration .task-card,
+        body.theme-illustration .nav-links,
+        body.theme-illustration .modal-content,
+        body.theme-illustration .theme-dropdown-menu {
+            border: 3px dashed #ff5d2a !important;
+            background-color: #fffaf8 !important;
+            box-shadow: 8px 8px 0px rgba(255, 93, 42, 0.15) !important;
+        }
+
+        body.theme-illustration .action-btn,
+        body.theme-illustration .setting-btn,
+        body.theme-illustration .btn-create {
+            border: 2px dashed #ff5d2a !important;
+            background: #ffe3d8 !important;
+            color: #ff5d2a !important;
+            font-weight: 700;
+        }
+
+        /* 8. DARK MODE */
+        body.theme-dark {
+            --bg-body: #000;
+            --bg-dashboard: #121212;
+            --text-main: #e0e0e0;
+            --text-muted: #aaaaaa;
+        }
+
+        body.theme-dark,
+        body.theme-dark h1,
+        body.theme-dark h2,
+        body.theme-dark h3,
+        body.theme-dark h4,
+        body.theme-dark .modal-title {
+            color: var(--text-main) !important;
+        }
+
+        body.theme-dark .text-muted,
+        body.theme-dark p,
+        body.theme-dark .section-title {
+            color: var(--text-muted) !important;
+        }
+
+        body.theme-dark .glass,
+        body.theme-dark .task-card,
+        body.theme-dark .nav-links,
+        body.theme-dark .modal-content,
+        body.theme-dark .theme-dropdown-menu {
+            background: #1e1e1e !important;
+            border: 1px solid #333 !important;
+        }
+
+        body.theme-dark .employee-list-item {
+            background: #000 !important;
+            border: 1px solid #333 !important;
+        }
+
+        body.theme-dark .form-control,
+        body.theme-dark .form-select {
+            background: #111 !important;
+            border-color: #333 !important;
+            color: #fff !important;
+        }
+
+        body.theme-dark .action-btn,
+        body.theme-dark .setting-btn {
+            background: #1e1e1e !important;
+            border: 1px solid #333 !important;
+            color: #fff !important;
+        }
+
+        body.theme-dark .gps-map {
+            background-color: #111;
+            border: 1px solid #333;
+        }
+
+        body.theme-dark .theme-selector-input {
+            background: #1e1e1e !important;
+            color: #fff !important;
+            border: 1px solid #333 !important;
+        }
+
+        body.theme-dark .dropdown-item {
+            color: var(--text-main) !important;
+        }
+        body.theme-dark .dropdown-item:hover {
+            background: #333 !important;
+            color: #fff !important;
+        }
+
+        body.theme-dark .btn-close {
+            filter: invert(1) grayscale(100%) brightness(200%);
+        }
+
+        /* =========================================
+           MOBILE RESPONSIVE LAYOUT (Max-width: 768px)
+           ========================================= */
+        @media (max-width: 768px) {
+            
+            .desktop-only {
+                display: none !important;
+            }
+            .mobile-only {
+                display: block !important;
+            }
+
+            body {
+                height: auto !important;
+                overflow: auto !important;
+                overflow-x: hidden !important;
+                padding: 0 !important;
+                background: var(--bg-dashboard);
+            }
+
+            .dashboard {
+                height: auto !important;
+                min-height: 100vh;
+                padding: 20px 15px 100px 15px !important;
+                box-shadow: none;
+                max-width: 100vw;
+            }
+
+            .top-nav {
+                display: flex !important;
+                justify-content: space-between !important;
+                align-items: center !important;
+                margin-bottom: 20px;
+                position: relative;
+            }
+
+            .nav-links {
+                position: fixed;
+                bottom: 20px;
+                left: 5%;
+                width: 90%;
+                background: var(--dark) !important;
+                padding: 12px 15px !important;
+                border-radius: 40px !important;
+                display: flex;
+                justify-content: flex-start;
+                overflow-x: auto;
+                gap: 10px;
+                z-index: 9999;
+                box-shadow: 0 15px 35px rgba(0, 0, 0, 0.3);
+                border: none !important;
+            }
+
+            .nav-links::-webkit-scrollbar {
+                display: none;
+            }
+
+            .nav-links {
+                -ms-overflow-style: none;
+                scrollbar-width: none;
+            }
+
+            .nav-links a {
+                color: #a0a0a0 !important;
+                background: transparent !important;
+                font-size: 13px !important;
+                padding: 8px 16px !important;
+            }
+
+            .nav-links a.active,
+            .nav-links a:hover {
+                background: rgba(255, 255, 255, 0.2) !important;
+                color: #fff !important;
+            }
+
+            body.theme-flat .nav-links a,
+            body.theme-bauhaus .nav-links a,
+            body.theme-illustration .nav-links a,
+            body.theme-neumorphism .nav-links a {
+                color: #555 !important;
+            }
+            body.theme-flat .nav-links a.active, body.theme-flat .nav-links a:hover,
+            body.theme-bauhaus .nav-links a.active, body.theme-bauhaus .nav-links a:hover,
+            body.theme-illustration .nav-links a.active, body.theme-illustration .nav-links a:hover {
+                background: #000 !important;
+                color: #fff !important;
+            }
+            body.theme-neumorphism .nav-links a.active, body.theme-neumorphism .nav-links a:hover {
+                background: #a3b1c6 !important;
+                color: #fff !important;
+            }
+
+            .nav-actions {
+                margin-top: 0 !important; 
+                width: auto !important;
+                display: flex !important;
+                align-items: center !important;
+                gap: 10px !important;
+            }
+
+            .dashboard-grid,
+            .task-layout {
+                display: flex;
+                flex-direction: column;
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+
+            .bottom-left-grid {
+                display: flex;
+                flex-direction: column;
+                gap: 20px;
+            }
+
+            .create-task-card,
+            .employees-card,
+            .task-card {
+                padding: 25px 20px;
+                border-radius: 25px !important;
+                box-shadow: 0 5px 20px rgba(0, 0, 0, 0.05);
+            }
+
+            .tasks-container {
+                max-height: none;
+                overflow-y: visible;
+                padding-right: 0;
+            }
+
+            .form-control,
+            .form-select {
+                height: 45px;
+                font-size: 14px;
+                border-radius: 15px;
+                margin-bottom: 10px;
+            }
+
+            .btn-create {
+                height: 50px;
+                font-size: 16px;
+                border-radius: 25px;
+                margin-top: 10px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="dashboard">
+        <!-- Top Navigation -->
+        <div class="top-nav">
+            <div class="logo">Octopyder</div>
+            <div class="nav-links">
+                <a href="dashboard.html">Dashboard</a>
+                <a href="assign-task.html">Assign Task</a>
+                <a href="approve-attendance.html" class="active">Approve Attendance</a>
+                <a href="review-leave.html">Review Leave</a>
+                <a href="salary-approval.html">Salary Approval</a>
+            </div>
+            <div class="nav-actions">
+                
+                <!-- Desktop Elements (Hidden on Mobile) -->
+                <select class="form-select form-select-sm theme-selector-input desktop-only" id="desktopThemeSelector">
+                    <option value="default" selected>Default Style</option>
+                    <option value="theme-flat">Flat Design</option>
+                    <option value="theme-bauhaus">Bauhaus Style</option>
+                    <option value="theme-bold-type">Bold Typography</option>
+                    <option value="theme-neumorphism">Neumorphism</option>
+                    <option value="theme-glassmorphism">Glassmorphism</option>
+                    <option value="theme-animation">Animation / Motion</option>
+                    <option value="theme-illustration">Illustration Trend</option>
+                    <option value="theme-dark">Dark Mode</option>
+                </select>
+
+                <button class="setting-btn desktop-only" data-bs-toggle="modal" data-bs-target="#profileModal"><span
+                        class="icon-user"></span> Profile</button>
+
+                <!-- Notification Button (Visible on both Desktop & Mobile) -->
+                <button class="action-btn icon-bell" data-bs-toggle="modal" data-bs-target="#notificationModal"
+                    style="position: relative;">
+                    <span
+                        style="position: absolute; top: -2px; right: -2px; background: #ff6b6b; width: 10px; height: 10px; border-radius: 50%; border: 2px solid #fff;"></span>
+                </button>
+
+                <!-- Desktop Logout Button (Hidden on Mobile) -->
+                <button class="setting-btn desktop-only" data-bs-toggle="modal" data-bs-target="#logoutModal">Logout</button>
+
+                <!-- Mobile Settings Dropdown (Placed at top-most right corner next to Notification) -->
+                <div class="dropdown mobile-only">
+                    <button class="action-btn icon-setting" type="button" id="mobileSettingsBtn" data-bs-toggle="dropdown" aria-expanded="false" style="border-radius: 50%;">
+                    </button>
+                    <ul class="dropdown-menu dropdown-menu-end glass theme-dropdown-menu" aria-labelledby="mobileSettingsBtn" style="padding: 15px; border-radius: 15px; min-width: 200px; box-shadow: 0 10px 30px rgba(0,0,0,0.1);">
+                        <li style="margin-bottom: 10px;">
+                            <label style="font-size: 11px; font-weight: 600; color: var(--text-muted); margin-bottom: 5px; display: block; padding-left: 5px;">Theme Style</label>
+                            <select class="form-select form-select-sm theme-selector-input" id="mobileThemeSelector" style="border-radius: 10px;">
+                                <option value="default" selected>Default Style</option>
+                                <option value="theme-flat">Flat Design</option>
+                                <option value="theme-bauhaus">Bauhaus Style</option>
+                                <option value="theme-bold-type">Bold Typography</option>
+                                <option value="theme-neumorphism">Neumorphism</option>
+                                <option value="theme-glassmorphism">Glassmorphism</option>
+                                <option value="theme-animation">Animation / Motion</option>
+                                <option value="theme-illustration">Illustration Trend</option>
+                                <option value="theme-dark">Dark Mode</option>
+                            </select>
+                        </li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li>
+                            <button class="dropdown-item" style="border-radius: 8px; font-size: 13px; font-weight: 500; margin-bottom: 5px;" data-bs-toggle="modal" data-bs-target="#profileModal"><span class="icon-user"></span> Profile</button>
+                        </li>
+                        <li>
+                            <button class="dropdown-item text-danger" style="border-radius: 8px; font-size: 13px; font-weight: 500;" data-bs-toggle="modal" data-bs-target="#logoutModal">Logout</button>
+                        </li>
+                    </ul>
+                </div>
+
+            </div>
+        </div>
+
+        <!-- Main Content Grid -->
+        <div class="task-layout">
+
+            <!-- Left Column -->
+            <div class="left-col">
+
+                <!-- Filter Attendance Form -->
+                <div class="glass create-task-card">
+                    <div class="card-header-flex">
+                        <h2><span class="icon">🔍</span> Filter Attendance</h2>
+                    </div>
+
+                    <p style="font-size: 11px; color: var(--text-muted); margin-bottom: 20px;">
+                        Search specific check-ins. Attendance is marked as pending until manager approval.
+                    </p>
+
+                    <form onsubmit="event.preventDefault(); alert('Filters Applied!');">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <label class="form-label">Employee</label>
+                                <select class="form-select">
+                                    <option>All Employees</option>
+                                    <option>Aman Singh</option>
+                                    <option>Priya Roy</option>
+                                    <option>Rahul Sharma</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Date</label>
+                                <input type="date" class="form-control" value="2026-07-30">
+                            </div>
+                        </div>
+
+                        <button type="submit" class="btn-create">Apply Filter</button>
+                    </form>
+                </div>
+
+                <!-- Bottom Left: Attendance History -->
+                <div class="bottom-left-grid">
+                    <div class="glass employees-card">
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <span class="section-title">Recent History</span>
+                        </div>
+
+                        <div class="employee-list-item">
+                            <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRh5nGOiKvXUTinKVcl9GyxToN5WhMnqb1C2ozzqLT-gw&s"
+                                style="width:30px; height:30px; border-radius:50%; object-fit:cover;">
+                            <div class="emp-info flex-grow-1">
+                                <h4>Neha Gupta <span class="tag-status">Approved</span></h4>
+                                <p>Today, 08:45 AM • Office Wifi</p>
+                            </div>
+                        </div>
+
+                        <div class="employee-list-item">
+                            <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRh5nGOiKvXUTinKVcl9GyxToN5WhMnqb1C2ozzqLT-gw&s"
+                                style="width:30px; height:30px; border-radius:50%; object-fit:cover;">
+                            <div class="emp-info flex-grow-1">
+                                <h4>Vikram Kumar <span class="tag-reject">Rejected</span></h4>
+                                <p>Yesterday, 11:30 AM • Mock Location</p>
+                            </div>
+                        </div>
+
+                        <div class="employee-list-item">
+                            <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRh5nGOiKvXUTinKVcl9GyxToN5WhMnqb1C2ozzqLT-gw&s"
+                                style="width:30px; height:30px; border-radius:50%; object-fit:cover;">
+                            <div class="emp-info flex-grow-1">
+                                <h4>Rahul Sharma <span class="tag-status">Approved</span></h4>
+                                <p>Yesterday, 09:15 AM • Remote (GPS)</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Column -->
+            <div class="right-col">
+                <div class="d-flex justify-content-between align-items-center">
+                    <span class="section-title" style="margin:0;">Pending Approvals</span>
+                    <span style="font-size: 11px; color: var(--text-muted);">Manager Validation Required</span>
+                </div>
+
+                <!-- Pipeline is scrollable -->
+                <div class="tasks-container">
+
+                    <!-- Attendance Item 1 -->
+                    <div class="task-card glass">
+                        <div class="task-header">
+                            <div class="task-title-group">
+                                <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRh5nGOiKvXUTinKVcl9GyxToN5WhMnqb1C2ozzqLT-gw&s"
+                                    style="width:40px; height:40px; border-radius:12px; object-fit:cover;">
+                                <div>
+                                    <div class="d-flex align-items-center">
+                                        <span class="task-title">Aman Singh</span>
+                                        <span class="priority-badge">Remote Check-In</span>
+                                    </div>
+                                    <div class="task-tags">
+                                        <span class="task-tag">Check-in: 09:02 AM</span>
+                                        <span class="task-tag text-danger">Pending</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <p class="task-desc">
+                            <strong>Device Info:</strong> iPhone 13 Pro (iOS 16.5) • IP: 192.168.1.45<br>
+                            Employees can mark attendance remotely from any location. Precise geographic
+                            coordinates recorded below:
+                        </p>
+
+                        <div class="gps-map">
+                            <span class="gps-pin">📍</span>
+                            <span style="position:absolute; bottom:5px; right:10px;">Lat: 25.5941° N, Lng: 85.1376° E
+                                (Patna)</span>
+                        </div>
+
+                        <div class="task-controls">
+                            <div class="control-group">
+                                <button class="btn-action btn-delete"
+                                    onclick="handleAttendance(this, 'Rejected')">Reject</button>
+                                <button class="btn-action btn-approve"
+                                    onclick="handleAttendance(this, 'Approved')">Approve</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Attendance Item 2 -->
+                    <div class="task-card glass">
+                        <div class="task-header">
+                            <div class="task-title-group">
+                                <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRh5nGOiKvXUTinKVcl9GyxToN5WhMnqb1C2ozzqLT-gw&s"
+                                    style="width:40px; height:40px; border-radius:12px; object-fit:cover;">
+                                <div>
+                                    <div class="d-flex align-items-center">
+                                        <span class="task-title">Priya Roy</span>
+                                        <span class="priority-badge" style="background:#4dabf7;">Office Wifi</span>
+                                    </div>
+                                    <div class="task-tags">
+                                        <span class="task-tag">Check-in: 09:45 AM (Late)</span>
+                                        <span class="task-tag text-danger">Pending</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <p class="task-desc">
+                            <strong>Device Info:</strong> MacBook Pro (macOS 14.1) • IP: 10.0.0.12 (Corp_Network)<br>
+                            Geo-location, timestamp, and device data stored successfully.
+                        </p>
+
+                        <div class="gps-map">
+                            <span class="gps-pin" style="color: #4dabf7;">📍</span>
+                            <span style="position:absolute; bottom:5px; right:10px;">Matched: HQ Office Polygon</span>
+                        </div>
+
+                        <div class="task-controls">
+                            <div class="control-group">
+                                <button class="btn-action btn-delete"
+                                    onclick="handleAttendance(this, 'Rejected')">Reject</button>
+                                <button class="btn-action btn-approve"
+                                    onclick="handleAttendance(this, 'Approved')">Approve</button>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ==============================================
+     GLOBAL MODALS (Profile, Notifications, Logout)
+=================================================== -->
+
+    <!-- 1. Profile Modal -->
+    <div class="modal fade" id="profileModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content glass border-0">
+                <div class="modal-header border-0 pb-0">
+                    <h5 class="modal-title fs-5 fw-semibold">Manager Profile</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body p-4 pt-3">
+                    
+                    <div class="d-flex align-items-center gap-3 mb-4">
+                        <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRh5nGOiKvXUTinKVcl9GyxToN5WhMnqb1C2ozzqLT-gw&s"
+                            style="width: 60px; height: 60px; border-radius: 50%; border: 2px solid var(--dark); object-fit: cover;">
+                        <div>
+                            <h4 style="font-size: 16px; font-weight: 600; color: var(--text-main); margin-bottom: 4px;">Rahul Sharma</h4>
+                            <p style="font-size: 12px; color: var(--text-muted); margin-bottom: 2px;">🏢 Department: Engineering</p>
+                            <p style="font-size: 12px; color: var(--text-muted);">📧 rahul.sharma@gmail.com | 📞 +91 98765 43210</p>
+                        </div>
+                    </div>
+
+                    <hr style="border-color: rgba(0,0,0,0.1); margin: 20px 0;">
+
+                    <!-- Welcome Details -->
+                    <h5 style="font-size: 14px; font-weight: 600; color: var(--text-main); margin-bottom: 15px;">Welcome Details</h5>
+                    <div class="welcome-details" style="display: flex; flex-direction: column; gap: 10px; font-size: 13px; color: var(--text-muted); margin-bottom: 25px;">
+                        <span><strong style="color: var(--text-main);">Manager ID:</strong> MGR-2026-007</span>
+                        <span><strong style="color: var(--text-main);">Department:</strong> Engineering</span>
+                        <span><strong style="color: var(--text-main);">Role:</strong> Project Manager</span>
+                        <span><strong style="color: var(--text-main);">Date:</strong> <span id="currentDateText"></span></span>
+                        <span><strong style="color: var(--text-main);">Time:</strong> <span id="currentTimeText"></span></span>
+                    </div>
+                    
+                    <hr style="border-color: rgba(0,0,0,0.1); margin: 20px 0;">
+
+                    <!-- Change Password Form -->
+                    <h5 style="font-size: 14px; font-weight: 600; color: var(--text-main); margin-bottom: 15px;">
+                        Security Settings</h5>
+                    <form onsubmit="handlePasswordChange(event)">
+                        <div class="mb-2">
+                            <label class="form-label">Current Password</label>
+                            <input type="password" class="form-control" required placeholder="Enter current password">
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">New Password</label>
+                            <input type="password" class="form-control" required placeholder="Enter new password">
+                        </div>
+                        <button type="submit" class="btn-create" style="margin-top: 0;">Change Password</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 2. Notification Modal -->
+    <div class="modal fade" id="notificationModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+            <div class="modal-content glass border-0">
+                <div class="modal-header border-0 pb-0">
+                    <h5 class="modal-title fs-5 fw-semibold">Notifications (5)</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body p-4 pt-3">
+
+                    <!-- Attendance Request -->
+                    <div class="employee-list-item mb-2" style="cursor: pointer;"
+                        onclick="window.location.href='approve-attendance.html'">
+                        <div class="task-icon-box blue"
+                            style="width: 30px; height: 30px; font-size: 14px; border-radius: 8px;">📍</div>
+                        <div class="emp-info flex-grow-1">
+                            <h4>New Attendance Request</h4>
+                            <p>Aman Singh checked in remotely (Pending Validation).</p>
+                        </div>
+                        <span style="font-size: 10px; color: var(--text-muted);">Just now</span>
+                    </div>
+
+                    <!-- Leave Request -->
+                    <div class="employee-list-item mb-2" style="cursor: pointer;"
+                        onclick="window.location.href='review-leave.html'">
+                        <div class="task-icon-box"
+                            style="background: #ffec99; color: #e67700; width: 30px; height: 30px; font-size: 14px; border-radius: 8px;">
+                            🗓️</div>
+                        <div class="emp-info flex-grow-1">
+                            <h4>New Leave Request</h4>
+                            <p>Priya Roy requested 1 day Sick Leave.</p>
+                        </div>
+                        <span style="font-size: 10px; color: var(--text-muted);">2h ago</span>
+                    </div>
+
+                    <!-- Task Approval -->
+                    <div class="employee-list-item mb-2" style="cursor: pointer;"
+                        onclick="window.location.href='assign-task.html'">
+                        <div class="task-icon-box green"
+                            style="background: #20c997; width: 30px; height: 30px; font-size: 14px; border-radius: 8px;">
+                            ✅</div>
+                        <div class="emp-info flex-grow-1">
+                            <h4>Task Awaiting Approval</h4>
+                            <p>Database Design (100% completed) requires sign-off.</p>
+                        </div>
+                        <span style="font-size: 10px; color: var(--text-muted);">4h ago</span>
+                    </div>
+
+                    <!-- Salary Pending -->
+                    <div class="employee-list-item mb-2" style="cursor: pointer;"
+                        onclick="window.location.href='salary-approval.html'">
+                        <div class="task-icon-box dark"
+                            style="width: 30px; height: 30px; font-size: 14px; border-radius: 8px;">💰</div>
+                        <div class="emp-info flex-grow-1">
+                            <h4>Salary Pending Approval</h4>
+                            <p>July 2026 payroll batch is ready for final review.</p>
+                        </div>
+                        <span style="font-size: 10px; color: var(--text-muted);">Yesterday</span>
+                    </div>
+
+                    <!-- Deadline Reminder -->
+                    <div class="employee-list-item mb-0">
+                        <div class="task-icon-box"
+                            style="background: #ff6b6b; width: 30px; height: 30px; font-size: 14px; border-radius: 8px;">
+                            ⏰</div>
+                        <div class="emp-info flex-grow-1">
+                            <h4>Deadline Reminder</h4>
+                            <p>Rahul Sharma's "Setup Server" task is due in 24 hours.</p>
+                        </div>
+                        <span style="font-size: 10px; color: var(--text-muted);">Yesterday</span>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 3. Logout Confirmation Modal -->
+    <div class="modal fade" id="logoutModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-sm">
+            <div class="modal-content glass border-0" style="text-align: center;">
+                <div class="modal-body p-4">
+                    <div style="font-size: 40px; margin-bottom: 10px;">👋</div>
+                    <h4 style="font-size: 18px; font-weight: 600; color: var(--text-main); margin-bottom: 10px;">End
+                        Session?</h4>
+                    <p style="font-size: 12px; color: var(--text-muted); margin-bottom: 20px;">Are you sure you want to
+                        log out of Octopyder?</p>
+
+                    <div style="display: flex; gap: 10px; justify-content: center;">
+                        <button type="button" class="btn-action btn-delete" style="flex: 1; padding: 10px;"
+                            data-bs-dismiss="modal">Cancel</button>
+                        <button type="button" class="btn-action btn-approve" style="flex: 1; padding: 10px;"
+                            onclick="executeLogout()">Yes, Logout</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Global Functions Script -->
+    <script>
+        function updateDateTime() {
+            const now = new Date();
+            const dateOptions = { month: 'long', day: 'numeric', year: 'numeric' };
+            if(document.getElementById('currentDateText')) {
+                document.getElementById('currentDateText').innerText = now.toLocaleDateString('en-US', dateOptions);
+            }
+            if(document.getElementById('currentTimeText')) {
+                const timeOptions = { hour: 'numeric', minute: '2-digit', hour12: true };
+                document.getElementById('currentTimeText').innerText = now.toLocaleTimeString('en-US', timeOptions);
+            }
+        }
+        updateDateTime();
+        setInterval(updateDateTime, 1000);
+
+        function handlePasswordChange(e) {
+            e.preventDefault();
+            alert('Password updated successfully! Please use your new password next time you log in.');
+
+            // Hide the modal using Bootstrap's JS API
+            const profileModalEl = document.getElementById('profileModal');
+            const modal = bootstrap.Modal.getInstance(profileModalEl);
+            modal.hide();
+
+            // Reset the form
+            e.target.reset();
+        }
+
+        function executeLogout() {
+            // Here you would clear session storage, cookies, or auth tokens
+            sessionStorage.clear();
+            alert('Session securely ended. Redirecting to login page...');
+
+            // Redirect to your login page 
+            window.location.href = '../index.html';
+        }
+    </script>
+
+    <!-- Bootstrap Bundle JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script>
+        // Logic for Actioning Attendance
+        function handleAttendance(btn, action) {
+            const card = btn.closest('.task-card');
+            alert(`Attendance ${action} successfully!`);
+            // Animate out
+            card.style.opacity = '0';
+            card.style.transform = 'scale(0.95)';
+            setTimeout(() => {
+                card.remove();
+                checkEmptyList();
+            }, 300);
+        }
+
+        function checkEmptyList() {
+            const container = document.querySelector('.tasks-container');
+            if (container.children.length === 0) {
+                container.innerHTML = `
+                <div class="glass" style="padding: 40px; text-align: center; border-radius: 20px;">
+                    <h4 style="color: var(--text-muted); font-weight: 500;">All Caught Up!</h4>
+                    <p style="font-size: 12px; color: var(--text-muted); margin-top: 10px;">No pending attendance validations.</p>
+                </div>
+            `;
+            }
+        }
+
+        // Theme Selector functionality (Synced across views)
+        const themeSelectors = document.querySelectorAll('.theme-selector-input');
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const savedTheme = localStorage.getItem('payrollTheme');
+            if (savedTheme) {
+                themeSelectors.forEach(select => { select.value = savedTheme; });
+                if (savedTheme !== 'default') {
+                    document.body.classList.add(savedTheme);
+                }
+            }
+        });
+
+        themeSelectors.forEach(selector => {
+            selector.addEventListener('change', function () {
+                document.body.classList.forEach(cls => {
+                    if (cls.startsWith('theme-')) {
+                        document.body.classList.remove(cls);
+                    }
+                });
+
+                const selectedTheme = this.value;
+                if (selectedTheme !== 'default') {
+                    document.body.classList.add(selectedTheme);
+                }
+
+                localStorage.setItem('payrollTheme', selectedTheme);
+                
+                themeSelectors.forEach(sel => {
+                    if (sel !== this) sel.value = selectedTheme;
+                });
+            });
+        });
+    </script>
+
+</body>
+
+</html>

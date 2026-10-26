@@ -1,0 +1,1109 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Task Management - Payroll System</title>
+
+    <!-- Fonts & Icons -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;900&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
+
+    <style>
+        body, html {
+            height: 100%;
+            font-family: 'Inter', sans-serif;
+            background-color: #f8f9fa;
+            transition: background-color 0.4s ease, color 0.4s ease;
+            overflow-x: hidden;
+        }
+
+        /* =========================================
+           SHARED & DESKTOP STYLES
+           ========================================= */
+        .app-container { height: 100vh; width: 100vw; overflow: hidden; }
+        .sidebar { width: 80px; background-color: #111111; flex-direction: column; align-items: center; justify-content: space-between; padding: 1.5rem 0; z-index: 1040; transition: all 0.4s ease; }
+        .sidebar-brand { width: 45px; height: 45px; background: #ffffff; color: #111; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; text-decoration: none; margin-bottom: 2rem; }
+        .sidebar-nav { display: flex; flex-direction: column; gap: 1.25rem; align-items: center; width: 100%; }
+        .sidebar-nav a { color: #a0aec0; font-size: 1.25rem; padding: 0.75rem; border-radius: 12px; transition: all 0.2s ease; text-decoration: none; }
+        .sidebar-nav a:hover, .sidebar-nav a.active { background-color: rgba(255, 255, 255, 0.1); color: #ffffff; }
+        .main-content { flex: 1; display: flex; flex-direction: column; height: 100vh; overflow-y: auto; background-color: transparent; }
+        .top-navbar { background-color: #ffffff; border-bottom: 1px solid #eaeaea; padding: 1rem 2rem; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 1030; transition: all 0.4s ease; }
+        .search-bar-wrapper { position: relative; width: 300px; }
+        .search-bar-wrapper input { border-radius: 50rem; padding-left: 2.5rem; border: 1px solid #ced4da; font-size: 0.875rem; }
+        .search-bar-wrapper i { position: absolute; left: 1rem; top: 50%; transform: translateY(-50%); color: #6c757d; }
+        .top-nav-right { display: flex; align-items: center; gap: 1.25rem; }
+        .icon-btn { background: none; border: none; font-size: 1.25rem; color: #4a5568; position: relative; cursor: pointer; }
+        .notification-badge { position: absolute; top: -2px; right: -4px; font-size: 0.6rem; padding: 0.25em 0.4em; }
+        .profile-dropdown img { width: 40px; height: 40px; border-radius: 50%; object-fit: cover; }
+        .page-body { padding: 2rem; }
+
+        /* --- Cards & General --- */
+        .card-custom { background: #ffffff; border: 1px solid #eaeaea; border-radius: 1rem; padding: 1.5rem; box-shadow: 0 2px 6px rgba(0,0,0,0.02); transition: all 0.3s ease; }
+        
+        /* Table overrides */
+        .table-custom { margin-bottom: 0; }
+        .table-custom th { border-bottom-width: 1px; color: #6c757d; font-weight: 600; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.5px; }
+        .table-custom td { vertical-align: middle; border-bottom-color: #eaeaea; }
+
+        /* Custom Progress Bar for Table */
+        .progress-slim { height: 6px; border-radius: 10px; background-color: #e9ecef; }
+        .progress-slim .progress-bar { border-radius: 10px; }
+
+        /* Task Timeline */
+        .task-timeline { border-left: 2px solid #e9ecef; padding-left: 20px; margin-left: 10px; position: relative; }
+        .task-timeline-item { margin-bottom: 20px; position: relative; }
+        .task-timeline-item::before {
+            content: ''; position: absolute; left: -26px; top: 0; width: 10px; height: 10px;
+            border-radius: 50%; background-color: #0d6efd; border: 2px solid #fff;
+        }
+        .task-timeline-item.completed::before { background-color: #198754; }
+
+        /* =========================================
+           MONTHLY TASK COMPLETION CHART FIX
+           ========================================= */
+        /* Desktop */
+        .page-body .row.g-3 > .col-md-4:nth-child(3) .d-flex.align-items-end {
+            height: 100% !important; min-height: 160px; padding-bottom: 0.5rem;
+        }
+        .page-body .row.g-3 > .col-md-4:nth-child(3) .d-flex.align-items-end > .d-flex.flex-column {
+            height: 100%; justify-content: flex-end;
+        }
+        .page-body .row.g-3 > .col-md-4:nth-child(3) .d-flex.align-items-end > .d-flex.flex-column > .bg-primary { order: 2; z-index: 2; }
+        .page-body .row.g-3 > .col-md-4:nth-child(3) .d-flex.align-items-end > .d-flex.flex-column > span.fw-bold { order: 1; margin-bottom: auto; z-index: 2; }
+        .page-body .row.g-3 > .col-md-4:nth-child(3) .d-flex.align-items-end > .d-flex.flex-column > span.text-muted { order: 3; margin-top: 4px; z-index: 2; }
+
+        /* Mobile */
+        #mobileChartCarousel .carousel-item:nth-child(3) .d-flex.align-items-end {
+            height: 100% !important; min-height: 140px; padding-bottom: 10px;
+        }
+        #mobileChartCarousel .carousel-item:nth-child(3) .d-flex.align-items-end > .d-flex.flex-column {
+            height: 100%; justify-content: flex-end;
+        }
+        #mobileChartCarousel .carousel-item:nth-child(3) .d-flex.align-items-end > .d-flex.flex-column > .bg-primary { order: 1; margin-top: auto; z-index: 2; }
+        #mobileChartCarousel .carousel-item:nth-child(3) .d-flex.align-items-end > .d-flex.flex-column > span.text-muted { order: 2; margin-top: 4px; z-index: 2; }
+
+        /* =========================================
+           MOBILE STYLES (App-Like Interface)
+           ========================================= */
+        .mobile-app-container { background-color: #f5f6fa; min-height: 100vh; padding-bottom: 80px; }
+        .mobile-topbar { position: sticky; top: 0; z-index: 1040; background-color: #ffffff; padding: 1rem; display: flex; align-items: center; justify-content: space-between; box-shadow: 0 2px 10px rgba(0,0,0,0.05); }
+        .mobile-body { padding: 1rem; display: flex; flex-direction: column; gap: 1rem; }
+        
+        .mobile-kpi-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; }
+        .mobile-kpi-card { background: #ffffff; border-radius: 1rem; padding: 1rem; border: 1px solid #eaeaea; box-shadow: 0 2px 4px rgba(0,0,0,0.02); }
+        
+        /* Task Mobile Card */
+        .task-mobile-card { background: #ffffff; border-radius: 1rem; padding: 1rem; border: 1px solid #eaeaea; margin-bottom: 1rem; display: flex; flex-direction: column; gap: 0.75rem; box-shadow: 0 2px 4px rgba(0,0,0,0.02); }
+        .task-mobile-card-actions { display: flex; gap: 0.5rem; border-top: 1px solid #eaeaea; padding-top: 0.75rem; margin-top: 0.25rem; }
+
+        /* Circular Progress for Mobile */
+        .circular-progress {
+            width: 45px; height: 45px; border-radius: 50%; display: flex; align-items: center; justify-content: center;
+            background: conic-gradient(#0d6efd calc(var(--value) * 1%), #e9ecef 0);
+            font-size: 0.7rem; font-weight: bold; color: #212529; position: relative;
+        }
+        .circular-progress::before { content: ""; position: absolute; inset: 4px; border-radius: 50%; background-color: #fff; }
+        .circular-progress span { position: relative; z-index: 1; }
+
+        /* Bottom Nav & FAB */
+        .bottom-nav { position: fixed; bottom: 0; left: 0; right: 0; height: 65px; background: #ffffff; box-shadow: 0 -2px 10px rgba(0,0,0,0.05); display: flex; justify-content: space-around; align-items: center; z-index: 1040; border-top-left-radius: 20px; border-top-right-radius: 20px; }
+        .bottom-nav-item { display: flex; flex-direction: column; align-items: center; color: #a0aec0; text-decoration: none; font-size: 0.75rem; gap: 2px; }
+        .bottom-nav-item.active { color: #0d6efd; font-weight: 600; }
+        .bottom-nav-item i { font-size: 1.25rem; }
+        
+        .fab-container { position: fixed; bottom: 85px; right: 15px; z-index: 1050; display: flex; flex-direction: column-reverse; align-items: center; gap: 10px; }
+        .fab-main { width: 56px; height: 56px; border-radius: 50%; background-color: #0d6efd; color: white; border: none; box-shadow: 0 4px 12px rgba(13, 110, 253, 0.4); font-size: 24px; display: flex; align-items: center; justify-content: center; transition: transform 0.3s; }
+        .fab-options { display: none; flex-direction: column-reverse; gap: 10px; align-items: center; }
+        .fab-container.active .fab-options { display: flex; animation: slideUp 0.2s ease forwards; }
+        .fab-container.active .fab-main { transform: rotate(45deg); }
+        .fab-option-btn { width: 45px; height: 45px; border-radius: 50%; background-color: #ffffff; color: #212529; border: 1px solid #eaeaea; box-shadow: 0 4px 8px rgba(0,0,0,0.1); display: flex; align-items: center; justify-content: center; position: relative; }
+        @keyframes slideUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* Toast positioning */
+        .toast-container { position: fixed; top: 80px; right: 20px; z-index: 1150; }
+
+        /* Chart Carousels */
+        .carousel-indicators { bottom: -15px; }
+        .carousel-indicators [data-bs-target] { background-color: #adb5bd; width: 8px; height: 8px; border-radius: 50%; }
+        .carousel-indicators .active { background-color: #0d6efd; }
+        
+        .donut-chart-wrapper { position: relative; width: 100px; height: 100px; display: flex; align-items: center; justify-content: center; }
+        .donut-chart { width: 100%; height: 100%; border-radius: 50%; -webkit-mask-image: radial-gradient(circle, transparent 50%, black 52%); mask-image: radial-gradient(circle, transparent 50%, black 52%); }
+
+        /* =========================================
+           UNIFIED THEME FIXES & OVERRIDES
+           ========================================= */
+
+        /* 1. Flat Theme */
+        body.theme-flat .sidebar, body.theme-flat .mobile-topbar, body.theme-flat .bottom-nav { background: #ff5d2a; border-radius: 0; }
+        body.theme-flat .top-navbar { background: #ff5d2a; border-bottom: 2px solid #333; }
+        body.theme-flat .top-navbar .icon-btn, body.theme-flat .top-navbar .search-bar-wrapper i { color: #fff; }
+        body.theme-flat .search-bar-wrapper input { border: 2px solid #333; border-radius: 0; }
+        body.theme-flat .card-custom, body.theme-flat .mobile-card, body.theme-flat .mobile-kpi-card, body.theme-flat .task-mobile-card, body.theme-flat .modal-content { border-radius: 0; border: 2px solid #333; }
+        
+        /* 2. Bauhaus Theme */
+        body.theme-bauhaus .sidebar, body.theme-bauhaus .mobile-topbar { background: #E3000F; border-right: 4px solid #000; color: white;}
+        body.theme-bauhaus .top-navbar { background: #FFD100; border-bottom: 4px solid #000; }
+        body.theme-bauhaus .bottom-nav { border-top: 4px solid #000; border-radius: 0; }
+        body.theme-bauhaus .search-bar-wrapper input { border: 4px solid #000; border-radius: 0; box-shadow: 4px 4px 0px #000; }
+        body.theme-bauhaus .card-custom, body.theme-bauhaus .mobile-card, body.theme-bauhaus .mobile-kpi-card, body.theme-bauhaus .task-mobile-card, body.theme-bauhaus .modal-content { border: 4px solid #000; box-shadow: 6px 6px 0px #000; border-radius: 0; }
+        
+        /* 3. Neumorphism */
+        body.theme-neumorphism { background-color: #e0e5ec; }
+        body.theme-neumorphism .main-content, body.theme-neumorphism .mobile-app-container { background-color: transparent; }
+        body.theme-neumorphism .top-navbar, body.theme-neumorphism .sidebar, body.theme-neumorphism .mobile-topbar, body.theme-neumorphism .bottom-nav { background: #e0e5ec !important; border: none !important; box-shadow: 6px 6px 12px #a3b1c6, -6px -6px 12px #ffffff; z-index: 1040; }
+        body.theme-neumorphism .card-custom, body.theme-neumorphism .mobile-card, body.theme-neumorphism .mobile-kpi-card, body.theme-neumorphism .task-mobile-card, body.theme-neumorphism .modal-content, body.theme-neumorphism .dropdown-menu, body.theme-neumorphism .offcanvas { background: #e0e5ec !important; border: none !important; box-shadow: 6px 6px 12px #a3b1c6, -6px -6px 12px #ffffff !important; color: #333; }
+        body.theme-neumorphism .form-control, body.theme-neumorphism .form-select, body.theme-neumorphism input { background: #e0e5ec !important; border: none !important; box-shadow: inset 4px 4px 8px #a3b1c6, inset -4px -4px 8px #ffffff !important; }
+        body.theme-neumorphism .table-custom td, body.theme-neumorphism .table-custom th { background: transparent; border-color: #a3b1c6; }
+        body.theme-neumorphism .btn-light { box-shadow: 4px 4px 8px #a3b1c6, -4px -4px 8px #ffffff; border: none; }
+        body.theme-neumorphism .circular-progress::before { background-color: #e0e5ec; }
+
+        /* 4. Glassmorphism */
+        body.theme-glassmorphism { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: #fff; min-height: 100vh; }
+        body.theme-glassmorphism .main-content, body.theme-glassmorphism .mobile-app-container { background: transparent; }
+        body.theme-glassmorphism .top-navbar, body.theme-glassmorphism .sidebar, body.theme-glassmorphism .mobile-topbar, body.theme-glassmorphism .bottom-nav { background: rgba(255, 255, 255, 0.1) !important; backdrop-filter: blur(15px); border-color: rgba(255, 255, 255, 0.2) !important; color: #fff; }
+        body.theme-glassmorphism .sidebar-brand { background: rgba(255, 255, 255, 0.2); color: #fff; border: none; }
+        body.theme-glassmorphism .card-custom, body.theme-glassmorphism .mobile-card, body.theme-glassmorphism .mobile-kpi-card, body.theme-glassmorphism .task-mobile-card, body.theme-glassmorphism .modal-content, body.theme-glassmorphism .dropdown-menu, body.theme-glassmorphism .offcanvas, body.theme-glassmorphism .offcanvas-header { background: rgba(255, 255, 255, 0.15) !important; backdrop-filter: blur(15px); border: 1px solid rgba(255, 255, 255, 0.3) !important; box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37); color: #fff !important; }
+        body.theme-glassmorphism .dropdown-item { color: #fff; }
+        body.theme-glassmorphism .dropdown-item:hover { background: rgba(255, 255, 255, 0.2) !important; color: #fff; }
+        body.theme-glassmorphism .text-dark, body.theme-glassmorphism .text-muted, body.theme-glassmorphism h2, body.theme-glassmorphism h3, body.theme-glassmorphism h4, body.theme-glassmorphism h5, body.theme-glassmorphism h6, body.theme-glassmorphism span, body.theme-glassmorphism p, body.theme-glassmorphism small, body.theme-glassmorphism strong, body.theme-glassmorphism .fw-bold { color: #ffffff !important; }
+        body.theme-glassmorphism .table-custom td, body.theme-glassmorphism .table-custom th, body.theme-glassmorphism .border-bottom, body.theme-glassmorphism hr { background: transparent !important; color: white !important; border-color: rgba(255,255,255,0.2) !important; }
+        body.theme-glassmorphism .form-control, body.theme-glassmorphism .form-select, body.theme-glassmorphism .input-group-text { background: rgba(255,255,255,0.1) !important; color: white !important; border-color: rgba(255,255,255,0.3) !important; }
+        body.theme-glassmorphism .form-control::placeholder { color: rgba(255,255,255,0.7) !important; }
+        body.theme-glassmorphism .bg-white, body.theme-glassmorphism .bg-light, body.theme-glassmorphism .table-light { background-color: rgba(255,255,255,0.15) !important; color: #fff !important; border-color: rgba(255,255,255,0.3) !important; }
+        body.theme-glassmorphism .table-light th { color: #fff !important; border-bottom: 1px solid rgba(255,255,255,0.3) !important; }
+        body.theme-glassmorphism .btn-light, body.theme-glassmorphism .btn-outline-secondary, body.theme-glassmorphism .fab-option-btn { background: rgba(255,255,255,0.15) !important; color: #fff !important; border: 1px solid rgba(255,255,255,0.3) !important; }
+        body.theme-glassmorphism .btn-light:hover { background: rgba(255,255,255,0.25) !important; }
+        body.theme-glassmorphism .nav-tabs .nav-link { color: rgba(255,255,255,0.7); }
+        body.theme-glassmorphism .nav-tabs .nav-link.active { background: rgba(255,255,255,0.2) !important; color: white !important; border-color: rgba(255,255,255,0.3) !important; border-bottom-color: transparent !important; }
+        body.theme-glassmorphism .icon-btn, body.theme-glassmorphism .bottom-nav-item, body.theme-glassmorphism .search-bar-wrapper i, body.theme-glassmorphism .sidebar-nav a { color: rgba(255,255,255,0.8); }
+        body.theme-glassmorphism .bottom-nav-item.active { color: #fff; font-weight: 700; }
+        body.theme-glassmorphism .task-timeline { border-left-color: rgba(255,255,255,0.3); }
+        body.theme-glassmorphism .circular-progress::before { background: rgba(255, 255, 255, 0.15); backdrop-filter: blur(15px); }
+
+        /* 5. Dark Mode */
+        body.theme-dark { background-color: #121212; color: #e0e0e0; }
+        body.theme-dark .main-content, body.theme-dark .mobile-app-container { background-color: #121212; }
+        body.theme-dark .top-navbar, body.theme-dark .sidebar, body.theme-dark .mobile-topbar, body.theme-dark .bottom-nav { background-color: #1a1a1a !important; border-color: #333 !important; }
+        body.theme-dark .sidebar-brand { background: #333; color: #fff; }
+        body.theme-dark .card-custom, body.theme-dark .mobile-card, body.theme-dark .mobile-kpi-card, body.theme-dark .task-mobile-card, body.theme-dark .modal-content, body.theme-dark .dropdown-menu, body.theme-dark .offcanvas { background-color: #1e1e1e !important; border: 1px solid #333 !important; box-shadow: none; color: #fff !important; }
+        body.theme-dark .text-dark, body.theme-dark h2, body.theme-dark h3, body.theme-dark h4, body.theme-dark h5, body.theme-dark h6, body.theme-dark .fw-bold { color: #ffffff !important; }
+        body.theme-dark .text-muted { color: #aaaaaa !important; }
+        body.theme-dark .table-custom td, body.theme-dark .table-custom th, body.theme-dark .border-bottom, body.theme-dark hr { background: transparent !important; color: white !important; border-color: #333 !important; }
+        body.theme-dark .form-control, body.theme-dark .form-select, body.theme-dark .input-group-text { background-color: #2a2a2a !important; color: white !important; border-color: #444 !important; }
+        body.theme-dark .bg-white, body.theme-dark .bg-light, body.theme-dark .table-light { background-color: #2a2a2a !important; color: #fff !important; border-color: #333 !important; }
+        body.theme-dark .table-light th { color: #ccc !important; border-bottom-color: #444 !important; }
+        body.theme-dark .btn-light, body.theme-dark .btn-outline-secondary, body.theme-dark .fab-option-btn { background-color: #2a2a2a !important; border-color: #444 !important; color: #e0e0e0 !important; }
+        body.theme-dark .btn-light:hover { background-color: #333 !important; }
+        body.theme-dark .nav-tabs .nav-link { color: #aaa; }
+        body.theme-dark .nav-tabs .nav-link.active { background: #2a2a2a !important; color: white !important; border-color: #333 !important; border-bottom-color: transparent !important; }
+        body.theme-dark .dropdown-item { color: #e0e0e0; }
+        body.theme-dark .dropdown-item:hover { background-color: #333 !important; color: #fff; }
+        body.theme-dark .offcanvas-header, body.theme-dark .modal-header { border-color: #333 !important; }
+        body.theme-dark .icon-btn, body.theme-dark .bottom-nav-item, body.theme-dark .search-bar-wrapper i { color: #aaa; }
+        body.theme-dark .bottom-nav-item.active { color: #0d6efd; }
+        body.theme-dark .task-timeline { border-left-color: #333; }
+        body.theme-dark .circular-progress::before { background-color: #1e1e1e; }
+
+        /* 6. Illustration Trend */
+        body.theme-illustration { background: #ffe3d8; }
+        body.theme-illustration .main-content, body.theme-illustration .mobile-app-container { background: transparent; }
+        body.theme-illustration .sidebar { background: #fffaf8; border-right: 3px dashed #ff5d2a; }
+        body.theme-illustration .sidebar-brand { background: #ffe3d8; border: 2px dashed #ff5d2a; }
+        body.theme-illustration .sidebar-nav a { color: #ff5d2a; }
+        body.theme-illustration .top-navbar, body.theme-illustration .mobile-topbar { background: #fffaf8 !important; border-bottom: 3px dashed #ff5d2a !important; }
+        body.theme-illustration .bottom-nav { background: #fffaf8 !important; border-top: 3px dashed #ff5d2a !important; border-bottom: none; }
+        body.theme-illustration .card-custom, body.theme-illustration .mobile-card, body.theme-illustration .mobile-kpi-card, body.theme-illustration .task-mobile-card, body.theme-illustration .modal-content {
+            background: #fffaf8; border: 2px dashed #ff5d2a; border-radius: 20px; box-shadow: 6px 6px 0px rgba(255, 93, 42, 0.15);
+        }
+        body.theme-illustration .table-custom td, body.theme-illustration .table-custom th { background: transparent; border-color: #ffc2b3; }
+        body.theme-illustration .circular-progress::before { background-color: #fffaf8; }
+
+        /* 7. Animation / Motion Theme */
+        @keyframes slideInUpDash { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        body.theme-animation .page-body > div, body.theme-animation .mobile-body > div { animation: slideInUpDash 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94) both; }
+        body.theme-animation .page-body > div:nth-child(1), body.theme-animation .mobile-body > div:nth-child(1) { animation-delay: 0.05s; }
+        body.theme-animation .page-body > div:nth-child(2), body.theme-animation .mobile-body > div:nth-child(2) { animation-delay: 0.15s; }
+        body.theme-animation .page-body > div:nth-child(3), body.theme-animation .mobile-body > div:nth-child(3) { animation-delay: 0.25s; }
+        body.theme-animation .page-body > div:nth-child(4), body.theme-animation .mobile-body > div:nth-child(4) { animation-delay: 0.35s; }
+        
+        body.theme-animation .card-custom, body.theme-animation .mobile-kpi-card, body.theme-animation .task-mobile-card { transition: transform 0.3s cubic-bezier(0.25, 0.8, 0.25, 1), box-shadow 0.3s ease; }
+        body.theme-animation .card-custom:hover, body.theme-animation .task-mobile-card:hover { transform: translateY(-4px); box-shadow: 0 10px 20px rgba(0,0,0,0.06); }
+        body.theme-animation .mobile-kpi-card:hover { transform: translateY(-2px); box-shadow: 0 6px 12px rgba(0,0,0,0.05); }
+    </style>
+</head>
+
+<body class="theme-default">
+
+    <!-- STEP 16: Global Success Toasts -->
+    <div class="toast-container">
+        <div id="successToast" class="toast align-items-center text-white bg-success border-0 shadow" role="alert" aria-live="assertive" aria-atomic="true">
+            <div class="d-flex">
+                <div class="toast-body fw-medium" id="toastMessage">Action completed successfully.</div>
+                <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ==========================================
+         DESKTOP VIEW
+         ========================================== -->
+    <div class="app-container d-none d-lg-flex">
+        
+        <!-- Sidebar -->
+        <aside class="sidebar d-flex">
+            <div>
+                <a href="dashboard.html" class="sidebar-brand"><i class="bi bi-layers-fill"></i></a>
+                <nav class="sidebar-nav">
+                    <a href="dashboard.html" title="Dashboard"><i class="bi bi-grid-1x2-fill"></i></a>
+                    <a href="employees.html" title="Employees"><i class="bi bi-people-fill"></i></a>
+                    <a href="managers.html" title="Managers"><i class="bi bi-shield-shaded"></i></a>
+                    <a href="payroll.html" title="Payroll"><i class="bi bi-wallet2"></i></a>
+                    <a href="attendance.html" title="Attendance"><i class="bi bi-clock-history"></i></a>
+                    <a href="tasks.html" class="active" title="Tasks"><i class="bi bi-kanban-fill"></i></a>
+                </nav>
+            </div>
+            <div class="sidebar-nav">
+                <a href="settings.html" title="Settings"><i class="bi bi-gear-fill"></i></a>
+                <a href="../index.html" title="Logout"><i class="bi bi-box-arrow-right text-danger"></i></a>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Top Navbar -->
+            <header class="top-navbar">
+                <div class="search-bar-wrapper">
+                    <i class="bi bi-search"></i>
+                    <input type="text" class="form-control" placeholder="Search Task...">
+                </div>
+
+                <div class="top-nav-right">
+                    <select id="themeSelector" class="form-select form-select-sm bg-transparent" style="width: 150px;">
+                        <option value="default" selected>Default Style</option>
+                        <option value="theme-flat">Flat Design</option>
+                        <option value="theme-bauhaus">Bauhaus Style</option>
+                        <option value="theme-bold-type">Bold Typography</option>
+                        <option value="theme-neumorphism">Neumorphism</option>
+                        <option value="theme-glassmorphism">Glassmorphism</option>
+                        <option value="theme-animation">Animation / Motion</option>
+                        <option value="theme-illustration">Illustration Trend</option>
+                        <option value="theme-dark">Dark Mode</option>
+                    </select>
+                    <div class="dropdown">
+                        <button class="icon-btn" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            <i class="bi bi-bell"></i>
+                            <span class="position-absolute translate-middle badge rounded-pill bg-danger notification-badge">3</span>
+                        </button>
+                        <ul class="dropdown-menu dropdown-menu-end shadow" style="width: 300px;">
+                            <li><h6 class="dropdown-header">Notifications</h6></li>
+                            <li><a class="dropdown-item small" href="#">Task "Website UI" Pending Approval</a></li>
+                        </ul>
+                    </div>
+                    <div class="dropdown profile-dropdown">
+                        <a href="#" class="d-flex align-items-center text-decoration-none dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+                            <img src="https://plus.unsplash.com/premium_photo-1661302846246-e8faef18255d?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MXx8QWRtaW58ZW58MHx8MHx8fDA%3D" alt="Admin Avatar">
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu-end shadow">
+                            <li><h6 class="dropdown-header">System Administrator</h6></li>
+                            <li><a class="dropdown-item" href="profile.html">Profile</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </header>
+
+            <!-- Page Body -->
+            <div class="page-body">
+                
+                <!-- STEP 1: Page Header -->
+                <div class="d-flex justify-content-between align-items-end mb-4">
+                    <div>
+                        <h2 class="fw-bold text-dark mb-1">Task Management</h2>
+                        <p class="text-muted small mb-0">Assign, monitor and manage employee tasks across all departments.<br>Total Tasks : <strong>245</strong></p>
+                    </div>
+                    <div class="d-flex gap-2">
+                        <button class="btn btn-outline-secondary" onclick="showToast('Importing tasks...')"><i class="bi bi-cloud-download me-2"></i>Import</button>
+                        <button class="btn btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#exportModal"><i class="bi bi-cloud-upload me-2"></i>Export</button>
+                        <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#assignTaskModal"><i class="bi bi-plus-lg me-2"></i>Assign Task</button>
+                    </div>
+                </div>
+
+                <!-- STEP 2: Statistics Cards -->
+                <div class="row g-3 mb-4">
+                    <div class="col-md-3">
+                        <div class="card-custom text-center border-bottom border-primary border-3">
+                            <span class="text-muted small d-block mb-1">📋 Total Tasks</span>
+                            <h3 class="fw-bold text-dark mb-0">245</h3>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="card-custom text-center border-bottom border-success border-3">
+                            <span class="text-muted small d-block mb-1">✅ Completed</span>
+                            <h3 class="fw-bold text-success mb-0">170</h3>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="card-custom text-center border-bottom border-warning border-3">
+                            <span class="text-muted small d-block mb-1">🟡 Pending</span>
+                            <h3 class="fw-bold text-warning mb-0">40</h3>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="card-custom text-center border-bottom border-danger border-3">
+                            <span class="text-muted small d-block mb-1">🔴 Overdue</span>
+                            <h3 class="fw-bold text-danger mb-0">35</h3>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- STEP 3 & 4: Search, Filters & Table -->
+                <div class="card-custom mb-4">
+                    
+                    <!-- Search & Filters -->
+                    <div class="row g-2 mb-4 align-items-center">
+                        <div class="col-md-2">
+                            <select class="form-select text-muted">
+                                <option selected>Employee</option>
+                                <option>Amit</option>
+                                <option>Rahul</option>
+                            </select>
+                        </div>
+                        <div class="col-md-2">
+                            <select class="form-select text-muted">
+                                <option selected>Manager</option>
+                                <option>Rahul</option>
+                                <option>Priya</option>
+                            </select>
+                        </div>
+                        <div class="col-md-2">
+                            <select class="form-select text-muted">
+                                <option selected>Department</option>
+                                <option>IT</option>
+                                <option>HR</option>
+                            </select>
+                        </div>
+                        <div class="col-md-2">
+                            <select class="form-select text-muted">
+                                <option selected>Priority</option>
+                                <option>High</option>
+                                <option>Medium</option>
+                                <option>Low</option>
+                            </select>
+                        </div>
+                        <div class="col-md-2">
+                            <select class="form-select text-muted">
+                                <option selected>Status</option>
+                                <option>Assigned</option>
+                                <option>In Progress</option>
+                                <option>Pending Approval</option>
+                                <option>Completed</option>
+                            </select>
+                        </div>
+                        <div class="col-md-2 d-flex gap-2 text-end">
+                            <button class="btn btn-primary w-100" title="Apply Filters">Search</button>
+                            <button class="btn btn-light text-muted w-100" title="Reset Filters"><i class="bi bi-arrow-counterclockwise"></i></button>
+                        </div>
+                    </div>
+
+                    <!-- STEP 15: Loading State (Hidden by default) -->
+                    <div id="desktopLoader" class="d-none py-5 text-center">
+                        <div class="spinner-border text-primary" role="status"><span class="visually-hidden">Loading...</span></div>
+                        <p class="text-muted mt-2">Loading Tasks...</p>
+                    </div>
+
+                    <!-- Task Table -->
+                    <div class="table-responsive" id="desktopTableContainer">
+                        <table class="table table-custom table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Task ID</th>
+                                    <th>Task Title</th>
+                                    <th>Employee</th>
+                                    <th>Manager</th>
+                                    <th>Priority</th>
+                                    <th>Progress</th>
+                                    <th>Deadline</th>
+                                    <th>Status</th>
+                                    <th class="text-end">Action</th>
+                                </tr>
+                            </thead>
+                            <tbody id="desktopTableBody">
+                                <!-- Row 1 -->
+                                <tr>
+                                    <td class="fw-medium">TSK001</td>
+                                    <td><div class="fw-bold">Website UI</div></td>
+                                    <td>Amit</td>
+                                    <td>Rahul</td>
+                                    <td><span class="badge bg-danger bg-opacity-10 text-danger border border-danger">High</span></td>
+                                    <td style="min-width: 120px;">
+                                        <div class="d-flex justify-content-between small text-muted mb-1"><span>Progress</span><span>70%</span></div>
+                                        <div class="progress progress-slim"><div class="progress-bar bg-primary" style="width: 70%"></div></div>
+                                    </td>
+                                    <td>15 Aug</td>
+                                    <td><span class="badge bg-warning bg-opacity-10 text-warning border border-warning">In Progress</span></td>
+                                    <td class="text-end">
+                                        <button class="btn btn-sm btn-light text-primary" title="View" data-bs-toggle="modal" data-bs-target="#viewTaskModal"><i class="bi bi-eye"></i></button>
+                                        <button class="btn btn-sm btn-light text-secondary" title="Edit" data-bs-toggle="modal" data-bs-target="#editTaskModal"><i class="bi bi-pencil"></i></button>
+                                        <button class="btn btn-sm btn-light text-danger" title="Delete" data-bs-toggle="modal" data-bs-target="#deleteTaskModal"><i class="bi bi-trash"></i></button>
+                                    </td>
+                                </tr>
+                                <!-- Row 2 -->
+                                <tr>
+                                    <td class="fw-medium">TSK002</td>
+                                    <td><div class="fw-bold">Payroll Logic Fix</div></td>
+                                    <td>Ravi</td>
+                                    <td>Priya</td>
+                                    <td><span class="badge bg-success bg-opacity-10 text-success border border-success">Low</span></td>
+                                    <td style="min-width: 120px;">
+                                        <div class="d-flex justify-content-between small text-muted mb-1"><span>Progress</span><span>100%</span></div>
+                                        <div class="progress progress-slim"><div class="progress-bar bg-info" style="width: 100%"></div></div>
+                                    </td>
+                                    <td>12 Aug</td>
+                                    <td><span class="badge bg-info bg-opacity-10 text-info border border-info">Pending Approval</span></td>
+                                    <td class="text-end">
+                                        <button class="btn btn-sm btn-light text-primary" data-bs-toggle="modal" data-bs-target="#viewTaskModal"><i class="bi bi-eye"></i></button>
+                                        <button class="btn btn-sm btn-light text-secondary" data-bs-toggle="modal" data-bs-target="#editTaskModal"><i class="bi bi-pencil"></i></button>
+                                        <button class="btn btn-sm btn-light text-danger" data-bs-toggle="modal" data-bs-target="#deleteTaskModal"><i class="bi bi-trash"></i></button>
+                                    </td>
+                                </tr>
+                                <!-- Row 3 -->
+                                <tr>
+                                    <td class="fw-medium">TSK003</td>
+                                    <td><div class="fw-bold">Database Migration</div></td>
+                                    <td>Amit</td>
+                                    <td>Rahul</td>
+                                    <td><span class="badge bg-warning bg-opacity-10 text-warning border border-warning">Medium</span></td>
+                                    <td style="min-width: 120px;">
+                                        <div class="d-flex justify-content-between small text-muted mb-1"><span>Progress</span><span>0%</span></div>
+                                        <div class="progress progress-slim"><div class="progress-bar bg-secondary" style="width: 0%"></div></div>
+                                    </td>
+                                    <td>20 Aug</td>
+                                    <td><span class="badge bg-secondary bg-opacity-10 text-secondary border border-secondary">Assigned</span></td>
+                                    <td class="text-end">
+                                        <button class="btn btn-sm btn-light text-primary" data-bs-toggle="modal" data-bs-target="#viewTaskModal"><i class="bi bi-eye"></i></button>
+                                        <button class="btn btn-sm btn-light text-secondary" data-bs-toggle="modal" data-bs-target="#editTaskModal"><i class="bi bi-pencil"></i></button>
+                                        <button class="btn btn-sm btn-light text-danger" data-bs-toggle="modal" data-bs-target="#deleteTaskModal"><i class="bi bi-trash"></i></button>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- STEP 14: Empty State (Hidden) -->
+                    <div id="desktopEmptyState" class="d-none py-5 text-center">
+                        <i class="bi bi-kanban text-muted" style="font-size: 3rem;"></i>
+                        <h5 class="mt-3 text-dark fw-bold">No Tasks Available</h5>
+                        <p class="text-muted">Assign your first task to an employee.</p>
+                        <button class="btn btn-primary mt-2" data-bs-toggle="modal" data-bs-target="#assignTaskModal">Assign Task</button>
+                    </div>
+
+                    <!-- STEP 12: Pagination -->
+                    <div class="d-flex justify-content-between align-items-center mt-4 pt-3 border-top" id="desktopPagination">
+                        <span class="text-muted small">Showing 1-10 of 245 Tasks</span>
+                        <ul class="pagination pagination-sm mb-0">
+                            <li class="page-item disabled"><a class="page-link" href="#">Previous</a></li>
+                            <li class="page-item active"><a class="page-link" href="#">1</a></li>
+                            <li class="page-item"><a class="page-link" href="#">2</a></li>
+                            <li class="page-item"><a class="page-link" href="#">3</a></li>
+                            <li class="page-item"><a class="page-link" href="#">Next</a></li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Task Analytics Section (Below the Table) -->
+                <div class="row g-3">
+                    <div class="col-md-4">
+                        <div class="card-custom h-100">
+                            <h6 class="fw-bold text-dark mb-4">Task Status Distribution</h6>
+                            <div class="d-flex align-items-center justify-content-around h-100">
+                                <div class="donut-chart-wrapper" style="width: 120px; height: 120px;">
+                                    <div class="donut-chart" style="background: conic-gradient(#198754 0% 70%, #ffc107 70% 85%, #6f42c1 85% 95%, #dc3545 95% 100%);"></div>
+                                </div>
+                                <div class="small d-flex flex-column gap-2 text-muted">
+                                    <span><span class="d-inline-block bg-success rounded-circle me-1" style="width:10px;height:10px;"></span>Completed: 70%</span>
+                                    <span><span class="d-inline-block bg-warning rounded-circle me-1" style="width:10px;height:10px;"></span>In Progress: 15%</span>
+                                    <span><span class="d-inline-block bg-purple rounded-circle me-1" style="width:10px;height:10px; background-color: #6f42c1;"></span>Pending: 10%</span>
+                                    <span><span class="d-inline-block bg-danger rounded-circle me-1" style="width:10px;height:10px;"></span>Rejected: 5%</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="card-custom h-100">
+                            <h6 class="fw-bold text-dark mb-4">Department Completion</h6>
+                            <div class="d-flex flex-column gap-3 small">
+                                <div><div class="d-flex justify-content-between mb-1"><span>IT</span><span class="fw-bold text-dark">90%</span></div><div class="progress progress-slim"><div class="progress-bar bg-primary" style="width: 90%"></div></div></div>
+                                <div><div class="d-flex justify-content-between mb-1"><span>HR</span><span class="fw-bold text-dark">70%</span></div><div class="progress progress-slim"><div class="progress-bar bg-info" style="width: 70%"></div></div></div>
+                                <div><div class="d-flex justify-content-between mb-1"><span>Finance</span><span class="fw-bold text-dark">80%</span></div><div class="progress progress-slim"><div class="progress-bar bg-warning" style="width: 80%"></div></div></div>
+                                <div><div class="d-flex justify-content-between mb-1"><span>Marketing</span><span class="fw-bold text-dark">60%</span></div><div class="progress progress-slim"><div class="progress-bar bg-success" style="width: 60%"></div></div></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="card-custom h-100">
+                            <h6 class="fw-bold text-dark mb-4">Monthly Task Completion</h6>
+                            <div class="d-flex align-items-end justify-content-between h-100 pt-3" style="height: 120px;">
+                                <div class="d-flex flex-column align-items-center gap-1 w-100">
+                                    <div class="bg-primary bg-opacity-25 w-50 rounded-top" style="height: 60px;"></div><span class="small text-muted">Jan</span><span class="small fw-bold">120</span>
+                                </div>
+                                <div class="d-flex flex-column align-items-center gap-1 w-100">
+                                    <div class="bg-primary bg-opacity-50 w-50 rounded-top" style="height: 72px;"></div><span class="small text-muted">Feb</span><span class="small fw-bold">145</span>
+                                </div>
+                                <div class="d-flex flex-column align-items-center gap-1 w-100">
+                                    <div class="bg-primary bg-opacity-75 w-50 rounded-top" style="height: 80px;"></div><span class="small text-muted">Mar</span><span class="small fw-bold">160</span>
+                                </div>
+                                <div class="d-flex flex-column align-items-center gap-1 w-100">
+                                    <div class="bg-primary w-50 rounded-top" style="height: 90px;"></div><span class="small text-muted">Apr</span><span class="small fw-bold">180</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </main>
+    </div>
+
+
+    <!-- ==========================================
+         MOBILE VIEW (Visible below lg break)
+         ========================================== -->
+    <div class="mobile-app-container d-block d-lg-none">
+        
+        <!-- Top App Bar -->
+        <div class="mobile-topbar">
+            <button class="icon-btn text-dark" data-bs-toggle="offcanvas" data-bs-target="#mobileMenu"><i class="bi bi-list fs-3"></i></button>
+            <h5 class="mb-0 fw-bold text-dark">Tasks</h5>
+            <div class="d-flex align-items-center gap-2">
+                <select id="mobileThemeSelector" class="form-select form-select-sm bg-light text-dark shadow-sm rounded-pill" style="width: 100px; font-size: 0.75rem;">
+                    <option value="default" selected>Default</option>
+                    <option value="theme-flat">Flat</option>
+                    <option value="theme-bauhaus">Bauhaus</option>
+                    <option value="theme-bold-type">Bold</option>
+                    <option value="theme-neumorphism">Neumorph</option>
+                    <option value="theme-glassmorphism">Glass</option>
+                    <option value="theme-animation">Motion</option>
+                    <option value="theme-illustration">Illustrate</option>
+                    <option value="theme-dark">Dark</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="mobile-body">
+            
+            <!-- STEP 1: Page Header -->
+            <div class="d-flex justify-content-between align-items-center mb-1">
+                <div>
+                    <h4 class="fw-bold text-dark mb-0">Task Management</h4>
+                    <p class="text-muted small mb-0">245 Tasks</p>
+                </div>
+                <button class="btn btn-sm btn-primary rounded-circle" data-bs-toggle="modal" data-bs-target="#assignTaskModal"><i class="bi bi-plus-lg"></i></button>
+            </div>
+
+            <!-- STEP 2: Statistics (2x2 Grid) -->
+            <div class="mobile-kpi-grid">
+                <div class="mobile-kpi-card text-center">
+                    <span class="text-muted small d-block">Tasks</span>
+                    <h5 class="fw-bold text-dark mb-0">245</h5>
+                </div>
+                <div class="mobile-kpi-card text-center">
+                    <span class="text-muted small d-block">Completed</span>
+                    <h5 class="fw-bold text-success mb-0">170</h5>
+                </div>
+                <div class="mobile-kpi-card text-center">
+                    <span class="text-muted small d-block">Pending</span>
+                    <h5 class="fw-bold text-warning mb-0">40</h5>
+                </div>
+                <div class="mobile-kpi-card text-center">
+                    <span class="text-muted small d-block">Overdue</span>
+                    <h5 class="fw-bold text-danger mb-0">35</h5>
+                </div>
+            </div>
+
+            <!-- STEP 3: Search & Filters (Mobile) -->
+            <div class="d-flex gap-2 align-items-center mt-2">
+                <div class="input-group">
+                    <span class="input-group-text bg-white border-end-0 rounded-start-pill"><i class="bi bi-search text-muted"></i></span>
+                    <input type="text" class="form-control border-start-0 rounded-end-pill" placeholder="Search...">
+                </div>
+                <button class="btn btn-light border rounded-pill px-3" data-bs-toggle="offcanvas" data-bs-target="#mobileFilterSheet"><i class="bi bi-funnel"></i></button>
+            </div>
+
+            <!-- Mobile Filter Bottom Sheet -->
+            <div class="offcanvas offcanvas-bottom" tabindex="-1" id="mobileFilterSheet" style="height: auto; border-top-left-radius: 20px; border-top-right-radius: 20px;">
+                <div class="offcanvas-header border-bottom">
+                    <h5 class="offcanvas-title fw-bold">Filters</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="offcanvas"></button>
+                </div>
+                <div class="offcanvas-body">
+                    <div class="mb-3"><label class="form-label small text-muted">Department</label><select class="form-select"><option>All</option><option>IT</option><option>HR</option></select></div>
+                    <div class="mb-3"><label class="form-label small text-muted">Employee</label><select class="form-select"><option>All</option><option>Amit</option></select></div>
+                    <div class="mb-3"><label class="form-label small text-muted">Status</label><select class="form-select"><option>All</option><option>In Progress</option><option>Pending Approval</option></select></div>
+                    <div class="mb-4"><label class="form-label small text-muted">Priority</label><select class="form-select"><option>All</option><option>High</option><option>Medium</option><option>Low</option></select></div>
+                    <div class="d-flex gap-2">
+                        <button class="btn btn-light w-50" data-bs-dismiss="offcanvas">Reset</button>
+                        <button class="btn btn-primary w-50" data-bs-dismiss="offcanvas">Apply</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- STEP 15: Loading State (Mobile) -->
+            <div id="mobileLoader" class="d-none py-4 text-center">
+                <div class="spinner-border text-primary" role="status"><span class="visually-hidden">Loading...</span></div>
+            </div>
+
+            <!-- STEP 4: Task Cards (Mobile) -->
+            <div id="mobileCardsContainer" class="mt-2">
+                <!-- Card 1 -->
+                <div class="task-mobile-card">
+                    <div class="d-flex justify-content-between align-items-start">
+                        <div>
+                            <h6 class="fw-bold text-dark mb-0">Website UI</h6>
+                            <span class="text-muted small">TSK001</span>
+                        </div>
+                        <span class="badge bg-danger bg-opacity-10 text-danger border border-danger">High</span>
+                    </div>
+                    <div class="d-flex justify-content-between align-items-center mt-2">
+                        <div class="small text-muted d-flex flex-column gap-1">
+                            <span><i class="bi bi-person me-1"></i>Emp: Amit</span>
+                            <span><i class="bi bi-shield me-1"></i>Mgr: Rahul</span>
+                            <span><i class="bi bi-calendar me-1"></i>Due: 15 Aug</span>
+                            <span><i class="bi bi-clock me-1"></i>Status: In Progress</span>
+                        </div>
+                        <!-- Step 9: Circular Progress Mobile -->
+                        <div class="circular-progress" style="--value:70;"><span>70%</span></div>
+                    </div>
+                    <div class="task-mobile-card-actions">
+                        <button class="btn btn-sm btn-light flex-grow-1 text-primary fw-medium" data-bs-toggle="modal" data-bs-target="#viewTaskModal">View <i class="bi bi-chevron-right ms-1"></i></button>
+                        <button class="btn btn-sm btn-light text-secondary px-3" data-bs-toggle="modal" data-bs-target="#editTaskModal" title="Edit"><i class="bi bi-pencil"></i></button>
+                        <button class="btn btn-sm btn-light text-danger px-3" data-bs-toggle="modal" data-bs-target="#deleteTaskModal" title="Delete"><i class="bi bi-trash"></i></button>
+                    </div>
+                </div>
+
+                <!-- Card 2 -->
+                <div class="task-mobile-card">
+                    <div class="d-flex justify-content-between align-items-start">
+                        <div>
+                            <h6 class="fw-bold text-dark mb-0">Payroll Logic Fix</h6>
+                            <span class="text-muted small">TSK002</span>
+                        </div>
+                        <span class="badge bg-success bg-opacity-10 text-success border border-success">Low</span>
+                    </div>
+                    <div class="d-flex justify-content-between align-items-center mt-2">
+                        <div class="small text-muted d-flex flex-column gap-1">
+                            <span><i class="bi bi-person me-1"></i>Emp: Ravi</span>
+                            <span><i class="bi bi-shield me-1"></i>Mgr: Priya</span>
+                            <span><i class="bi bi-calendar me-1"></i>Due: 12 Aug</span>
+                            <span><i class="bi bi-clock me-1"></i>Status: Pending Approval</span>
+                        </div>
+                        <div class="circular-progress" style="--value:100; background: conic-gradient(#198754 calc(100 * 1%), #e9ecef 0);"><span>100%</span></div>
+                    </div>
+                    <div class="task-mobile-card-actions">
+                        <button class="btn btn-sm btn-light flex-grow-1 text-primary fw-medium" data-bs-toggle="modal" data-bs-target="#viewTaskModal">View <i class="bi bi-chevron-right ms-1"></i></button>
+                        <button class="btn btn-sm btn-light text-secondary px-3" data-bs-toggle="modal" data-bs-target="#editTaskModal" title="Edit"><i class="bi bi-pencil"></i></button>
+                        <button class="btn btn-sm btn-light text-danger px-3" data-bs-toggle="modal" data-bs-target="#deleteTaskModal" title="Delete"><i class="bi bi-trash"></i></button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- STEP 12: Pagination Mobile -->
+            <button class="btn btn-outline-primary w-100 mt-2 fw-medium" id="mobileLoadMore">Load More <i class="bi bi-arrow-down-short"></i></button>
+
+            <!-- Task Analytics Carousel (Mobile) -->
+            <div class="mobile-card mt-3 p-0 overflow-hidden pb-4">
+                <div id="mobileChartCarousel" class="carousel slide" data-bs-touch="true" data-bs-interval="false">
+                    <div class="carousel-inner p-3">
+                        <div class="carousel-item active text-center">
+                            <h6 class="fw-bold text-dark mb-3">📈 Task Status</h6>
+                            <div class="d-flex align-items-center justify-content-center gap-4">
+                                <div class="donut-chart-wrapper"><div class="donut-chart" style="background: conic-gradient(#198754 0% 70%, #ffc107 70% 85%, #dc3545 85% 100%);"></div></div>
+                                <div class="small text-start text-muted">
+                                    <div class="mb-1"><span class="d-inline-block bg-success rounded-circle me-1" style="width:10px;height:10px;"></span>Cmp: 70%</div>
+                                    <div class="mb-1"><span class="d-inline-block bg-warning rounded-circle me-1" style="width:10px;height:10px;"></span>Prg: 15%</div>
+                                    <div><span class="d-inline-block bg-danger rounded-circle me-1" style="width:10px;height:10px;"></span>Pnd: 15%</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="carousel-item">
+                            <h6 class="fw-bold text-dark mb-3">📊 Department Progress</h6>
+                            <div class="d-flex flex-column gap-2 small">
+                                <div><div class="d-flex justify-content-between mb-1"><span>IT</span><span>90%</span></div><div class="progress progress-slim"><div class="progress-bar bg-primary" style="width: 90%"></div></div></div>
+                                <div><div class="d-flex justify-content-between mb-1"><span>HR</span><span>70%</span></div><div class="progress progress-slim"><div class="progress-bar bg-info" style="width: 70%"></div></div></div>
+                            </div>
+                        </div>
+                        <div class="carousel-item text-center">
+                            <h6 class="fw-bold text-dark mb-3">📅 Monthly Completion</h6>
+                            <div class="d-flex align-items-end justify-content-between h-100 pt-3 px-4" style="height: 100px;">
+                                <div class="d-flex flex-column align-items-center gap-1 w-100"><div class="bg-primary w-50 rounded-top" style="height: 40px;"></div><span class="small text-muted">Jan</span></div>
+                                <div class="d-flex flex-column align-items-center gap-1 w-100"><div class="bg-primary w-50 rounded-top" style="height: 50px;"></div><span class="small text-muted">Feb</span></div>
+                                <div class="d-flex flex-column align-items-center gap-1 w-100"><div class="bg-primary w-50 rounded-top" style="height: 60px;"></div><span class="small text-muted">Mar</span></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="carousel-indicators mb-1">
+                        <button type="button" data-bs-target="#mobileChartCarousel" data-bs-slide-to="0" class="active"></button>
+                        <button type="button" data-bs-target="#mobileChartCarousel" data-bs-slide-to="1"></button>
+                        <button type="button" data-bs-target="#mobileChartCarousel" data-bs-slide-to="2"></button>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- STEP 13: Floating Action Button (Mobile) -->
+        <div class="fab-container" id="fab">
+            <button class="fab-main" onclick="document.getElementById('fab').classList.toggle('active')"><i class="bi bi-plus"></i></button>
+            <div class="fab-options">
+                <button class="fab-option-btn" data-bs-toggle="modal" data-bs-target="#assignTaskModal" title="Assign Task"><i class="bi bi-kanban text-primary"></i></button>
+                <button class="fab-option-btn" data-bs-toggle="modal" data-bs-target="#exportModal" title="Export"><i class="bi bi-cloud-arrow-down text-info"></i></button>
+                <button class="fab-option-btn" data-bs-toggle="offcanvas" data-bs-target="#mobileFilterSheet" title="Filter"><i class="bi bi-funnel text-success"></i></button>
+                <button class="fab-option-btn" title="Search"><i class="bi bi-search text-secondary"></i></button>
+            </div>
+        </div>
+
+        <!-- Bottom Navigation -->
+        <nav class="bottom-nav">
+            <a href="dashboard.html" class="bottom-nav-item"><i class="bi bi-house-door"></i>Home</a>
+            <a href="employees.html" class="bottom-nav-item"><i class="bi bi-people"></i>Employees</a>
+            <a href="managers.html" class="bottom-nav-item"><i class="bi bi-shield-shaded"></i>Managers</a>
+            <a href="tasks.html" class="bottom-nav-item active"><i class="bi bi-kanban-fill"></i>Tasks</a>
+            <a href="profile.html" class="bottom-nav-item"><i class="bi bi-person"></i>Profile</a>
+        </nav>
+
+        <!-- Offcanvas Mobile Menu -->
+        <div class="offcanvas offcanvas-start" tabindex="-1" id="mobileMenu" style="width: 280px; background: #111;">
+            <div class="offcanvas-header border-bottom border-secondary">
+                <h5 class="offcanvas-title text-white fw-bold"><i class="bi bi-layers-fill me-2"></i>Octopyder</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="offcanvas"></button>
+            </div>
+            <div class="offcanvas-body d-flex flex-column justify-content-between">
+                <nav class="d-flex flex-column gap-3">
+                    <a href="dashboard.html" class="text-secondary text-decoration-none fs-5"><i class="bi bi-grid-1x2-fill me-3"></i>Dashboard</a>
+                    <a href="payroll.html" class="text-secondary text-decoration-none fs-5"><i class="bi bi-wallet2 me-3"></i>Payroll</a>
+                    <a href="attendance.html" class="text-secondary text-decoration-none fs-5"><i class="bi bi-clock-history me-3"></i>Attendance</a>
+                    <a href="settings.html" class="text-secondary text-decoration-none fs-5"><i class="bi bi-gear-fill me-3"></i>Settings</a>
+                </nav>
+                <a href="../index.html" class="text-danger text-decoration-none fs-5"><i class="bi bi-box-arrow-right me-3"></i>Logout</a>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- ==========================================
+         MODALS (Shared between Desktop & Mobile)
+         ========================================== -->
+
+    <!-- STEP 5: Assign Task Modal (Admin & Manager) -->
+    <div class="modal fade" id="assignTaskModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-lg modal-fullscreen-md-down">
+            <div class="modal-content border-0 shadow h-100">
+                <div class="modal-header">
+                    <h5 class="modal-title fw-bold">Assign Task</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body p-4">
+                    <form id="assignTaskForm">
+                        <h6 class="fw-bold text-primary mb-3 border-bottom pb-2">Task Information</h6>
+                        <div class="row g-3 mb-4">
+                            <div class="col-md-12"><label class="form-label small">Task Title</label><input type="text" class="form-control" required></div>
+                            <div class="col-md-12"><label class="form-label small">Description</label><textarea class="form-control" rows="3" required placeholder="Textual description only (No subtasks)"></textarea></div>
+                        </div>
+
+                        <h6 class="fw-bold text-primary mb-3 border-bottom pb-2">Assignment</h6>
+                        <div class="row g-3 mb-4">
+                            <div class="col-md-4"><label class="form-label small">Department</label><select class="form-select"><option>IT</option><option>HR</option></select></div>
+                            <div class="col-md-4"><label class="form-label small">Employee</label><select class="form-select"><option>Amit Kumar</option><option>Ravi</option></select></div>
+                            <div class="col-md-4"><label class="form-label small">Manager</label><select class="form-select"><option>Rahul Sharma</option><option>Priya</option></select></div>
+                            <div class="col-md-4"><label class="form-label small">Priority</label><select class="form-select"><option>High</option><option>Medium</option><option>Low</option></select></div>
+                            <div class="col-md-4"><label class="form-label small">Deadline Date</label><input type="date" class="form-control"></div>
+                            <div class="col-md-4"><label class="form-label small">Deadline Time</label><input type="time" class="form-control"></div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer bg-light">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-outline-secondary">Reset</button>
+                    <button type="button" class="btn btn-primary px-4" onclick="handleAction('Task Assigned Successfully', '#assignTaskModal')">Assign</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- STEP 6: View Task Modal (Popup/Cards) -->
+    <div class="modal fade" id="viewTaskModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-lg modal-dialog-scrollable">
+            <div class="modal-content border-0 shadow">
+                <div class="modal-header bg-light align-items-center">
+                    <div>
+                        <h5 class="modal-title fw-bold mb-0">Website UI</h5>
+                        <span class="text-muted small">TSK001 &bull; Due: 15 Aug</span>
+                    </div>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body p-0">
+                    <!-- Tabs -->
+                    <nav>
+                        <div class="nav nav-tabs px-3 pt-2 bg-light border-bottom" id="task-nav-tab" role="tablist">
+                            <button class="nav-link active" data-bs-toggle="tab" data-bs-target="#tab-overview" type="button">Overview</button>
+                            <button class="nav-link" data-bs-toggle="tab" data-bs-target="#tab-timeline" type="button">Timeline</button>
+                            <button class="nav-link" data-bs-toggle="tab" data-bs-target="#tab-progress" type="button">Progress</button>
+                            <button class="nav-link" data-bs-toggle="tab" data-bs-target="#tab-comments" type="button">Comments</button>
+                        </div>
+                    </nav>
+                    
+                    <!-- Content -->
+                    <div class="tab-content p-4" id="task-tabContent">
+                        
+                        <!-- Overview -->
+                        <div class="tab-pane fade show active" id="tab-overview">
+                            <div class="row g-4 mb-4">
+                                <div class="col-6 col-md-4"><label class="small text-muted d-block">Task ID</label><span class="fw-medium">TSK001</span></div>
+                                <div class="col-6 col-md-4"><label class="small text-muted d-block">Employee</label><span class="fw-medium">Amit</span></div>
+                                <div class="col-6 col-md-4"><label class="small text-muted d-block">Manager</label><span class="fw-medium">Rahul</span></div>
+                                <div class="col-6 col-md-4"><label class="small text-muted d-block">Priority</label><span class="badge bg-danger bg-opacity-10 text-danger border border-danger">High</span></div>
+                                <div class="col-6 col-md-4"><label class="small text-muted d-block">Deadline</label><span class="fw-medium text-danger">15 Aug, 5:00 PM</span></div>
+                                <div class="col-6 col-md-4"><label class="small text-muted d-block">Status</label><span class="badge bg-warning bg-opacity-10 text-warning border border-warning">In Progress</span></div>
+                            </div>
+                            <div class="bg-light p-3 rounded border">
+                                <label class="small text-muted d-block mb-1">Description</label>
+                                <p class="mb-0 text-dark small">Design and implement the new Dashboard UI components based on the approved Figma files. Ensure responsiveness and adhere to the theme guidelines.</p>
+                            </div>
+                        </div>
+
+                        <!-- STEP 10: Timeline / Status Flow -->
+                        <div class="tab-pane fade" id="tab-timeline">
+                            <div class="task-timeline small">
+                                <div class="task-timeline-item completed">
+                                    <div class="fw-bold text-dark">Created & Assigned</div>
+                                    <div class="text-muted">By Admin &bull; 01 Aug, 10:00 AM</div>
+                                </div>
+                                <div class="task-timeline-item completed">
+                                    <div class="fw-bold text-dark">Started (In Progress)</div>
+                                    <div class="text-muted">By Amit &bull; 02 Aug, 09:30 AM</div>
+                                </div>
+                                <div class="task-timeline-item completed">
+                                    <div class="fw-bold text-dark">Progress Updated (70%)</div>
+                                    <div class="text-muted">By Amit &bull; 05 Aug, 04:15 PM</div>
+                                </div>
+                                <div class="task-timeline-item opacity-50">
+                                    <div class="fw-bold text-dark">Pending Approval</div>
+                                    <div class="text-muted">Awaiting Completion</div>
+                                </div>
+                                <div class="task-timeline-item opacity-50 border-0 mb-0">
+                                    <div class="fw-bold text-dark">Completed</div>
+                                    <div class="text-muted">Awaiting Manager Approval</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- STEP 9: Progress Update -->
+                        <div class="tab-pane fade" id="tab-progress">
+                            <h6 class="fw-bold mb-3">Current Progress: <span class="text-primary">70%</span></h6>
+                            <div class="progress mb-4" style="height: 15px; border-radius: 10px;">
+                                <div class="progress-bar bg-primary progress-bar-striped progress-bar-animated" style="width: 70%"></div>
+                            </div>
+                            <!-- Admin view is read-only. Employees would see this slider. -->
+                            <label class="form-label small text-muted">Update Progress (Employee Action Only)</label>
+                            <input type="range" class="form-range" min="0" max="100" step="10" value="70" disabled>
+                            <div class="d-flex justify-content-between small text-muted">
+                                <span>10%</span><span>50%</span><span>100%</span>
+                            </div>
+                        </div>
+
+                        <!-- Comments -->
+                        <div class="tab-pane fade" id="tab-comments">
+                            <div class="d-flex flex-column gap-3 mb-4" style="max-height: 250px; overflow-y: auto;">
+                                <div class="bg-light p-2 px-3 rounded border">
+                                    <div class="d-flex justify-content-between mb-1"><strong class="small text-dark">Amit (Employee)</strong><small class="text-muted">05 Aug</small></div>
+                                    <p class="mb-0 small">Completed Login Page and Sidebar UI.</p>
+                                </div>
+                                <div class="bg-primary bg-opacity-10 p-2 px-3 rounded border border-primary">
+                                    <div class="d-flex justify-content-between mb-1"><strong class="small text-dark">Rahul (Manager)</strong><small class="text-muted">05 Aug</small></div>
+                                    <p class="mb-0 small">Great. Continue Dashboard KPI cards next.</p>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- STEP 7: Edit Task Modal -->
+    <div class="modal fade" id="editTaskModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-lg">
+            <div class="modal-content border-0 shadow">
+                <div class="modal-header">
+                    <h5 class="modal-title fw-bold">Update Task</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body p-4">
+                    <form>
+                        <div class="row g-3 mb-4">
+                            <div class="col-md-12"><label class="form-label small">Task Title</label><input type="text" class="form-control" value="Website UI"></div>
+                            <div class="col-md-12"><label class="form-label small">Description</label><textarea class="form-control" rows="3">Design and implement the new Dashboard UI components...</textarea></div>
+                            <div class="col-md-4"><label class="form-label small">Deadline</label><input type="date" class="form-control" value="2026-08-15"></div>
+                            <div class="col-md-4"><label class="form-label small">Priority</label><select class="form-select"><option selected>High</option><option>Medium</option></select></div>
+                            <div class="col-md-4"><label class="form-label small">Employee</label><select class="form-select"><option selected>Amit</option></select></div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer bg-light">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-primary px-4" onclick="handleAction('Task Updated Successfully', '#editTaskModal')">Update</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- STEP 8: Delete Task Confirmation Modal -->
+    <div class="modal fade" id="deleteTaskModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-sm">
+            <div class="modal-content border-0 shadow text-center">
+                <div class="modal-body p-4">
+                    <i class="bi bi-trash text-danger display-4 mb-3 d-block"></i>
+                    <h5 class="fw-bold mb-2">Delete Task?</h5>
+                    <p class="text-dark fw-bold mb-1">Website UI</p>
+                    <p class="text-muted small mb-4">This action cannot be undone.</p>
+                    <div class="d-flex gap-2 w-100">
+                        <button type="button" class="btn btn-light flex-grow-1" data-bs-dismiss="modal">Cancel</button>
+                        <button type="button" class="btn btn-danger flex-grow-1" onclick="handleAction('Task Deleted Successfully', '#deleteTaskModal')">Delete</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- STEP 11: Export Modal -->
+    <div class="modal fade" id="exportModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-sm">
+            <div class="modal-content border-0 shadow text-center">
+                <div class="modal-header border-bottom-0 pb-0">
+                    <h5 class="modal-title fw-bold w-100">Export Tasks</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body p-4">
+                    <div class="d-flex flex-column gap-2">
+                        <button class="btn btn-outline-danger" onclick="handleAction('Task Exported Successfully (PDF)', '#exportModal')"><i class="bi bi-file-earmark-pdf me-2"></i> Export as PDF</button>
+                        <button class="btn btn-outline-success" onclick="handleAction('Task Exported Successfully (Excel)', '#exportModal')"><i class="bi bi-file-earmark-excel me-2"></i> Export as Excel</button>
+                        <button class="btn btn-outline-secondary" onclick="handleAction('Task Exported Successfully (CSV)', '#exportModal')"><i class="bi bi-filetype-csv me-2"></i> Export as CSV</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- Bootstrap JS Bundle -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
+    <!-- UI Logic Script -->
+    <script>
+        // Theme Management
+        const themeSelector = document.getElementById('themeSelector');
+        const mobileThemeSelector = document.getElementById('mobileThemeSelector');
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const savedTheme = localStorage.getItem('payrollTheme');
+            if (savedTheme) {
+                if(themeSelector) themeSelector.value = savedTheme;
+                if(mobileThemeSelector) mobileThemeSelector.value = savedTheme;
+                if (savedTheme !== 'default') document.body.classList.add(savedTheme);
+            }
+        });
+
+        function syncTheme(e) {
+            document.body.className = '';
+            const selectedTheme = e.target.value;
+            if (selectedTheme !== 'default') document.body.classList.add(selectedTheme);
+            if(themeSelector) themeSelector.value = selectedTheme;
+            if(mobileThemeSelector) mobileThemeSelector.value = selectedTheme;
+            localStorage.setItem('payrollTheme', selectedTheme);
+        }
+
+        if(themeSelector) themeSelector.addEventListener('change', syncTheme);
+        if(mobileThemeSelector) mobileThemeSelector.addEventListener('change', syncTheme);
+
+        // Success Toasts (STEP 16)
+        function showToast(message) {
+            document.getElementById('toastMessage').innerText = message;
+            const toastEl = document.getElementById('successToast');
+            const toast = new bootstrap.Toast(toastEl, { delay: 3000 });
+            toast.show();
+        }
+
+        // Action Handlers
+        function handleAction(successMessage, modalId) {
+            const modalEl = document.querySelector(modalId);
+            const modal = bootstrap.Modal.getInstance(modalEl);
+            if (modal) { modal.hide(); }
+            
+            setTimeout(() => { showToast(successMessage); }, 400);
+            simulateDataLoad();
+        }
+
+        // Loading Simulation (STEP 15)
+        function simulateDataLoad() {
+            // Desktop
+            const dTable = document.getElementById('desktopTableContainer');
+            const dLoader = document.getElementById('desktopLoader');
+            const dPag = document.getElementById('desktopPagination');
+            
+            if (dTable && dLoader) {
+                dTable.classList.add('d-none');
+                dPag.classList.add('d-none');
+                dLoader.classList.remove('d-none');
+                setTimeout(() => {
+                    dLoader.classList.add('d-none');
+                    dTable.classList.remove('d-none');
+                    dPag.classList.remove('d-none');
+                }, 800);
+            }
+
+            // Mobile
+            const mCards = document.getElementById('mobileCardsContainer');
+            const mLoader = document.getElementById('mobileLoader');
+            const mBtn = document.getElementById('mobileLoadMore');
+            
+            if (mCards && mLoader) {
+                mCards.classList.add('d-none');
+                mBtn.classList.add('d-none');
+                mLoader.classList.remove('d-none');
+                setTimeout(() => {
+                    mLoader.classList.add('d-none');
+                    mCards.classList.remove('d-none');
+                    mBtn.classList.remove('d-none');
+                }, 800);
+            }
+        }
+
+        // Mobile Load More Simulation (STEP 12)
+        const loadMoreBtn = document.getElementById('mobileLoadMore');
+        if(loadMoreBtn) {
+            loadMoreBtn.addEventListener('click', function() {
+                const originalText = this.innerHTML;
+                this.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Loading...';
+                this.disabled = true;
+                setTimeout(() => {
+                    this.innerHTML = originalText;
+                    this.disabled = false;
+                    showToast("More tasks loaded");
+                }, 1000);
+            });
+        }
+
+        // Close FAB when modal opens
+        document.querySelectorAll('[data-bs-toggle="modal"]').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const fab = document.getElementById('fab');
+                if(fab) fab.classList.remove('active');
+            });
+        });
+
+    </script>
+</body>
+</html>

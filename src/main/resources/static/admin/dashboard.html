@@ -1,0 +1,823 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard - Payroll Management System</title>
+
+    <!-- Fonts & Icons -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;900&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
+
+    <style>
+        body, html { height: 100%; font-family: 'Inter', sans-serif; background-color: #f8f9fa; transition: background-color 0.4s ease, color 0.4s ease; overflow-x: hidden; }
+
+        /* =========================================
+           SHARED & DESKTOP STYLES
+           ========================================= */
+        .app-container { height: 100vh; width: 100vw; overflow: hidden; }
+        .sidebar { width: 80px; background-color: #111111; flex-direction: column; align-items: center; justify-content: space-between; padding: 1.5rem 0; z-index: 1040; transition: all 0.4s ease; }
+        .sidebar-brand { width: 45px; height: 45px; background: #ffffff; color: #111; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; text-decoration: none; margin-bottom: 2rem; }
+        .sidebar-nav { display: flex; flex-direction: column; gap: 1.25rem; align-items: center; width: 100%; }
+        .sidebar-nav a { color: #a0aec0; font-size: 1.25rem; padding: 0.75rem; border-radius: 12px; transition: all 0.2s ease; text-decoration: none; }
+        .sidebar-nav a:hover, .sidebar-nav a.active { background-color: rgba(255, 255, 255, 0.1); color: #ffffff; }
+        .main-content { flex: 1; display: flex; flex-direction: column; height: 100vh; overflow-y: auto; background-color: transparent; }
+        .top-navbar { background-color: #ffffff; border-bottom: 1px solid #eaeaea; padding: 1rem 2rem; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 1030; transition: all 0.4s ease; }
+        .search-bar-wrapper { position: relative; width: 300px; }
+        .search-bar-wrapper input { border-radius: 50rem; padding-left: 2.5rem; border: 1px solid #ced4da; font-size: 0.875rem; }
+        .search-bar-wrapper i { position: absolute; left: 1rem; top: 50%; transform: translateY(-50%); color: #6c757d; }
+        .top-nav-right { display: flex; align-items: center; gap: 1.25rem; }
+        .icon-btn { background: none; border: none; font-size: 1.25rem; color: #4a5568; position: relative; cursor: pointer; }
+        .notification-badge { position: absolute; top: -2px; right: -4px; font-size: 0.6rem; padding: 0.25em 0.4em; }
+        .profile-dropdown img { width: 40px; height: 40px; border-radius: 50%; object-fit: cover; }
+        
+        .page-body, .dashboard-body { padding: 2rem; }
+        
+        /* Cards */
+        .card-custom { background: #ffffff; border: 1px solid #eaeaea; border-radius: 1rem; padding: 1.5rem; box-shadow: 0 2px 6px rgba(0,0,0,0.02); transition: all 0.3s ease; height: 100%; display: flex; flex-direction: column; }
+        .card-custom:hover { box-shadow: 0 6px 16px rgba(0,0,0,0.06); }
+        .btn-quick-action { border: 1px solid #ced4da; background: #ffffff; color: #212529; font-weight: 500; border-radius: 0.75rem; padding: 0.75rem 1rem; transition: all 0.2s ease; text-align: left; display: flex; align-items: center; gap: 0.5rem; }
+        .btn-quick-action:hover { background-color: #f1f3f5; border-color: #adb5bd; transform: translateY(-1px); }
+
+        /* Tables & Data Elements */
+        .table-custom { margin-bottom: 0; }
+        .table-custom th { border-bottom-width: 1px; color: #6c757d; font-weight: 600; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.5px; }
+        .table-custom td { vertical-align: middle; border-bottom-color: #eaeaea; }
+        .progress-slim { height: 6px; border-radius: 10px; background-color: #e9ecef; }
+        .progress-slim .progress-bar { border-radius: 10px; }
+        .donut-chart-wrapper { position: relative; width: 120px; height: 120px; display: flex; align-items: center; justify-content: center; }
+        .donut-chart { width: 100%; height: 100%; border-radius: 50%; -webkit-mask-image: radial-gradient(circle, transparent 50%, black 52%); mask-image: radial-gradient(circle, transparent 50%, black 52%); transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); cursor: pointer; }
+        .donut-chart:hover { transform: scale(1.08); }
+        .donut-legend-item { display: flex; align-items: center; justify-content: space-between; padding: 0.35rem 0; }
+        .legend-dot { width: 10px; height: 10px; border-radius: 50%; display: inline-block; margin-right: 8px; }
+        .map-placeholder { background: #e9ecef; border-radius: 12px; height: 250px; display: flex; align-items: center; justify-content: center; color: #6c757d; font-weight: 500; border: 1px solid #dee2e6; }
+        .history-timeline { border-left: 2px solid #e9ecef; padding-left: 20px; margin-left: 10px; position: relative; }
+        .history-timeline-item { margin-bottom: 20px; position: relative; }
+        .history-timeline-item::before { content: ''; position: absolute; left: -26px; top: 0; width: 10px; height: 10px; border-radius: 50%; background-color: #0d6efd; border: 2px solid #fff; }
+
+        /* =========================================
+           MOBILE STYLES (App-Like Interface)
+           ========================================= */
+        .mobile-app-container { background-color: #f5f6fa; min-height: 100vh; padding-bottom: 80px; }
+        .mobile-topbar { position: sticky; top: 0; z-index: 1040; background-color: #ffffff; padding: 1rem; display: flex; align-items: center; justify-content: space-between; box-shadow: 0 2px 10px rgba(0,0,0,0.05); }
+        .mobile-body { padding: 1rem; display: flex; flex-direction: column; gap: 1rem; }
+        .mobile-card { background: #ffffff; border-radius: 1.25rem; padding: 1.25rem; box-shadow: 0 4px 12px rgba(0,0,0,0.03); border: none; }
+        .mobile-kpi-grid, .mobile-quick-actions-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; }
+        .mobile-kpi-card { background: #ffffff; border-radius: 1rem; padding: 1rem; border: 1px solid #eaeaea; box-shadow: 0 2px 4px rgba(0,0,0,0.02); }
+        .list-mobile-card { background: #ffffff; border-radius: 1rem; padding: 1rem; border: 1px solid #eaeaea; margin-bottom: 1rem; display: flex; flex-direction: column; gap: 0.75rem; box-shadow: 0 2px 4px rgba(0,0,0,0.02); }
+        .list-mobile-card-actions { display: flex; gap: 0.5rem; border-top: 1px solid #eaeaea; padding-top: 0.75rem; margin-top: 0.25rem; }
+        .mobile-btn-action { background: #ffffff; border: 1px solid #eaeaea; border-radius: 1rem; padding: 1rem 0.5rem; font-weight: 600; text-align: center; display: flex; flex-direction: column; align-items: center; gap: 0.5rem; box-shadow: 0 2px 4px rgba(0,0,0,0.02); color: #212529; text-decoration: none; }
+        
+        .carousel-indicators { bottom: -15px; }
+        .carousel-indicators [data-bs-target] { background-color: #adb5bd; width: 8px; height: 8px; border-radius: 50%; }
+        .carousel-indicators .active { background-color: #0d6efd; }
+        
+        .bottom-nav { position: fixed; bottom: 0; left: 0; right: 0; height: 65px; background: #ffffff; box-shadow: 0 -2px 10px rgba(0,0,0,0.05); display: flex; justify-content: space-around; align-items: center; z-index: 1040; border-top-left-radius: 20px; border-top-right-radius: 20px; }
+        .bottom-nav-item { display: flex; flex-direction: column; align-items: center; color: #a0aec0; text-decoration: none; font-size: 0.75rem; gap: 2px; }
+        .bottom-nav-item.active { color: #0d6efd; font-weight: 600; }
+        .bottom-nav-item i { font-size: 1.25rem; }
+        
+        .fab-container { position: fixed; bottom: 85px; right: 15px; z-index: 1050; display: flex; flex-direction: column-reverse; align-items: center; gap: 10px; }
+        .fab-main { width: 56px; height: 56px; border-radius: 50%; background-color: #0d6efd; color: white; border: none; box-shadow: 0 4px 12px rgba(13, 110, 253, 0.4); font-size: 24px; display: flex; align-items: center; justify-content: center; transition: transform 0.3s; }
+        .fab-options { display: none; flex-direction: column-reverse; gap: 10px; align-items: center; }
+        .fab-container.active .fab-options { display: flex; animation: slideUp 0.2s ease forwards; }
+        .fab-container.active .fab-main { transform: rotate(45deg); }
+        .fab-option-btn { width: 45px; height: 45px; border-radius: 50%; background-color: #ffffff; color: #212529; border: 1px solid #eaeaea; box-shadow: 0 4px 8px rgba(0,0,0,0.1); display: flex; align-items: center; justify-content: center; position: relative; }
+        @keyframes slideUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        
+        .toast-container { position: fixed; top: 80px; right: 20px; z-index: 1150; }
+
+        /* =========================================
+           UNIFIED THEME FIXES & OVERRIDES
+           ========================================= */
+
+        /* 1. Flat Theme */
+        body.theme-flat .sidebar, body.theme-flat .mobile-topbar, body.theme-flat .bottom-nav { background: #ff5d2a; border-radius: 0; }
+        body.theme-flat .top-navbar { background: #ff5d2a; border-bottom: 2px solid #333; }
+        body.theme-flat .top-navbar .icon-btn, body.theme-flat .top-navbar .search-bar-wrapper i { color: #fff; }
+        body.theme-flat .search-bar-wrapper input { border: 2px solid #333; border-radius: 0; }
+        body.theme-flat .card-custom, body.theme-flat .list-mobile-card, body.theme-flat .mobile-kpi-card, body.theme-flat .mobile-card, body.theme-flat .mobile-btn-action, body.theme-flat .modal-content, body.theme-flat .btn-quick-action { border-radius: 0; border: 2px solid #333; }
+        
+        /* 2. Bauhaus Theme */
+        body.theme-bauhaus .sidebar, body.theme-bauhaus .mobile-topbar { background: #E3000F; border-right: 4px solid #000; color: white;}
+        body.theme-bauhaus .top-navbar { background: #FFD100; border-bottom: 4px solid #000; }
+        body.theme-bauhaus .bottom-nav { border-top: 4px solid #000; border-radius: 0; }
+        body.theme-bauhaus .search-bar-wrapper input { border: 4px solid #000; border-radius: 0; box-shadow: 4px 4px 0px #000; }
+        body.theme-bauhaus .card-custom, body.theme-bauhaus .list-mobile-card, body.theme-bauhaus .mobile-kpi-card, body.theme-bauhaus .mobile-card, body.theme-bauhaus .mobile-btn-action, body.theme-bauhaus .modal-content, body.theme-bauhaus .btn-quick-action { border: 4px solid #000; box-shadow: 6px 6px 0px #000; border-radius: 0; }
+        
+        /* 3. Neumorphism */
+        body.theme-neumorphism, body.theme-neumorphism .main-content, body.theme-neumorphism .mobile-app-container { background-color: #e0e5ec; }
+        body.theme-neumorphism .top-navbar, body.theme-neumorphism .sidebar, body.theme-neumorphism .mobile-topbar { background: #e0e5ec !important; border: none !important; box-shadow: 6px 6px 12px #a3b1c6, -6px -6px 12px #ffffff; z-index: 1040; }
+        body.theme-neumorphism .card-custom, body.theme-neumorphism .list-mobile-card, body.theme-neumorphism .mobile-kpi-card, body.theme-neumorphism .mobile-card, body.theme-neumorphism .bottom-nav, body.theme-neumorphism .modal-content, body.theme-neumorphism .dropdown-menu, body.theme-neumorphism .offcanvas, body.theme-neumorphism .btn-quick-action, body.theme-neumorphism .mobile-btn-action, body.theme-neumorphism .fab-option-btn { background: #e0e5ec !important; border: none !important; box-shadow: 6px 6px 12px #a3b1c6, -6px -6px 12px #ffffff !important; color: #333; }
+        body.theme-neumorphism .form-control, body.theme-neumorphism .form-select, body.theme-neumorphism input { background: #e0e5ec !important; border: none !important; box-shadow: inset 4px 4px 8px #a3b1c6, inset -4px -4px 8px #ffffff !important; }
+        body.theme-neumorphism .table-custom td, body.theme-neumorphism .table-custom th { background: transparent; border-color: #a3b1c6; }
+        body.theme-neumorphism .btn-light { box-shadow: 4px 4px 8px #a3b1c6, -4px -4px 8px #ffffff; border: none; }
+
+        /* 4. Glassmorphism */
+        body.theme-glassmorphism { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: #fff; min-height: 100vh; }
+        body.theme-glassmorphism .main-content, body.theme-glassmorphism .mobile-app-container { background: transparent; }
+        body.theme-glassmorphism .top-navbar, body.theme-glassmorphism .sidebar, body.theme-glassmorphism .mobile-topbar, body.theme-glassmorphism .bottom-nav { background: rgba(255, 255, 255, 0.1) !important; backdrop-filter: blur(15px); border-color: rgba(255, 255, 255, 0.2) !important; color: #fff; }
+        body.theme-glassmorphism .sidebar-brand { background: rgba(255, 255, 255, 0.2); color: #fff; }
+        body.theme-glassmorphism .card-custom, body.theme-glassmorphism .list-mobile-card, body.theme-glassmorphism .mobile-kpi-card, body.theme-glassmorphism .mobile-card, body.theme-glassmorphism .modal-content, body.theme-glassmorphism .dropdown-menu, body.theme-glassmorphism .offcanvas, body.theme-glassmorphism .offcanvas-header { background: rgba(255, 255, 255, 0.15) !important; backdrop-filter: blur(15px); border: 1px solid rgba(255, 255, 255, 0.3) !important; box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37); color: #fff !important; }
+        body.theme-glassmorphism .dropdown-item { color: #fff; }
+        body.theme-glassmorphism .dropdown-item:hover { background-color: rgba(255, 255, 255, 0.2); color: #fff; }
+        body.theme-glassmorphism .text-dark, body.theme-glassmorphism .text-muted, body.theme-glassmorphism h2, body.theme-glassmorphism h3, body.theme-glassmorphism h4, body.theme-glassmorphism h5, body.theme-glassmorphism h6, body.theme-glassmorphism span, body.theme-glassmorphism p, body.theme-glassmorphism small, body.theme-glassmorphism strong, body.theme-glassmorphism .fw-bold { color: #ffffff !important; }
+        body.theme-glassmorphism .table-custom td, body.theme-glassmorphism .table-custom th, body.theme-glassmorphism .border-bottom { background: transparent; color: white; border-color: rgba(255,255,255,0.2) !important; }
+        body.theme-glassmorphism .form-control, body.theme-glassmorphism .form-select, body.theme-glassmorphism input { background: rgba(255,255,255,0.1) !important; color: white !important; border-color: rgba(255,255,255,0.3) !important; }
+        body.theme-glassmorphism .form-control::placeholder, body.theme-glassmorphism input::placeholder { color: rgba(255,255,255,0.7) !important; }
+        body.theme-glassmorphism .bg-light, body.theme-glassmorphism .table-light { background-color: rgba(255,255,255,0.15) !important; color: #fff !important; }
+        body.theme-glassmorphism .table-light th { color: #fff !important; border-bottom: 1px solid rgba(255,255,255,0.3) !important; }
+        body.theme-glassmorphism .btn-light, body.theme-glassmorphism .btn-outline-secondary, body.theme-glassmorphism .btn-quick-action, body.theme-glassmorphism .mobile-btn-action, body.theme-glassmorphism .fab-option-btn { background: rgba(255,255,255,0.15) !important; color: #fff !important; border: 1px solid rgba(255,255,255,0.3) !important; }
+        body.theme-glassmorphism .btn-light:hover, body.theme-glassmorphism .btn-quick-action:hover { background: rgba(255,255,255,0.25) !important; }
+        body.theme-glassmorphism .icon-btn, body.theme-glassmorphism .bottom-nav-item, body.theme-glassmorphism .search-bar-wrapper i { color: rgba(255,255,255,0.8); }
+        body.theme-glassmorphism .bottom-nav-item.active { color: #fff; font-weight: 700; }
+        body.theme-glassmorphism .history-timeline { border-left-color: rgba(255,255,255,0.3); }
+        body.theme-glassmorphism .map-placeholder { background: rgba(255,255,255,0.15); border-color: rgba(255,255,255,0.3); color: #fff; }
+
+        /* 5. Dark Mode */
+        body.theme-dark { background-color: #121212; color: #e0e0e0; }
+        body.theme-dark .main-content, body.theme-dark .mobile-app-container { background-color: #121212; }
+        body.theme-dark .top-navbar, body.theme-dark .sidebar, body.theme-dark .mobile-topbar, body.theme-dark .bottom-nav { background-color: #1a1a1a !important; border-color: #333 !important; }
+        body.theme-dark .sidebar-brand { background: #333; color: #fff; }
+        body.theme-dark .card-custom, body.theme-dark .list-mobile-card, body.theme-dark .mobile-kpi-card, body.theme-dark .mobile-card, body.theme-dark .modal-content, body.theme-dark .dropdown-menu, body.theme-dark .offcanvas { background-color: #1e1e1e !important; border: 1px solid #333 !important; box-shadow: none; color: #fff;}
+        body.theme-dark .dropdown-item { color: #e0e0e0; }
+        body.theme-dark .dropdown-item:hover { background-color: #333; color: #fff; }
+        body.theme-dark .text-dark, body.theme-dark h2, body.theme-dark h3, body.theme-dark h4, body.theme-dark h5, body.theme-dark h6 { color: #ffffff !important; }
+        body.theme-dark .text-muted { color: #aaaaaa !important; }
+        body.theme-dark .table-custom td, body.theme-dark .table-custom th, body.theme-dark .border-bottom { background: transparent; color: white; border-color: #333 !important; }
+        body.theme-dark .form-control, body.theme-dark .form-select, body.theme-dark input { background-color: #2a2a2a !important; color: white !important; border-color: #444 !important; }
+        body.theme-dark .map-placeholder { background: #2a2a2a; border-color: #444; color: #aaa; }
+        body.theme-dark .bg-light, body.theme-dark .table-light { background-color: #2a2a2a !important; color: #fff !important; border-color: #333 !important; }
+        body.theme-dark .table-light th { color: #ccc !important; }
+        body.theme-dark .btn-light, body.theme-dark .btn-outline-secondary, body.theme-dark .btn-quick-action, body.theme-dark .mobile-btn-action, body.theme-dark .fab-option-btn { background-color: #2a2a2a !important; border-color: #444 !important; color: #e0e0e0 !important; }
+        body.theme-dark .btn-light:hover, body.theme-dark .btn-quick-action:hover { background-color: #333 !important; }
+        body.theme-dark .offcanvas-header, body.theme-dark .modal-header, body.theme-dark hr { border-color: #333 !important; }
+        body.theme-dark .icon-btn, body.theme-dark .bottom-nav-item, body.theme-dark .search-bar-wrapper i { color: #aaa; }
+        body.theme-dark .bottom-nav-item.active { color: #0d6efd; }
+        body.theme-dark .history-timeline { border-left-color: #333; }
+
+        /* 6. Illustration Trend */
+        body.theme-illustration { background: #ffe3d8; }
+        body.theme-illustration .main-content, body.theme-illustration .mobile-app-container { background: transparent; }
+        body.theme-illustration .sidebar { background: #fffaf8; border-right: 3px dashed #ff5d2a; }
+        body.theme-illustration .sidebar-brand { background: #ffe3d8; border: 2px dashed #ff5d2a; }
+        body.theme-illustration .sidebar-nav a { color: #ff5d2a; }
+        body.theme-illustration .top-navbar, body.theme-illustration .mobile-topbar { background: #fffaf8 !important; border-bottom: 3px dashed #ff5d2a !important; }
+        body.theme-illustration .bottom-nav { background: #fffaf8 !important; border-top: 3px dashed #ff5d2a !important; border-bottom: none; }
+        body.theme-illustration .card-custom, body.theme-illustration .list-mobile-card, body.theme-illustration .mobile-kpi-card, body.theme-illustration .mobile-card, body.theme-illustration .modal-content, body.theme-illustration .btn-quick-action, body.theme-illustration .mobile-btn-action { background: #fffaf8; border: 2px dashed #ff5d2a; border-radius: 20px; box-shadow: 6px 6px 0px rgba(255, 93, 42, 0.15); }
+        body.theme-illustration .table-custom td, body.theme-illustration .table-custom th { background: transparent; border-color: #ffc2b3; }
+        body.theme-illustration .btn-quick-action, body.theme-illustration .mobile-btn-action { color: #ff5d2a; font-weight: 700; }
+
+        /* 7. Animation / Motion Theme */
+        @keyframes slideInUpDash { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
+        body.theme-animation .page-body > div, body.theme-animation .dashboard-body > div, body.theme-animation .mobile-body > div { animation: slideInUpDash 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94) both; }
+        body.theme-animation .page-body > div:nth-child(1), body.theme-animation .dashboard-body > div:nth-child(1), body.theme-animation .mobile-body > div:nth-child(1) { animation-delay: 0.05s; }
+        body.theme-animation .page-body > div:nth-child(2), body.theme-animation .dashboard-body > div:nth-child(2), body.theme-animation .mobile-body > div:nth-child(2) { animation-delay: 0.15s; }
+        body.theme-animation .page-body > div:nth-child(3), body.theme-animation .dashboard-body > div:nth-child(3), body.theme-animation .mobile-body > div:nth-child(3) { animation-delay: 0.25s; }
+        body.theme-animation .page-body > div:nth-child(4), body.theme-animation .dashboard-body > div:nth-child(4), body.theme-animation .mobile-body > div:nth-child(4) { animation-delay: 0.35s; }
+        /* Add hover scale to cards for motion feel */
+        body.theme-animation .card-custom, body.theme-animation .list-mobile-card, body.theme-animation .mobile-kpi-card, body.theme-animation .mobile-card, body.theme-animation .btn-quick-action, body.theme-animation .mobile-btn-action { transition: transform 0.3s cubic-bezier(0.25, 0.8, 0.25, 1), box-shadow 0.3s ease; }
+        body.theme-animation .card-custom:hover, body.theme-animation .list-mobile-card:hover, body.theme-animation .mobile-card:hover { transform: translateY(-4px); box-shadow: 0 10px 20px rgba(0,0,0,0.06); }
+        body.theme-animation .mobile-kpi-card:hover, body.theme-animation .btn-quick-action:hover, body.theme-animation .mobile-btn-action:hover { transform: translateY(-2px); box-shadow: 0 6px 12px rgba(0,0,0,0.05); }
+    </style>
+</head>
+
+<body class="theme-default">
+
+    <!-- ==========================================
+         DESKTOP VIEW (Visible on lg and above)
+         ========================================== -->
+    <div class="app-container d-none d-lg-flex">
+        
+        <!-- Sidebar -->
+        <aside class="sidebar d-flex">
+            <div>
+                <a href="#" class="sidebar-brand"><i class="bi bi-layers-fill"></i></a>
+                <nav class="sidebar-nav">
+                    <a href="dashboard.html" class="active" title="Dashboard"><i class="bi bi-grid-1x2-fill"></i></a>
+                    <a href="employees.html" title="Employees"><i class="bi bi-people-fill"></i></a>
+                    <a href="managers.html" title="Managers"><i class="bi bi-shield-shaded"></i></a>
+                    <a href="payroll.html" title="Payroll"><i class="bi bi-wallet2"></i></a>
+                    <a href="attendance.html" title="Attendance"><i class="bi bi-clock-history"></i></a>
+                    <a href="tasks.html" title="Tasks"><i class="bi bi-kanban-fill"></i></a>
+                </nav>
+            </div>
+            <div class="sidebar-nav">
+                <a href="settings.html" title="Settings"><i class="bi bi-gear-fill"></i></a>
+                <a href="../index.html" title="Logout"><i class="bi bi-box-arrow-right text-danger"></i></a>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Top Navbar -->
+            <header class="top-navbar">
+                <div class="search-bar-wrapper">
+                    <i class="bi bi-search"></i>
+                    <input type="text" class="form-control" placeholder="Quick Search...">
+                </div>
+
+                <div class="top-nav-right">
+                    <select id="themeSelector" class="form-select form-select-sm bg-transparent" style="width: 150px;">
+                        <option value="default" selected>Default Style</option>
+                        <option value="theme-flat">Flat Design</option>
+                        <option value="theme-bauhaus">Bauhaus Style</option>
+                        <option value="theme-bold-type">Bold Typography</option>
+                        <option value="theme-neumorphism">Neumorphism</option>
+                        <option value="theme-glassmorphism">Glassmorphism</option>
+                        <option value="theme-animation">Animation / Motion</option>
+                        <option value="theme-illustration">Illustration Trend</option>
+                        <option value="theme-dark">Dark Mode</option>
+                    </select>
+                    
+                    <div class="dropdown">
+                        <button class="icon-btn" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            <i class="bi bi-bell"></i>
+                            <span class="position-absolute translate-middle badge rounded-pill bg-danger notification-badge" id="notif-count">3</span>
+                        </button>
+                        <ul class="dropdown-menu dropdown-menu-end shadow" style="width: 300px;">
+                            <li><h6 class="dropdown-header">Notifications</h6></li>
+                            <li><a class="dropdown-item small" href="#">Leave Request: Rahul (IT)</a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item text-center small text-primary" href="#">View all notifications</a></li>
+                        </ul>
+                    </div>
+
+                    <div class="dropdown profile-dropdown">
+                        <a href="" class="d-flex align-items-center text-decoration-none dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+                            <img src="https://plus.unsplash.com/premium_photo-1661302846246-e8faef18255d?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MXx8QWRtaW58ZW58MHx8MHx8fDA%3D" alt="Admin Avatar">
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu-end shadow">
+                            <li><h6 class="dropdown-header">System Administrator</h6></li>
+                            <li><a class="dropdown-item" href="profile.html">Profile</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </header>
+
+            <!-- Dashboard Body -->
+            <div class="dashboard-body">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <div>
+                        <h2 class="fw-bold text-dark mb-1">Welcome Back, Admin 👋</h2>
+                        <p class="text-muted small mb-0">System Administrator &bull; Employee ID : <strong>ADM-2026-001</strong></p>
+                    </div>
+                    <div class="text-end d-none d-md-block">
+                        <h6 class="fw-bold text-dark mb-0" id="currentDate">Loading...</h6>
+                        <small class="text-muted" id="currentTime">Loading...</small>
+                    </div>
+                </div>
+
+                <!-- KPI Cards Grid -->
+                <div class="row g-3 mb-4">
+                    <div class="col-md-4"><div class="card-custom">
+                        <div class="d-flex justify-content-between mb-2"><span class="text-muted small">👥 Total Employees</span><span class="badge bg-success bg-opacity-15 text-success small" id="emp-growth"></span></div>
+                        <h3 class="fw-bold text-dark mb-0" id="emp-total">...</h3>
+                    </div></div>
+                    <div class="col-md-4"><div class="card-custom">
+                        <div class="d-flex justify-content-between mb-2"><span class="text-muted small">👨‍💼 Total Managers</span><i class="bi bi-shield-check text-primary fs-5"></i></div>
+                        <h3 class="fw-bold text-dark mb-0" id="mgr-total">...</h3>
+                    </div></div>
+                    <div class="col-md-4"><div class="card-custom">
+                        <div class="d-flex justify-content-between mb-2"><span class="text-muted small">🕒 Attendance Today</span><i class="bi bi-calendar-check text-success fs-5"></i></div>
+                        <div class="d-flex justify-content-between small mt-2">
+                            <span class="text-success fw-bold" id="att-present"></span>
+                            <span class="text-danger fw-bold" id="att-absent"></span>
+                            <span class="text-warning fw-bold" id="att-pending"></span>
+                        </div>
+                    </div></div>
+                    <div class="col-md-4"><div class="card-custom">
+                        <div class="d-flex justify-content-between mb-2"><span class="text-muted small">🏖 Pending Leave Requests</span><span class="badge bg-warning text-dark">Action Needed</span></div>
+                        <h3 class="fw-bold text-dark mb-0" id="leave-pending">...</h3>
+                    </div></div>
+                    <div class="col-md-4"><div class="card-custom">
+                        <div class="d-flex justify-content-between mb-2"><span class="text-muted small">📋 Active Tasks</span><span class="badge bg-primary" id="task-active">...</span></div>
+                        <div class="d-flex justify-content-between small text-muted mt-2"><span id="task-completed"></span><span id="task-pending"></span></div>
+                    </div></div>
+                    <div class="col-md-4"><div class="card-custom">
+                        <div class="d-flex justify-content-between mb-2"><span class="text-muted small">💰 Payroll Status</span><span class="badge bg-success" id="payroll-status">...</span></div>
+                        <h3 class="fw-bold text-dark mb-0" id="payroll-amount">...</h3>
+                        <small class="text-muted">Monthly Payroll</small>
+                    </div></div>
+                </div>
+
+                <!-- Charts & Quick Actions Row -->
+                <div class="row g-4 mb-4">
+                    <div class="col-lg-8">
+                        <div class="row g-4 h-100">
+                            <!-- 1. Attendance Chart -->
+                            <div class="col-md-6"><div class="card-custom"><h5 class="fw-bold text-dark mb-3">Attendance</h5><div class="d-flex flex-column justify-content-between h-100 gap-2 small" id="attendance-chart-container"></div></div></div>
+                            <!-- 2. Salary Distribution -->
+                            <div class="col-md-6"><div class="card-custom"><h5 class="fw-bold text-dark mb-4">Salary Dist.</h5><div class="d-flex align-items-center justify-content-around flex-grow-1"><div class="donut-chart-wrapper"><div id="salary-donut-chart" class="donut-chart"></div></div><div class="d-flex flex-column text-muted small w-50" id="salary-legend-container"></div></div></div></div>
+                            <!-- 3. Task Completion -->
+                            <div class="col-md-6"><div class="card-custom"><h5 class="fw-bold text-dark mb-3">Tasks</h5><div class="d-flex flex-column justify-content-between h-100 gap-2 small" id="dept-task-container"></div></div></div>
+                            <!-- 4. Leave Statistics -->
+                            <div class="col-md-6"><div class="card-custom"><h5 class="fw-bold text-dark mb-3">Leaves</h5><ul class="list-unstyled small text-muted d-flex flex-column justify-content-center gap-3 mb-0 h-100" id="leave-stats-container"></ul></div></div>
+                        </div>
+                    </div>
+
+                    <div class="col-lg-4">
+                        <div class="d-flex flex-column gap-4 h-100">
+                            <!-- Quick Actions -->
+                            <div class="card-custom flex-grow-0">
+                                <h5 class="fw-bold text-dark mb-3">Quick Actions</h5>
+                                <div class="d-flex flex-column gap-2">
+                                    <button class="btn btn-quick-action" data-bs-toggle="modal" data-bs-target="#quickActionModal" data-action="Add Employee"><i class="bi bi-person-plus-fill text-primary"></i> + Add Employee</button>
+                                    <button class="btn btn-quick-action" data-bs-toggle="modal" data-bs-target="#quickActionModal" data-action="Add Manager"><i class="bi bi-shield-shaded text-success"></i> + Add Manager</button>
+                                </div>
+                            </div>
+                            <!-- Recent Activities -->
+                            <div class="card-custom flex-grow-1">
+                                <h5 class="fw-bold text-dark mb-3">Recent Activities</h5>
+                                <div class="d-flex flex-column gap-3 small" id="activity-log-container"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- ==========================================
+         MOBILE VIEW (Visible below lg break)
+         ========================================== -->
+    <div class="mobile-app-container d-block d-lg-none">
+        
+        <!-- 1. Top App Bar -->
+        <div class="mobile-topbar">
+            <button class="icon-btn text-dark" data-bs-toggle="offcanvas" data-bs-target="#mobileMenu"><i class="bi bi-list fs-3"></i></button>
+            <h5 class="mb-0 fw-bold text-dark">Dashboard</h5>
+            <div class="d-flex align-items-center gap-2">
+                
+                <!-- Notification Bell & Dropdown (Replaces old Notifications Card) -->
+                <div class="dropdown">
+                    <button class="icon-btn bg-transparent border-0 p-0 position-relative me-2" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                        <i class="bi bi-bell fs-4 text-dark"></i>
+                        <span class="position-absolute top-0 start-100 translate-middle p-1 bg-danger border border-light rounded-circle"></span>
+                    </button>
+                    <ul class="dropdown-menu dropdown-menu-end shadow" style="width: 280px; max-width: 90vw;">
+                        <li>
+                            <h6 class="dropdown-header d-flex justify-content-between align-items-center">
+                                Notifications <span class="badge bg-danger rounded-pill">5 New</span>
+                            </h6>
+                        </li>
+                        <li><a class="dropdown-item small border-bottom py-2" href="#"><strong>Payroll Generated</strong></a></li>
+                        <li><a class="dropdown-item small border-bottom py-2" href="#"><strong>Leave Pending (Rahul)</strong></a></li>
+                        <li><a class="dropdown-item small py-2" href="#"><strong>Attendance Pending (IT Dept)</strong></a></li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li><a class="dropdown-item text-center small text-primary fw-bold" href="#" data-bs-toggle="modal" data-bs-target="#quickActionModal" data-action="View Notifications">View All</a></li>
+                    </ul>
+                </div>
+
+                <!-- Theme Toggle Select (Replaces Profile Avatar) -->
+                <select id="mobileThemeSelector" class="form-select form-select-sm bg-light text-dark shadow-sm rounded-pill" style="width: 100px; font-size: 0.75rem;">
+                    <option value="default" selected>Default</option>
+                    <option value="theme-flat">Flat</option>
+                    <option value="theme-bauhaus">Bauhaus</option>
+                    <option value="theme-bold-type">Bold</option>
+                    <option value="theme-neumorphism">Neumorph</option>
+                    <option value="theme-glassmorphism">Glass</option>
+                    <option value="theme-animation">Motion</option>
+                    <option value="theme-illustration">Illustrate</option>
+                    <option value="theme-dark">Dark</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="mobile-body">
+            
+            <!-- 2. Welcome Card -->
+            <div class="mobile-card text-center bg-primary text-white" style="background: linear-gradient(135deg, #0d6efd 0%, #0a58ca 100%);">
+                <h4 class="fw-bold mb-1">👋 <span id="mobile-greeting">Welcome</span></h4>
+                <p class="mb-3 opacity-75">Admin &bull; ADM-2026-001</p>
+                <div class="d-flex justify-content-between align-items-center bg-white bg-opacity-10 rounded p-2 px-3 small">
+                    <span id="mob-date">Date</span>
+                    <span id="mob-time" class="fw-bold">Time</span>
+                </div>
+            </div>
+
+            <!-- 3. Quick Action Buttons (2x2 Grid) -->
+            <div class="mobile-quick-actions-grid mt-2">
+                <a href="#" class="mobile-btn-action" data-bs-toggle="modal" data-bs-target="#quickActionModal" data-action="Employee">
+                    <i class="bi bi-person-plus-fill text-primary fs-3"></i><span>Employee</span>
+                </a>
+                <a href="#" class="mobile-btn-action" data-bs-toggle="modal" data-bs-target="#quickActionModal" data-action="Payroll">
+                    <i class="bi bi-cash-stack text-success fs-3"></i><span>Payroll</span>
+                </a>
+                <a href="#" class="mobile-btn-action" data-bs-toggle="modal" data-bs-target="#quickActionModal" data-action="Attendance">
+                    <i class="bi bi-calendar-check text-warning fs-3"></i><span>Attendance</span>
+                </a>
+                <a href="#" class="mobile-btn-action" data-bs-toggle="modal" data-bs-target="#quickActionModal" data-action="Reports">
+                    <i class="bi bi-file-earmark-bar-graph-fill text-info fs-3"></i><span>Reports</span>
+                </a>
+            </div>
+
+            <!-- 4. KPI Cards -->
+            <h6 class="fw-bold text-dark mt-3 mb-1">Overview</h6>
+            <div class="mobile-kpi-grid">
+                <div class="mobile-kpi-card">
+                    <div class="d-flex align-items-center gap-2 mb-1 text-muted small"><i class="bi bi-people-fill text-primary"></i> Employees</div>
+                    <h4 class="fw-bold text-dark mb-0" id="mob-emp-total">...</h4>
+                    <small class="text-success" id="mob-emp-trend">↑ +12%</small>
+                </div>
+                <div class="mobile-kpi-card">
+                    <div class="d-flex align-items-center gap-2 mb-1 text-muted small"><i class="bi bi-shield-shaded text-success"></i> Managers</div>
+                    <h4 class="fw-bold text-dark mb-0" id="mob-mgr-total">...</h4>
+                    <small class="text-muted">Stable</small>
+                </div>
+                <div class="mobile-kpi-card">
+                    <div class="d-flex align-items-center gap-2 mb-1 text-muted small"><i class="bi bi-check-circle text-info"></i> Present</div>
+                    <h4 class="fw-bold text-dark mb-0" id="mob-att-present">...</h4>
+                    <small class="text-danger">↓ -4%</small>
+                </div>
+                <div class="mobile-kpi-card">
+                    <div class="d-flex align-items-center gap-2 mb-1 text-muted small"><i class="bi bi-cup-hot text-warning"></i> Leaves</div>
+                    <h4 class="fw-bold text-dark mb-0" id="mob-leave-pending">...</h4>
+                    <small class="text-warning">Pending</small>
+                </div>
+                <div class="mobile-kpi-card">
+                    <div class="d-flex align-items-center gap-2 mb-1 text-muted small"><i class="bi bi-kanban text-primary"></i> Tasks</div>
+                    <h4 class="fw-bold text-dark mb-0" id="mob-task-active">...</h4>
+                    <small class="text-success">↑ +5%</small>
+                </div>
+                <div class="mobile-kpi-card">
+                    <div class="d-flex align-items-center gap-2 mb-1 text-muted small"><i class="bi bi-wallet2 text-success"></i> Payroll</div>
+                    <h4 class="fw-bold text-dark mb-0" id="mob-payroll-amount">...</h4>
+                    <small class="text-muted">Generated</small>
+                </div>
+            </div>
+
+            <!-- 5. Attendance Summary -->
+            <div class="mobile-card mt-2">
+                <div class="d-flex justify-content-between mb-2">
+                    <h6 class="fw-bold text-dark mb-0">Attendance Today</h6>
+                    <span class="badge bg-primary">88%</span>
+                </div>
+                <div class="progress mb-3" style="height: 10px;">
+                    <div class="progress-bar bg-success" style="width: 88%"></div>
+                    <div class="progress-bar bg-warning" style="width: 4%"></div>
+                    <div class="progress-bar bg-danger" style="width: 8%"></div>
+                </div>
+                <div class="d-flex justify-content-between small fw-medium">
+                    <span class="text-success" id="mob-sum-present">Present: 110</span>
+                    <span class="text-danger" id="mob-sum-absent">Absent: 10</span>
+                    <span class="text-warning" id="mob-sum-pending">Pending: 5</span>
+                </div>
+            </div>
+
+            <!-- 6. Pending Approvals -->
+            <div class="mobile-card mt-2">
+                <h6 class="fw-bold text-dark mb-3 text-danger"><i class="bi bi-exclamation-circle me-1"></i> Pending Approvals</h6>
+                
+                <div class="d-flex justify-content-between align-items-center border-bottom pb-2 mb-2">
+                    <div>
+                        <div class="fw-bold text-dark small">Attendance</div>
+                        <small class="text-muted">5 Pending</small>
+                    </div>
+                    <!-- Make review button working via modal -->
+                    <button class="btn btn-sm btn-outline-primary rounded-pill px-3" data-bs-toggle="modal" data-bs-target="#quickActionModal" data-action="Review Attendance">Review &rarr;</button>
+                </div>
+                <div class="d-flex justify-content-between align-items-center border-bottom pb-2 mb-2">
+                    <div>
+                        <div class="fw-bold text-dark small">Leave Requests</div>
+                        <small class="text-muted">8 Pending</small>
+                    </div>
+                    <!-- Make review button working via modal -->
+                    <button class="btn btn-sm btn-outline-primary rounded-pill px-3" data-bs-toggle="modal" data-bs-target="#quickActionModal" data-action="Review Leaves">Review &rarr;</button>
+                </div>
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <div class="fw-bold text-dark small">Salary</div>
+                        <small class="text-muted">3 Pending</small>
+                    </div>
+                    <!-- Make review button working via modal -->
+                    <button class="btn btn-sm btn-outline-primary rounded-pill px-3" data-bs-toggle="modal" data-bs-target="#quickActionModal" data-action="Review Salary">Review &rarr;</button>
+                </div>
+            </div>
+
+            <!-- 8. Charts (Horizontal Swipe / Carousel) -->
+            <div class="mobile-card mt-2 p-0 overflow-hidden pb-4">
+                <div id="mobileChartCarousel" class="carousel slide" data-bs-touch="true" data-bs-interval="false">
+                    <div class="carousel-inner p-3">
+                        <div class="carousel-item active">
+                            <h6 class="fw-bold text-dark mb-3">📈 Attendance Overview</h6>
+                            <div class="d-flex flex-column gap-2 small" id="mob-attendance-chart"></div>
+                        </div>
+                        <div class="carousel-item">
+                            <h6 class="fw-bold text-dark mb-3">💰 Payroll Trend</h6>
+                            <div class="d-flex align-items-center gap-3">
+                                <div class="donut-chart-wrapper" style="width: 80px; height: 80px;"><div id="mob-salary-donut" class="donut-chart"></div></div>
+                                <div class="small d-flex flex-column gap-1" id="mob-salary-legend"></div>
+                            </div>
+                        </div>
+                        <div class="carousel-item">
+                            <h6 class="fw-bold text-dark mb-3">📋 Task Completion</h6>
+                            <div class="d-flex flex-column gap-2 small" id="mob-dept-task"></div>
+                        </div>
+                    </div>
+                    <div class="carousel-indicators mb-1">
+                        <button type="button" data-bs-target="#mobileChartCarousel" data-bs-slide-to="0" class="active"></button>
+                        <button type="button" data-bs-target="#mobileChartCarousel" data-bs-slide-to="1"></button>
+                        <button type="button" data-bs-target="#mobileChartCarousel" data-bs-slide-to="2"></button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 7. Recent Activities -->
+            <div class="mobile-card mt-2">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h6 class="fw-bold text-dark mb-0">Recent Activities</h6>
+                    <!-- Make view all button working via modal -->
+                    <a href="#" class="text-primary text-decoration-none small" data-bs-toggle="modal" data-bs-target="#quickActionModal" data-action="View All Activities">View All &rarr;</a>
+                </div>
+                <div class="d-flex flex-column gap-3 small" id="mob-activity-log">
+                    <!-- JS Injected -->
+                </div>
+            </div>
+
+            <!-- 10. Today's Summary -->
+            <div class="mobile-card mt-2 mb-4">
+                <h6 class="fw-bold text-dark mb-3">Today's Summary</h6>
+                <div class="d-flex justify-content-between align-items-center border-bottom pb-2 mb-2 small">
+                    <span class="text-muted">Employees Added</span><strong class="text-dark">3</strong>
+                </div>
+                <div class="d-flex justify-content-between align-items-center border-bottom pb-2 mb-2 small">
+                    <span class="text-muted">Leaves Approved</span><strong class="text-dark">5</strong>
+                </div>
+                <div class="d-flex justify-content-between align-items-center small">
+                    <span class="text-muted">Payroll Generated</span><strong class="text-success">Yes</strong>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- 11. Floating Action Button (FAB) -->
+        <div class="fab-container" id="fab">
+            <button class="fab-main" onclick="document.getElementById('fab').classList.toggle('active')"><i class="bi bi-plus"></i></button>
+            <div class="fab-options">
+                <button class="fab-option-btn" data-bs-toggle="modal" data-bs-target="#quickActionModal" data-action="Add Employee"><i class="bi bi-person-plus text-primary"></i></button>
+                <button class="fab-option-btn" data-bs-toggle="modal" data-bs-target="#quickActionModal" data-action="Add Manager"><i class="bi bi-shield text-success"></i></button>
+                <button class="fab-option-btn" data-bs-toggle="modal" data-bs-target="#quickActionModal" data-action="Generate Payroll"><i class="bi bi-cash text-warning"></i></button>
+                <button class="fab-option-btn" data-bs-toggle="modal" data-bs-target="#quickActionModal" data-action="Create Report"><i class="bi bi-file-text text-info"></i></button>
+            </div>
+        </div>
+
+        <!-- 12. Bottom Navigation -->
+        <nav class="bottom-nav">
+            <a href="dashboard.html" class="bottom-nav-item active"><i class="bi bi-house-door-fill"></i>Home</a>
+            <a href="employees.html" class="bottom-nav-item"><i class="bi bi-people"></i>Employees</a>
+            <a href="managers.html" class="bottom-nav-item "><i class="bi bi-shield-shaded"></i>Managers</a>
+            <a href="tasks.html" class="bottom-nav-item"><i class="bi bi-kanban"></i>Tasks</a>
+            <a href="profile.html" class="bottom-nav-item"><i class="bi bi-person"></i>Profile</a>
+        </nav>
+
+        <!-- Offcanvas Mobile Menu (Sidebar alternative) -->
+        <div class="offcanvas offcanvas-start" tabindex="-1" id="mobileMenu" style="width: 280px; background: #111;">
+            <div class="offcanvas-header border-bottom border-secondary">
+                <h5 class="offcanvas-title text-white fw-bold"><i class="bi bi-layers-fill me-2"></i>Octopyder</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="offcanvas"></button>
+            </div>
+            <div class="offcanvas-body d-flex flex-column justify-content-between">
+                <nav class="d-flex flex-column gap-3">
+                    <a href="dashboard.html" class="text-white text-decoration-none fs-5"><i class="bi bi-grid-1x2-fill me-3"></i>Dashboard</a>
+                    <a href="payroll.html" class="text-secondary text-decoration-none fs-5"><i class="bi bi-wallet2 me-3"></i>Payroll</a>
+                    <a href="attendance.html" class="text-secondary text-decoration-none fs-5"><i class="bi bi-clock-history me-3"></i>Attendance</a>
+                    <a href="settings.html" class="text-secondary text-decoration-none fs-5"><i class="bi bi-gear-fill me-3"></i>Settings</a>
+                </nav>
+                <a href="../index.html" class="text-danger text-decoration-none fs-5"><i class="bi bi-box-arrow-right me-3"></i>Logout</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Universal Quick Action Modal (Shared between Desktop & Mobile) -->
+    <div class="modal fade" id="quickActionModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content border-0 shadow">
+                <div class="modal-header border-bottom-0">
+                    <h5 class="modal-title fw-bold" id="quickActionModalLabel">Action</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body py-4 text-center">
+                    <div class="spinner-border text-primary mb-3" role="status"><span class="visually-hidden">Loading...</span></div>
+                    <p class="text-muted" id="quickActionModalBodyText">Loading action module...</p>
+                </div>
+                <div class="modal-footer border-top-0">
+                    <button type="button" class="btn btn-secondary rounded-pill" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-primary rounded-pill px-4">Confirm</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS Bundle -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
+    <!-- UI Logic & Data Simulation Script -->
+    <script>
+        // ----------------------------------------------------
+        // Helper: Update text in element if it exists
+        // ----------------------------------------------------
+        function updateText(id, text, isHtml = false) {
+            const el = document.getElementById(id);
+            if (el) {
+                if (isHtml) el.innerHTML = text;
+                else el.innerText = text;
+            }
+        }
+
+        // ----------------------------------------------------
+        // 1. Theme Management (Shared Desktop & Mobile)
+        // ----------------------------------------------------
+        const themeSelector = document.getElementById('themeSelector');
+        const mobileThemeSelector = document.getElementById('mobileThemeSelector');
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const savedTheme = localStorage.getItem('payrollTheme');
+            if (savedTheme) {
+                if(themeSelector) themeSelector.value = savedTheme;
+                if(mobileThemeSelector) mobileThemeSelector.value = savedTheme;
+                if (savedTheme !== 'default') document.body.classList.add(savedTheme);
+            }
+        });
+
+        // Desktop Theme Selector Sync
+        if(themeSelector) {
+            themeSelector.addEventListener('change', function() {
+                document.body.className = '';
+                const selectedTheme = this.value;
+                if (selectedTheme !== 'default') document.body.classList.add(selectedTheme);
+                if(mobileThemeSelector) mobileThemeSelector.value = selectedTheme;
+                localStorage.setItem('payrollTheme', selectedTheme);
+            });
+        }
+
+        // Mobile Theme Selector Sync
+        if(mobileThemeSelector) {
+            mobileThemeSelector.addEventListener('change', function() {
+                document.body.className = '';
+                const selectedTheme = this.value;
+                if (selectedTheme !== 'default') document.body.classList.add(selectedTheme);
+                if(themeSelector) themeSelector.value = selectedTheme;
+                localStorage.setItem('payrollTheme', selectedTheme);
+            });
+        }
+
+        // ----------------------------------------------------
+        // 2. Dynamic Date, Time & Mobile Greeting
+        // ----------------------------------------------------
+        function updateDateTime() {
+            const now = new Date();
+            const dateStr = now.toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'short', day: 'numeric' });
+            const timeStr = now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: true });
+            
+            // Desktop
+            updateText('currentDate', dateStr);
+            updateText('currentTime', timeStr);
+            
+            // Mobile
+            updateText('mob-date', now.toLocaleDateString('en-US', { day: 'numeric', month: 'long', year: 'numeric' }));
+            updateText('mob-time', now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true }));
+
+            // Dynamic Greeting based on hour
+            const hour = now.getHours();
+            let greeting = 'Good Evening';
+            if (hour < 12) greeting = 'Good Morning';
+            else if (hour < 18) greeting = 'Good Afternoon';
+            updateText('mobile-greeting', greeting);
+        }
+        setInterval(updateDateTime, 1000);
+        updateDateTime();
+
+        // ----------------------------------------------------
+        // 3. Quick Action Modal Logic (Shared)
+        // ----------------------------------------------------
+        const quickActionModal = document.getElementById('quickActionModal');
+        quickActionModal.addEventListener('show.bs.modal', event => {
+            // Close FAB if open (mobile)
+            document.getElementById('fab').classList.remove('active');
+            
+            const button = event.relatedTarget;
+            const actionName = button.getAttribute('data-action');
+            quickActionModal.querySelector('.modal-title').textContent = actionName;
+            updateText('quickActionModalBodyText', `Preparing database connection for <strong>${actionName}</strong> module...`, true);
+        });
+
+        // ----------------------------------------------------
+        // 4. Backend Data Simulation (Dual DOM Update)
+        // ----------------------------------------------------
+        function loadDashboardData() {
+            const mockData = {
+                kpi: {
+                    totalEmployees: 125, empGrowth: "+3 This Month",
+                    totalManagers: 12,
+                    attendance: { present: 110, absent: 10, pending: 5 },
+                    pendingLeaves: 8,
+                    tasks: { active: 95, completed: 30, pending: 5 },
+                    payroll: { status: "Generated", amount: "₹12,45,000" }
+                },
+                charts: {
+                    attendanceData: [
+                        { day: 'Mon', percent: 85, color: 'bg-primary' },
+                        { day: 'Tue', percent: 95, color: 'bg-primary' },
+                        { day: 'Wed', percent: 80, color: 'bg-primary' },
+                        { day: 'Thu', percent: 90, color: 'bg-primary' },
+                        { day: 'Fri', percent: 75, color: 'bg-primary' }
+                    ],
+                    salaryDistribution: { released: 75, retained: 15, pending: 10 },
+                    deptTasksData: [
+                        { dept: 'IT', percent: 90, color: 'bg-success' },
+                        { dept: 'HR', percent: 80, color: 'bg-info' },
+                        { dept: 'Finance', percent: 65, color: 'bg-warning' }
+                    ],
+                    leaveStats: { paid: 45, casual: 20, medical: 12 }
+                },
+                recentActivities: [
+                    { time: "2 min ago", user: "Rahul", desc: "approved attendance" },
+                    { time: "10 min ago", user: "Amit", desc: "submitted leave" },
+                    { time: "25 min ago", user: "System", desc: "Salary generated" }
+                ]
+            };
+
+            // Inject Desktop KPIs
+            updateText('emp-total', mockData.kpi.totalEmployees);
+            updateText('emp-growth', mockData.kpi.empGrowth);
+            updateText('mgr-total', `${mockData.kpi.totalManagers} Managers`);
+            updateText('att-present', `Present : ${mockData.kpi.attendance.present}`);
+            updateText('att-absent', `Absent : ${mockData.kpi.attendance.absent}`);
+            updateText('att-pending', `Pending : ${mockData.kpi.attendance.pending}`);
+            updateText('leave-pending', `${mockData.kpi.pendingLeaves} Requests`);
+            updateText('task-active', `${mockData.kpi.tasks.active} Active`);
+            updateText('task-completed', `Completed: ${mockData.kpi.tasks.completed}`);
+            updateText('task-pending', `Pending: ${mockData.kpi.tasks.pending}`);
+            updateText('payroll-status', mockData.kpi.payroll.status);
+            updateText('payroll-amount', mockData.kpi.payroll.amount);
+
+            // Inject Mobile KPIs
+            updateText('mob-emp-total', mockData.kpi.totalEmployees);
+            updateText('mob-mgr-total', mockData.kpi.totalManagers);
+            updateText('mob-att-present', mockData.kpi.attendance.present);
+            updateText('mob-leave-pending', mockData.kpi.pendingLeaves);
+            updateText('mob-task-active', mockData.kpi.tasks.active);
+            updateText('mob-payroll-amount', "₹12.4L");
+            updateText('mob-sum-present', `Present: ${mockData.kpi.attendance.present}`);
+            updateText('mob-sum-absent', `Absent: ${mockData.kpi.attendance.absent}`);
+            updateText('mob-sum-pending', `Pending: ${mockData.kpi.attendance.pending}`);
+
+            // Render Charts (Desktop + Mobile Carousel)
+            let attHtml = '';
+            mockData.charts.attendanceData.forEach(item => {
+                attHtml += `<div>${item.day}: <div class="progress mt-1" style="height: 8px;"><div class="progress-bar ${item.color}" style="width: ${item.percent}%;"></div></div></div>`;
+            });
+            updateText('attendance-chart-container', attHtml, true);
+            updateText('mob-attendance-chart', attHtml, true);
+
+            // Salary Donut (Desktop + Mobile)
+            const sd = mockData.charts.salaryDistribution;
+            const relEnd = sd.released;
+            const retEnd = sd.released + sd.retained;
+            const pieGrad = `conic-gradient(#198754 0% ${relEnd}%, #ffc107 ${relEnd}% ${retEnd}%, #dc3545 ${retEnd}% 100%)`;
+            
+            const deskDonut = document.getElementById('salary-donut-chart');
+            if(deskDonut) deskDonut.style.background = pieGrad;
+            const mobDonut = document.getElementById('mob-salary-donut');
+            if(mobDonut) mobDonut.style.background = pieGrad;
+            
+            const legHtml = `
+                <div class="donut-legend-item"><span><span class="legend-dot bg-success"></span>Released</span><strong class="text-dark">${sd.released}%</strong></div>
+                <div class="donut-legend-item"><span><span class="legend-dot bg-warning"></span>Retained</span><strong class="text-dark">${sd.retained}%</strong></div>
+                <div class="donut-legend-item"><span><span class="legend-dot bg-danger"></span>Pending</span><strong class="text-dark">${sd.pending}%</strong></div>`;
+            updateText('salary-legend-container', legHtml, true);
+            updateText('mob-salary-legend', legHtml, true);
+
+            // Dept Tasks (Desktop + Mobile)
+            let deptHtml = '';
+            mockData.charts.deptTasksData.forEach(item => {
+                deptHtml += `<div><span>${item.dept}</span><div class="progress mt-1" style="height: 6px;"><div class="progress-bar ${item.color}" style="width: ${item.percent}%;"></div></div></div>`;
+            });
+            updateText('dept-task-container', deptHtml, true);
+            updateText('mob-dept-task', deptHtml, true);
+
+            // Leave Stats (Desktop only per prompt layout)
+            const ls = mockData.charts.leaveStats;
+            const leaveHtml = `
+                <li class="d-flex justify-content-between align-items-center pb-2 border-bottom"><span><i class="bi bi-wallet2 text-primary me-2"></i>Paid Leave</span><strong class="text-dark bg-primary bg-opacity-10 px-2 py-1 rounded">${ls.paid} Used</strong></li>
+                <li class="d-flex justify-content-between align-items-center pb-2 border-bottom"><span><i class="bi bi-cup-hot text-info me-2"></i>Casual Leave</span><strong class="text-dark bg-info bg-opacity-10 px-2 py-1 rounded">${ls.casual} Used</strong></li>
+                <li class="d-flex justify-content-between align-items-center"><span><i class="bi bi-heart-pulse text-danger me-2"></i>Medical Leave</span><strong class="text-dark bg-danger bg-opacity-10 px-2 py-1 rounded">${ls.medical} Used</strong></li>`;
+            updateText('leave-stats-container', leaveHtml, true);
+
+            // Activities (Desktop + Mobile)
+            let deskAct = ''; let mobAct = '';
+            mockData.recentActivities.forEach(log => {
+                deskAct += `<div class="d-flex align-items-start gap-2 border-bottom pb-2"><span class="text-muted fw-bold" style="min-width: 45px;">${log.time.split(' ')[0]}m</span><div class="text-dark">${log.user} ${log.desc}</div></div>`;
+                mobAct += `<div><span class="text-dark">&bull; ${log.user} ${log.desc}</span><br><small class="text-muted ms-3">${log.time}</small></div><hr class="my-1 border-light">`;
+            });
+            updateText('activity-log-container', deskAct, true);
+            updateText('mob-activity-log', mobAct, true);
+        }
+
+        setTimeout(loadDashboardData, 300);
+    </script>
+</body>
+</html>
