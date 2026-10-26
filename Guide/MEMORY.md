@@ -4,13 +4,13 @@
 
 ## Project snapshot
 - Product: Cloud-Based Payroll Management System ("Octopyder"). Backend for an existing static frontend (20 HTML pages).
-- Stack: Java 25 (or 21), Spring Boot 4.1.x, PostgreSQL 16, Flyway, Spring Security (JWT + refresh cookie), Maven. Single deployable that also serves the frontend.
+- Stack: Java 25, Spring Boot 4.1.2, PostgreSQL 16, Flyway, Spring Security (JWT + refresh cookie), Maven. Single deployable that also serves the frontend.
 - Docs (in `/docs`): PRD.md (rules, decisions D1–D25, golden tests G1–G8) · TECHSTACK.md · ARCHITECTURE.md (schema, flows, jobs) · DESIGN.md (API catalog, page mapping) · PHASES.md · PROMPTS.md · DEPLOYMENT.md. Rules: `AGENTS.md` (copy of RULES.md).
 
 ## Status
 | Phase | State | Notes |
 |---|---|---|
-| 0 Foundations | NOT STARTED | |
+| 0 Foundations | DONE | Spring Boot 4.1.2, Java 25, PostgreSQL 16, Flyway V1, Actuator health, static frontend |
 | 1 Auth and security core | NOT STARTED | |
 | 2 People | NOT STARTED | |
 | 3 Settings and org config | NOT STARTED | |
@@ -24,15 +24,15 @@
 
 States: NOT STARTED · IN PROGRESS · BLOCKED · DONE (all "Done when" boxes ticked, `./mvnw verify` green).
 
-**Current phase:** 0
-**Next step:** Run PROMPTS.md "Prompt 0".
+**Current phase:** 1
+**Next step:** Phase 1 — Auth and security core (login, tokens, RBAC, lockout, audit base).
 
 ## Decisions in force
 Defaults D1–D25 in PRD §5 apply unless changed below. Record every change here with date and reason.
 
 | Date | Decision | Reason |
 |---|---|---|
-| — | (none yet) | |
+| 2026-10-26 | Java 25 retained (no fallback to Java 21) | Toolchain verified and builds cleanly with Spring Boot 4.1.2 and javac release 25 |
 
 ## Open questions for the frontend author (answers change a default, not the architecture)
 1. **Completion %** (D1): approved ÷ tasks due in month, or weighted by estimated hours?
@@ -45,6 +45,7 @@ Defaults D1–D25 in PRD §5 apply unless changed below. Record every change her
 8. **Missing screens:** will the author add audit log, reports, forgot-password, holiday and office-location pages, or should the backend project add minimal ones?
 
 ## Gotchas and conventions learned (append as you go)
+- Spring Boot 4 modularized starter test packages: `@AutoConfigureMockMvc` is in `org.springframework.boot.webmvc.test.autoconfigure`.
 - Round money once at the end: `gross × days ÷ divisor`, not `round(dayRate) × days` (G5).
 - Free hosts sleep: jobs must be idempotent and catch up on startup (ARCHITECTURE §6).
 - Flyway needs a direct (non-pooled) DB URL on Neon. The app uses the pooled URL.
@@ -57,9 +58,9 @@ Defaults D1–D25 in PRD §5 apply unless changed below. Record every change her
 - Run locally: `docker compose up -d db && ./mvnw spring-boot:run -Dspring-boot.run.profiles=local`
 - Test: `./mvnw verify`
 - Build image: `docker build -t payroll .`
-- (Add more as discovered.)
+- Run container with 512M limit: `docker compose up -d` or `docker run -m 512m -p 8080:8080 payroll`
 
 ## Session log (newest first; keep the last ~10)
 | Date | Phase | Done | Next |
 |---|---|---|---|
-| — | — | — | — |
+| 2026-10-26 | 0 | Foundations complete: Spring Boot 4.1.2 + Java 25, Testcontainers Postgres 16, Flyway V1, multi-stage Dockerfile, CI workflow, ProblemDetail, PageResponse, BusinessClock, static frontend served at / | Phase 1 Auth and security core |
