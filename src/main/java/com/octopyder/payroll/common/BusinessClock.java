@@ -20,7 +20,7 @@ public class BusinessClock {
 
     public static final ZoneId ZONE = ZoneId.of("Asia/Kolkata");
 
-    private final Clock clock;
+    private volatile Clock clock;
 
     public BusinessClock() {
         this(Clock.system(ZONE));
@@ -28,6 +28,22 @@ public class BusinessClock {
 
     public BusinessClock(Clock clock) {
         this.clock = clock;
+    }
+
+    public void setFixed(Instant instant, ZoneId zone) {
+        this.clock = Clock.fixed(instant, zone);
+    }
+
+    public void setFixed(Instant instant) {
+        this.clock = Clock.fixed(instant, ZONE);
+    }
+
+    public void setFixed(LocalDate date) {
+        this.clock = Clock.fixed(date.atStartOfDay(ZONE).toInstant(), ZONE);
+    }
+
+    public void reset() {
+        this.clock = Clock.system(ZONE);
     }
 
     public static BusinessClock fixed(Instant instant, ZoneId zone) {

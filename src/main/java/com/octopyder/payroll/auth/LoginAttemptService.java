@@ -32,4 +32,9 @@ public class LoginAttemptService {
         }
         return true;
     }
+
+    public void clear() {
+        ipBuckets.clear();
+        emailBuckets.clear();
+    }
 }

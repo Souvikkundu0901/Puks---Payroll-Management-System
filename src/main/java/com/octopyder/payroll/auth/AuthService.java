@@ -285,7 +285,10 @@ public class AuthService implements ApplicationRunner {
         if (appTrustedProxy) {
             String xff = request.getHeader("X-Forwarded-For");
             if (xff != null && !xff.isBlank()) {
-                return xff.split(",")[0].trim();
+                String firstIp = xff.split(",")[0].trim();
+                if (firstIp.matches("^[a-fA-F0-9.:%]+$")) {
+                    return firstIp;
+                }
             }
         }
         return request.getRemoteAddr();

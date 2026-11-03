@@ -34,6 +34,9 @@ public class GlobalExceptionHandler {
         ProblemDetail problem = ProblemDetail.forStatusAndDetail(ex.getStatus(), ex.getMessage());
         problem.setProperty("code", ex.getCode());
         problem.setProperty("timestamp", businessClock.instant().toString());
+        if (ex.getProperties() != null) {
+            ex.getProperties().forEach(problem::setProperty);
+        }
         return ResponseEntity.status(ex.getStatus()).body(problem);
     }
 
@@ -74,6 +77,38 @@ public class GlobalExceptionHandler {
         problem.setProperty("code", "UNAUTHENTICATED");
         problem.setProperty("timestamp", businessClock.instant().toString());
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(problem);
+    }
+
+    @ExceptionHandler(org.springframework.dao.OptimisticLockingFailureException.class)
+    public ResponseEntity<ProblemDetail> handleOptimisticLock(org.springframework.dao.OptimisticLockingFailureException ex) {
+        ProblemDetail problem = ProblemDetail.forStatusAndDetail(HttpStatus.CONFLICT, "Resource was updated by another request. Please refresh and try again.");
+        problem.setProperty("code", "CONFLICT_VERSION");
+        problem.setProperty("timestamp", businessClock.instant().toString());
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(problem);
+    }
+
+    @ExceptionHandler(org.springframework.dao.DataIntegrityViolationException.class)
+    public ResponseEntity<ProblemDetail> handleDataIntegrityViolation(org.springframework.dao.DataIntegrityViolationException ex) {
+        String msg = ex.getMessage() != null ? ex.getMessage() : "";
+        if (msg.contains("uq_attendance_user_date")) {
+            ProblemDetail problem = ProblemDetail.forStatusAndDetail(HttpStatus.CONFLICT, "Attendance already marked for today");
+            problem.setProperty("code", "ATTENDANCE_ALREADY_CHECKED_IN");
+            problem.setProperty("timestamp", businessClock.instant().toString());
+            return ResponseEntity.status(HttpStatus.CONFLICT).body(problem);
+        }
+        log.error("Data integrity violation: ", ex);
+        ProblemDetail problem = ProblemDetail.forStatusAndDetail(HttpStatus.CONFLICT, "Database constraint violation");
+        problem.setProperty("code", "DATABASE_CONFLICT");
+        problem.setProperty("timestamp", businessClock.instant().toString());
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(problem);
+    }
+
+    @ExceptionHandler(org.springframework.web.servlet.resource.NoResourceFoundException.class)
+    public ResponseEntity<ProblemDetail> handleNoResourceFound(org.springframework.web.servlet.resource.NoResourceFoundException ex) {
+        ProblemDetail problem = ProblemDetail.forStatusAndDetail(HttpStatus.NOT_FOUND, "Resource not found");
+        problem.setProperty("code", "NOT_FOUND");
+        problem.setProperty("timestamp", businessClock.instant().toString());
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(problem);
     }
 
     @ExceptionHandler(Exception.class)

@@ -47,6 +47,7 @@ public class AuthController {
     }
 
     @PostMapping("/logout")
+    @PreAuthorize("isAuthenticated()")
     public ResponseEntity<Void> logout(
         HttpServletRequest httpRequest,
         HttpServletResponse httpResponse
