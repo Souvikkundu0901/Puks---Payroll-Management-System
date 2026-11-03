@@ -46,6 +46,7 @@ dumps/
 
 ### Internal Docs, Guidance and Scratch Scripts ###
 docs/
+Guide/
 AGENTS.md
 RULES.md
 test-phase*.ps1
