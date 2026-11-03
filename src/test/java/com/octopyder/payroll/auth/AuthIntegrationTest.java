@@ -2,6 +2,7 @@ package com.octopyder.payroll.auth;
 
 import com.octopyder.payroll.BaseIntegrationTest;
 import jakarta.servlet.http.Cookie;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
@@ -10,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.http.MediaType;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 
@@ -25,6 +27,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @AutoConfigureMockMvc
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
+@DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_CLASS)
 class AuthIntegrationTest extends BaseIntegrationTest {
 
     @Autowired
@@ -32,6 +35,20 @@ class AuthIntegrationTest extends BaseIntegrationTest {
 
     @Autowired
     private JdbcTemplate jdbcTemplate;
+
+    @Autowired
+    private AuthService authService;
+
+    @BeforeEach
+    void ensureAdminBootstrapped() {
+        Integer count = jdbcTemplate.queryForObject(
+            "SELECT count(*) FROM users WHERE email = 'admin@octopyder.com' AND role = 'ADMIN'",
+            Integer.class
+        );
+        if (count == null || count == 0) {
+            authService.run(null);
+        }
+    }
 
     @Test
     @Order(1)
@@ -65,7 +82,10 @@ class AuthIntegrationTest extends BaseIntegrationTest {
             .andExpect(cookie().httpOnly("refreshToken", true))
             .andExpect(header().string("X-Content-Type-Options", "nosniff"))
             .andExpect(header().string("X-Frame-Options", "DENY"))
-            .andExpect(header().string("Content-Security-Policy", containsString("default-src 'self'")));
+            .andExpect(header().string("Content-Security-Policy", containsString("default-src 'self'")))
+            .andExpect(header().string("Content-Security-Policy", containsString("object-src 'none'")))
+            .andExpect(header().string("Content-Security-Policy", containsString("base-uri 'self'")))
+            .andExpect(header().string("Content-Security-Policy", containsString("frame-ancestors 'none'")));
 
         // Verify audit log has LOGIN_SUCCESS
         Integer auditCount = jdbcTemplate.queryForObject(

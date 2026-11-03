@@ -104,7 +104,7 @@ class OrgIntegrationTest extends BaseIntegrationTest {
         mockMvc.perform(get("/api/v1/settings/company")
                 .header("Authorization", "Bearer " + adminToken))
             .andExpect(status().isOk())
-            .andExpect(jsonPath("$.['company.name']").value("Octopyder Pvt. Ltd."));
+            .andExpect(jsonPath("$.['company.name']").value("Puk's"));
 
         // 2. Patch company name
         mockMvc.perform(put("/api/v1/settings/company")
