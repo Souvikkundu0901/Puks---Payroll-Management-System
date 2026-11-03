@@ -31,7 +31,7 @@ public record SettingDefinition(
 
     static {
         // Company
-        reg("company.name", "company", SettingType.STRING, "Octopyder Pvt. Ltd.");
+        reg("company.name", "company", SettingType.STRING, "Puk's");
         reg("company.gst", "company", SettingType.STRING, "19ABCDE1234F1Z5");
         reg("company.address", "company", SettingType.STRING, "Sector V, Salt Lake, Kolkata");
         reg("company.email", "company", SettingType.STRING, "admin@octopyder.com");

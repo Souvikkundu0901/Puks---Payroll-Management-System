@@ -39,6 +39,13 @@ public class HolidayService {
         return repository.findAll().stream().map(this::toDto).toList();
     }
 
+    public List<LocalDate> getHolidayDatesBetween(LocalDate start, LocalDate end) {
+        if (start == null || end == null) return List.of();
+        return repository.findByHolidayDateBetweenOrderByHolidayDateAsc(start, end).stream()
+            .map(Holiday::getHolidayDate)
+            .toList();
+    }
+
     @Transactional
     public HolidayDto create(HolidayDto.CreateRequest request) {
         if (request.holidayDate() == null) {
