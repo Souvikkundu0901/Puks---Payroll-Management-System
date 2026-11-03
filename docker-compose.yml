@@ -17,6 +17,16 @@ services:
       timeout: 5s
       retries: 5
 
+  mailpit:
+    image: axllent/mailpit:v1.24.1
+    container_name: payroll-mailpit
+    restart: unless-stopped
+    environment:
+      MP_UI_AUTH: "${MAILPIT_UI_AUTH:-admin:AdminMailpit123!}"
+    ports:
+      - "127.0.0.1:1025:1025"
+      - "127.0.0.1:8025:8025"
+
   app:
     build:
       context: .
@@ -32,9 +42,13 @@ services:
       DATABASE_PASSWORD: payroll
       FLYWAY_URL: jdbc:postgresql://db:5432/payroll
       PORT: 8080
+      MAIL_ENABLED: "true"
+      MAIL_HOST: mailpit
     depends_on:
       db:
         condition: service_healthy
+      mailpit:
+        condition: service_started
     deploy:
       resources:
         limits:

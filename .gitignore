@@ -36,10 +36,21 @@ build/
 ### VS Code ###
 .vscode/
 
-### Secrets and Environment ###
+### Secrets, Backups and Dumps ###
 .env
 *.dump
 *.dump.gpg
+*.sql.gz
+backups/
+dumps/
+
+### Internal Docs, Guidance and Scratch Scripts ###
+docs/
+AGENTS.md
+RULES.md
+test-phase*.ps1
+test-*.ps1
+scratch/
 
 ### OS ###
 Thumbs.db
