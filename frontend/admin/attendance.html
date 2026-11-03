@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 
 <head>
@@ -8,8 +8,8 @@
 
     <!-- Fonts & Icons -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;900&display=swap" rel="stylesheet">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet" integrity="sha384-4LISF5TTJX/fLmGSxO53rV4miRxdg84mZsxmO8Rx5jGtp/LbrixFETvWa5a6sESd" crossorigin="anonymous">
 
     <style>
         body, html {
@@ -211,6 +211,8 @@
                 </nav>
             </div>
             <div class="sidebar-nav">
+                <a href="reports.html" title="Reports"><i class="bi bi-file-earmark-bar-graph"></i></a>
+                <a href="audit-logs.html" title="Audit Logs"><i class="bi bi-journal-text"></i></a>
                 <a href="settings.html" title="Settings"><i class="bi bi-gear-fill"></i></a>
                 <a href="../index.html" title="Logout"><i class="bi bi-box-arrow-right text-danger"></i></a>
             </div>
@@ -281,25 +283,25 @@
                     <div class="col-md-3">
                         <div class="card-custom text-center border-bottom border-success border-3">
                             <span class="text-muted small d-block mb-1">✅ Present</span>
-                            <h3 class="fw-bold text-success mb-0">110</h3>
+                            <h3 class="fw-bold text-success mb-0" id="card-present-count">0</h3>
                         </div>
                     </div>
                     <div class="col-md-3">
                         <div class="card-custom text-center border-bottom border-danger border-3">
                             <span class="text-muted small d-block mb-1">❌ Absent</span>
-                            <h3 class="fw-bold text-danger mb-0">10</h3>
+                            <h3 class="fw-bold text-danger mb-0" id="card-absent-count">0</h3>
                         </div>
                     </div>
                     <div class="col-md-3">
                         <div class="card-custom text-center border-bottom border-warning border-3">
                             <span class="text-muted small d-block mb-1">⏰ Late</span>
-                            <h3 class="fw-bold text-warning mb-0">8</h3>
+                            <h3 class="fw-bold text-warning mb-0" id="card-late-count">0</h3>
                         </div>
                     </div>
                     <div class="col-md-3">
                         <div class="card-custom text-center border-bottom border-primary border-3">
                             <span class="text-muted small d-block mb-1">⏳ Pending Approval</span>
-                            <h3 class="fw-bold text-primary mb-0">5</h3>
+                            <h3 class="fw-bold text-primary mb-0" id="card-pending-count">0</h3>
                         </div>
                     </div>
                 </div>
@@ -309,25 +311,25 @@
                     <div class="col-md-3">
                         <div class="card-custom text-center border-bottom border-warning border-3">
                             <span class="text-muted small d-block mb-1">⏳ Pending</span>
-                            <h3 class="fw-bold text-warning mb-0">8</h3>
+                            <h3 class="fw-bold text-warning mb-0" id="card-leave-pending">0</h3>
                         </div>
                     </div>
                     <div class="col-md-3">
                         <div class="card-custom text-center border-bottom border-success border-3">
                             <span class="text-muted small d-block mb-1">✅ Approved</span>
-                            <h3 class="fw-bold text-success mb-0">45</h3>
+                            <h3 class="fw-bold text-success mb-0" id="card-leave-approved">0</h3>
                         </div>
                     </div>
                     <div class="col-md-3">
                         <div class="card-custom text-center border-bottom border-danger border-3">
                             <span class="text-muted small d-block mb-1">❌ Rejected</span>
-                            <h3 class="fw-bold text-danger mb-0">6</h3>
+                            <h3 class="fw-bold text-danger mb-0" id="card-leave-rejected">0</h3>
                         </div>
                     </div>
                     <div class="col-md-3">
                         <div class="card-custom text-center border-bottom border-info border-3">
                             <span class="text-muted small d-block mb-1">📋 Total Leaves Processed</span>
-                            <h3 class="fw-bold text-info mb-0">59</h3>
+                            <h3 class="fw-bold text-info mb-0" id="card-leave-total">0</h3>
                         </div>
                     </div>
                 </div>
@@ -337,8 +339,8 @@
                     <div class="d-flex justify-content-between align-items-center border-bottom pb-3 mb-4">
                         <h5 class="fw-bold text-dark mb-0">Attendance Records</h5>
                         <div class="d-flex gap-2">
-                            <button class="btn btn-sm btn-success" onclick="showToast('Selected Attendance Approved')"><i class="bi bi-check-lg me-1"></i>Approve Selected</button>
-                            <button class="btn btn-sm btn-danger" onclick="showToast('Selected Attendance Rejected')"><i class="bi bi-x-lg me-1"></i>Reject Selected</button>
+                            <button class="btn btn-sm btn-success" id="btnBulkApprove"><i class="bi bi-check-lg me-1"></i>Approve Selected</button>
+                            <button class="btn btn-sm btn-danger" id="btnBulkReject"><i class="bi bi-x-lg me-1"></i>Reject Selected</button>
                         </div>
                     </div>
 
@@ -386,62 +388,18 @@
                         <table class="table table-custom table-hover">
                             <thead>
                                 <tr>
-                                    <th><input class="form-check-input" type="checkbox"></th>
+                                    <th><input class="form-check-input" type="checkbox" id="adminAttSelectAll"></th>
                                     <th>Employee</th>
                                     <th>Date</th>
                                     <th>Time</th>
-                                    <th>GPS</th>
+                                    <th>GPS / Location</th>
                                     <th>Device</th>
                                     <th>Status</th>
                                     <th class="text-end">Action</th>
                                 </tr>
                             </thead>
-                            <tbody>
-                                <!-- Row 1 -->
-                                <tr>
-                                    <td><input class="form-check-input" type="checkbox"></td>
-                                    <td><div class="fw-bold">Amit Kumar</div></td>
-                                    <td>31 Jul</td>
-                                    <td>09:12 AM</td>
-                                    <td><button class="btn btn-sm btn-link p-0 text-decoration-none" data-bs-toggle="modal" data-bs-target="#locationModal"><i class="bi bi-geo-alt-fill me-1"></i>Available</button></td>
-                                    <td><span class="text-muted small">Android</span></td>
-                                    <td><span class="badge bg-warning bg-opacity-10 text-warning border border-warning">Pending</span></td>
-                                    <td class="text-end">
-                                        <button class="btn btn-sm btn-light text-success" title="Approve" onclick="handleAction('Attendance Approved', null)"><i class="bi bi-check-lg"></i></button>
-                                        <button class="btn btn-sm btn-light text-danger" title="Reject" onclick="handleAction('Attendance Rejected', null)"><i class="bi bi-x-lg"></i></button>
-                                        <button class="btn btn-sm btn-light text-primary" title="History" data-bs-toggle="modal" data-bs-target="#attHistoryModal"><i class="bi bi-clock-history"></i></button>
-                                    </td>
-                                </tr>
-                                <!-- Row 2 -->
-                                <tr>
-                                    <td><input class="form-check-input" type="checkbox"></td>
-                                    <td><div class="fw-bold">Priya Singh</div></td>
-                                    <td>31 Jul</td>
-                                    <td>09:45 AM</td>
-                                    <td><button class="btn btn-sm btn-link p-0 text-decoration-none text-muted" disabled><i class="bi bi-geo-alt-fill me-1"></i>Office IP</button></td>
-                                    <td><span class="text-muted small">Desktop</span></td>
-                                    <td><span class="badge bg-orange bg-opacity-10 text-orange border" style="color:#fd7e14; border-color:#fd7e14;">Late</span></td>
-                                    <td class="text-end">
-                                        <button class="btn btn-sm btn-light text-success" onclick="handleAction('Attendance Approved', null)"><i class="bi bi-check-lg"></i></button>
-                                        <button class="btn btn-sm btn-light text-danger" onclick="handleAction('Attendance Rejected', null)"><i class="bi bi-x-lg"></i></button>
-                                        <button class="btn btn-sm btn-light text-primary" data-bs-toggle="modal" data-bs-target="#attHistoryModal"><i class="bi bi-clock-history"></i></button>
-                                    </td>
-                                </tr>
-                                <!-- Row 3 -->
-                                <tr>
-                                    <td><input class="form-check-input" type="checkbox"></td>
-                                    <td><div class="fw-bold">Rahul Sharma</div></td>
-                                    <td>31 Jul</td>
-                                    <td>09:00 AM</td>
-                                    <td><button class="btn btn-sm btn-link p-0 text-decoration-none" data-bs-toggle="modal" data-bs-target="#locationModal"><i class="bi bi-geo-alt-fill me-1"></i>Available</button></td>
-                                    <td><span class="text-muted small">iOS</span></td>
-                                    <td><span class="badge bg-success bg-opacity-10 text-success border border-success">Approved</span></td>
-                                    <td class="text-end">
-                                        <button class="btn btn-sm btn-light text-muted" disabled><i class="bi bi-check-lg"></i></button>
-                                        <button class="btn btn-sm btn-light text-muted" disabled><i class="bi bi-x-lg"></i></button>
-                                        <button class="btn btn-sm btn-light text-primary" data-bs-toggle="modal" data-bs-target="#attHistoryModal"><i class="bi bi-clock-history"></i></button>
-                                    </td>
-                                </tr>
+                            <tbody id="adminAttTbody">
+                                <!-- Populated dynamically via API -->
                             </tbody>
                         </table>
                     </div>
@@ -474,52 +432,42 @@
                     <div class="d-flex justify-content-between align-items-center border-bottom pb-3 mb-4">
                         <h5 class="fw-bold text-dark mb-0">Leave Management</h5>
                         <div class="d-flex gap-2">
-                            <button class="btn btn-sm btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#leaveLedgerModal"><i class="bi bi-journal-text me-1"></i>Leave Ledger</button>
-                            <button class="btn btn-sm btn-success" onclick="showToast('Selected Leaves Approved')"><i class="bi bi-check-lg me-1"></i>Approve</button>
-                            <button class="btn btn-sm btn-danger" onclick="showToast('Selected Leaves Rejected')"><i class="bi bi-x-lg me-1"></i>Reject</button>
+                            <button class="btn btn-sm btn-outline-secondary" onclick="exportLeavesCsv()"><i class="bi bi-file-earmark-spreadsheet me-1"></i>Export CSV</button>
+                            <button class="btn btn-sm btn-success" id="btnBulkApproveLeaves"><i class="bi bi-check-lg me-1"></i>Approve Selected</button>
+                            <button class="btn btn-sm btn-danger" id="btnBulkRejectLeaves"><i class="bi bi-x-lg me-1"></i>Reject Selected</button>
                         </div>
                     </div>
 
                     <!-- Leave Filters -->
                     <div class="row g-2 mb-4 align-items-center">
                         <div class="col-md-3">
-                            <select class="form-select text-muted bg-light">
-                                <option selected>Leave Type</option>
-                                <option>Paid Leave</option>
-                                <option>Casual Leave</option>
-                                <option>Medical Leave</option>
+                            <select class="form-select text-muted bg-light" id="adminLeaveTypeFilter" onchange="loadLeaveTable()">
+                                <option value="" selected>All Leave Types</option>
+                                <option value="PAID">Paid Leave</option>
+                                <option value="CASUAL">Casual Leave</option>
+                                <option value="SICK">Sick Leave</option>
+                                <option value="EMERGENCY">Emergency Leave</option>
+                                <option value="UNPAID">Unpaid (Loss of Pay)</option>
                             </select>
                         </div>
-                        <div class="col-md-2">
-                            <select class="form-select text-muted bg-light">
-                                <option selected>Status</option>
-                                <option>Pending</option>
-                                <option>Approved</option>
-                                <option>Rejected</option>
+                        <div class="col-md-3">
+                            <select class="form-select text-muted bg-light" id="adminLeaveStatusFilter" onchange="loadLeaveTable()">
+                                <option value="" selected>All Statuses</option>
+                                <option value="PENDING">Pending</option>
+                                <option value="APPROVED">Approved</option>
+                                <option value="REJECTED">Rejected</option>
+                                <option value="CANCELLED">Cancelled</option>
                             </select>
                         </div>
-                        <div class="col-md-2">
-                            <select class="form-select text-muted bg-light">
-                                <option selected>Department</option>
-                                <option>IT</option>
-                                <option>HR</option>
-                            </select>
-                        </div>
-                        <div class="col-md-2">
-                            <select class="form-select text-muted bg-light">
-                                <option selected>Month</option>
-                                <option>August</option>
-                                <option>July</option>
-                            </select>
-                        </div>
-                        <div class="col-md-3 text-end">
-                            <button class="btn btn-light text-muted" title="Reset"><i class="bi bi-arrow-counterclockwise"></i> Reset</button>
+                        <div class="col-md-6 text-end">
+                            <button class="btn btn-light text-muted" title="Reset" onclick="resetLeaveFilters()"><i class="bi bi-arrow-counterclockwise"></i> Reset</button>
                         </div>
                     </div>
 
                     <!-- Desktop Loader (STEP 13) -->
                     <div id="desktopLeaveLoader" class="d-none py-5 text-center">
                         <div class="spinner-border text-primary" role="status"><span class="visually-hidden">Loading...</span></div>
+                        <p class="text-muted mt-2">Loading leaves...</p>
                     </div>
 
                     <!-- Leave Table -->
@@ -527,7 +475,7 @@
                         <table class="table table-custom table-hover">
                             <thead>
                                 <tr>
-                                    <th><input class="form-check-input" type="checkbox"></th>
+                                    <th><input class="form-check-input" type="checkbox" id="adminLeaveSelectAll"></th>
                                     <th>Employee</th>
                                     <th>Leave Type</th>
                                     <th>Days</th>
@@ -537,37 +485,8 @@
                                     <th class="text-end">Action</th>
                                 </tr>
                             </thead>
-                            <tbody>
-                                <!-- Row 1 -->
-                                <tr>
-                                    <td><input class="form-check-input" type="checkbox"></td>
-                                    <td><div class="fw-bold">Amit Kumar</div></td>
-                                    <td><span class="badge bg-light text-dark border">Paid Leave</span></td>
-                                    <td>2</td>
-                                    <td>10 Aug</td>
-                                    <td>11 Aug</td>
-                                    <td><span class="badge bg-warning bg-opacity-10 text-warning border border-warning">Pending</span></td>
-                                    <td class="text-end">
-                                        <button class="btn btn-sm btn-light text-success" title="Approve" onclick="handleAction('Leave Approved', null)"><i class="bi bi-check-lg"></i></button>
-                                        <button class="btn btn-sm btn-light text-danger" title="Reject" onclick="handleAction('Leave Rejected', null)"><i class="bi bi-x-lg"></i></button>
-                                        <button class="btn btn-sm btn-light text-info" title="History" data-bs-toggle="modal" data-bs-target="#leaveLedgerModal"><i class="bi bi-journal"></i></button>
-                                    </td>
-                                </tr>
-                                <!-- Row 2 -->
-                                <tr>
-                                    <td><input class="form-check-input" type="checkbox"></td>
-                                    <td><div class="fw-bold">Neha Singh</div></td>
-                                    <td><span class="badge bg-light text-dark border">Medical Leave</span></td>
-                                    <td>3</td>
-                                    <td>01 Aug</td>
-                                    <td>03 Aug</td>
-                                    <td><span class="badge bg-success bg-opacity-10 text-success border border-success">Approved</span></td>
-                                    <td class="text-end">
-                                        <button class="btn btn-sm btn-light text-muted" disabled><i class="bi bi-check-lg"></i></button>
-                                        <button class="btn btn-sm btn-light text-muted" disabled><i class="bi bi-x-lg"></i></button>
-                                        <button class="btn btn-sm btn-light text-info" data-bs-toggle="modal" data-bs-target="#leaveLedgerModal"><i class="bi bi-journal"></i></button>
-                                    </td>
-                                </tr>
+                            <tbody id="adminLeaveTbody">
+                                <tr><td colspan="8" class="text-center text-muted py-4">Loading leave records...</td></tr>
                             </tbody>
                         </table>
                     </div>
@@ -755,7 +674,7 @@
         <!-- Offcanvas Mobile Menu -->
         <div class="offcanvas offcanvas-start" tabindex="-1" id="mobileMenu" style="width: 280px; background: #111;">
             <div class="offcanvas-header border-bottom border-secondary">
-                <h5 class="offcanvas-title text-white fw-bold"><i class="bi bi-layers-fill me-2"></i>Octopyder</h5>
+                <h5 class="offcanvas-title text-white fw-bold"><i class="bi bi-layers-fill me-2"></i>Puk's</h5>
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="offcanvas"></button>
             </div>
             <div class="offcanvas-body d-flex flex-column justify-content-between">
@@ -776,6 +695,7 @@
          ========================================== -->
 
     <!-- STEP 4: View Location Modal -->
+    <!-- STEP 4: Attendance Location Details Modal -->
     <div class="modal fade" id="locationModal" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered modal-sm modal-fullscreen-md-down">
             <div class="modal-content border-0 shadow h-100">
@@ -786,26 +706,26 @@
                 <div class="modal-body p-4">
                     <div class="d-flex justify-content-between align-items-center mb-3">
                         <span class="text-muted small">Employee</span>
-                        <strong class="text-dark">Amit Kumar</strong>
+                        <strong class="text-dark" id="locModalEmp">--</strong>
                     </div>
                     <div class="d-flex justify-content-between align-items-center mb-1">
                         <span class="text-muted small">Latitude</span>
-                        <span class="text-dark fw-medium small">22.5726</span>
+                        <span class="text-dark fw-medium small" id="locModalLat">--</span>
                     </div>
                     <div class="d-flex justify-content-between align-items-center mb-3">
                         <span class="text-muted small">Longitude</span>
-                        <span class="text-dark fw-medium small">88.3639</span>
+                        <span class="text-dark fw-medium small" id="locModalLng">--</span>
                     </div>
                     <div class="mb-3">
-                        <label class="text-muted small d-block mb-1">Address (Approximated)</label>
-                        <p class="mb-0 text-dark small fw-medium">Salt Lake Sector V, Kolkata, India</p>
+                        <label class="text-muted small d-block mb-1">Location / Office</label>
+                        <p class="mb-0 text-dark small fw-medium" id="locModalAddr">--</p>
                     </div>
                     <!-- Map Placeholder -->
                     <div class="map-placeholder mb-4"><i class="bi bi-map fs-1 opacity-50"></i></div>
                     
                     <div class="d-flex gap-2">
-                        <button class="btn btn-outline-danger flex-grow-1" onclick="handleAction('Attendance Rejected', '#locationModal')">Reject</button>
-                        <button class="btn btn-success flex-grow-1" onclick="handleAction('Attendance Approved', '#locationModal')">Approve</button>
+                        <button class="btn btn-outline-danger flex-grow-1" id="locModalRejectBtn">Reject</button>
+                        <button class="btn btn-success flex-grow-1" id="locModalApproveBtn">Approve</button>
                     </div>
                 </div>
             </div>
@@ -819,25 +739,14 @@
                 <div class="modal-header bg-light">
                     <div>
                         <h5 class="modal-title fw-bold mb-0">Attendance History</h5>
-                        <span class="text-muted small">Employee: Amit Kumar</span>
+                        <span class="text-muted small" id="attHistoryEmp">Employee: --</span>
                     </div>
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body p-4">
                     <h6 class="fw-bold text-dark mb-3">Timeline</h6>
-                    <div class="history-timeline small mb-4">
-                        <div class="history-timeline-item">
-                            <div class="d-flex justify-content-between"><strong class="text-dark">Today (31 Jul)</strong><span class="text-warning fw-bold">Pending</span></div>
-                            <div class="text-muted">Checked in at 09:12 AM</div>
-                        </div>
-                        <div class="history-timeline-item">
-                            <div class="d-flex justify-content-between"><strong class="text-dark">Yesterday (30 Jul)</strong><span class="text-success fw-bold">Present</span></div>
-                            <div class="text-muted">Checked in at 08:55 AM</div>
-                        </div>
-                        <div class="history-timeline-item border-0 mb-0">
-                            <div class="d-flex justify-content-between"><strong class="text-dark">29 Jul</strong><span class="text-danger fw-bold">Absent</span></div>
-                            <div class="text-muted">No records found</div>
-                        </div>
+                    <div class="history-timeline small mb-4" id="attHistoryTimeline">
+                        <!-- Populated dynamically via API -->
                     </div>
                 </div>
             </div>
@@ -850,7 +759,7 @@
             <div class="modal-content border-0 shadow">
                 <div class="modal-header bg-light">
                     <div>
-                        <h5 class="modal-title fw-bold mb-0">Employee Leave Ledger</h5>
+                        <h5 class="modal-title fw-bold mb-0" id="adminLedgerModalTitle">Employee Leave Ledger</h5>
                         <span class="text-muted small">Policy: 1 Paid leave credited per month. Resets 1st April.</span>
                     </div>
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
@@ -860,38 +769,21 @@
                     <!-- Ledger Balances -->
                     <h6 class="fw-bold text-dark mb-3">Leave Balance</h6>
                     <div class="row text-center g-2 mb-4">
-                        <div class="col-3"><div class="p-2 border rounded bg-light"><h4 class="text-dark fw-bold mb-0">24</h4><small class="text-muted" style="font-size:0.7rem;">Earned</small></div></div>
-                        <div class="col-3"><div class="p-2 border rounded bg-light"><h4 class="text-danger fw-bold mb-0">15</h4><small class="text-muted" style="font-size:0.7rem;">Used</small></div></div>
-                        <div class="col-3"><div class="p-2 border rounded bg-primary bg-opacity-10 border-primary"><h4 class="text-primary fw-bold mb-0">9</h4><small class="text-primary fw-medium" style="font-size:0.7rem;">Remaining</small></div></div>
-                        <div class="col-3"><div class="p-2 border rounded bg-light"><h4 class="text-success fw-bold mb-0">4</h4><small class="text-muted" style="font-size:0.7rem;">Carry Fwd</small></div></div>
+                        <div class="col-3"><div class="p-2 border rounded bg-light"><h4 class="text-dark fw-bold mb-0" id="adminLedgerEarned">0</h4><small class="text-muted" style="font-size:0.7rem;">Earned</small></div></div>
+                        <div class="col-3"><div class="p-2 border rounded bg-light"><h4 class="text-danger fw-bold mb-0" id="adminLedgerUsed">0</h4><small class="text-muted" style="font-size:0.7rem;">Used</small></div></div>
+                        <div class="col-3"><div class="p-2 border rounded bg-primary bg-opacity-10 border-primary"><h4 class="text-primary fw-bold mb-0" id="adminLedgerRemaining">0</h4><small class="text-primary fw-medium" style="font-size:0.7rem;">Available</small></div></div>
+                        <div class="col-3"><div class="p-2 border rounded bg-light"><h4 class="text-success fw-bold mb-0" id="adminLedgerCarry">0</h4><small class="text-muted" style="font-size:0.7rem;">Carry Fwd</small></div></div>
                     </div>
 
                     <!-- History Table (Desktop / Mobile adapts automatically in responsive table) -->
-                    <h6 class="fw-bold text-dark mb-3">Leave History</h6>
+                    <h6 class="fw-bold text-dark mb-3">Ledger Transactions</h6>
                     <div class="table-responsive">
-                        <table class="table table-sm align-middle small">
+                        <table class="table table-sm align-middle small mb-0">
                             <thead class="table-light text-muted">
-                                <tr><th>Month</th><th>Type</th><th>Days</th><th>Status</th></tr>
+                                <tr><th>Effective Date</th><th>Type</th><th>Days</th><th>Balance After</th><th>Description</th></tr>
                             </thead>
-                            <tbody>
-                                <tr>
-                                    <td><strong class="text-dark">August</strong><br><span class="text-muted" style="font-size:0.7rem;">10 Aug - 11 Aug</span></td>
-                                    <td>Paid Leave</td>
-                                    <td>2 Days</td>
-                                    <td><span class="badge bg-warning text-dark">Pending</span></td>
-                                </tr>
-                                <tr>
-                                    <td><strong class="text-dark">March</strong><br><span class="text-muted" style="font-size:0.7rem;">12 Mar - 14 Mar</span></td>
-                                    <td>Medical Leave</td>
-                                    <td>3 Days</td>
-                                    <td><span class="badge bg-success">Approved</span></td>
-                                </tr>
-                                <tr>
-                                    <td><strong class="text-dark">January</strong><br><span class="text-muted" style="font-size:0.7rem;">05 Jan - 06 Jan</span></td>
-                                    <td>Paid Leave</td>
-                                    <td>2 Days</td>
-                                    <td><span class="badge bg-success">Approved</span></td>
-                                </tr>
+                            <tbody id="adminLedgerTbody">
+                                <tr><td colspan="5" class="text-center text-muted py-3">Loading ledger entries...</td></tr>
                             </tbody>
                         </table>
                     </div>
@@ -927,10 +819,535 @@
 
 
     <!-- Bootstrap JS Bundle -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL" crossorigin="anonymous"></script>
+    <script src="../js/api.js"></script>
+    <script src="../js/auth.js"></script>
 
     <!-- UI Logic Script -->
     <script>
+        function escapeHtml(str) {
+            if (str == null) return '';
+            const div = document.createElement('div');
+            div.textContent = String(str);
+            return div.innerHTML;
+        }
+
+        function formatTime(isoString) {
+            if (!isoString) return '--:--';
+            try {
+                const d = new Date(isoString);
+                return d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+            } catch (e) {
+                return '--:--';
+            }
+        }
+
+        function formatDate(dateStr) {
+            if (!dateStr) return '';
+            try {
+                const parts = dateStr.split('-');
+                if (parts.length === 3) {
+                    const d = new Date(parts[0], parts[1] - 1, parts[2]);
+                    return d.toLocaleDateString('en-GB', { day: 'numeric', month: 'short' });
+                }
+                return dateStr;
+            } catch (e) {
+                return dateStr;
+            }
+        }
+
+        let attendanceRecords = [];
+        let leaveRecords = [];
+        let locationModalInstance = null;
+        let attHistoryModalInstance = null;
+        let leaveLedgerModalInstance = null;
+        let activeRecordInModal = null;
+
+        // Initialize page
+        document.addEventListener('DOMContentLoaded', async () => {
+            const user = await Auth.require('ADMIN');
+            if (!user) return;
+
+            const locModalEl = document.getElementById('locationModal');
+            if (locModalEl) locationModalInstance = new bootstrap.Modal(locModalEl);
+
+            const histModalEl = document.getElementById('attHistoryModal');
+            if (histModalEl) attHistoryModalInstance = new bootstrap.Modal(histModalEl);
+
+            const lModalEl = document.getElementById('leaveLedgerModal');
+            if (lModalEl) leaveLedgerModalInstance = new bootstrap.Modal(lModalEl);
+
+            await loadAttendanceSummary();
+            await loadAttendanceTable();
+            await loadLeaveSummary();
+            await loadLeaveTable();
+        });
+
+        // Load KPI Summary
+        async function loadAttendanceSummary() {
+            try {
+                const summary = await API.get('/attendance/summary');
+                document.getElementById('card-present-count').textContent = summary.presentCount;
+                document.getElementById('card-absent-count').textContent = summary.absentCount;
+                document.getElementById('card-late-count').textContent = summary.lateCount;
+                document.getElementById('card-pending-count').textContent = summary.pendingApprovalCount;
+            } catch (err) {
+                console.error('Failed to load attendance summary:', err);
+            }
+        }
+
+        // Load Attendance Table
+        async function loadAttendanceTable() {
+            const tbody = document.getElementById('adminAttTbody');
+            const loader = document.getElementById('desktopAttLoader');
+
+            if (loader) loader.classList.remove('d-none');
+
+            try {
+                const res = await API.get('/attendance?page=0&size=50&sort=workDate,desc');
+                attendanceRecords = res.items || [];
+                tbody.innerHTML = '';
+
+                if (attendanceRecords.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="8" class="text-center text-muted py-4">No attendance records found.</td></tr>';
+                    return;
+                }
+
+                attendanceRecords.forEach(rec => {
+                    const tr = document.createElement('tr');
+                    tr.dataset.id = rec.id;
+
+                    let statusBadge = '<span class="badge bg-warning bg-opacity-10 text-warning border border-warning">Pending</span>';
+                    if (rec.approvalStatus === 'APPROVED') {
+                        statusBadge = '<span class="badge bg-success bg-opacity-10 text-success border border-success">Approved</span>';
+                    } else if (rec.approvalStatus === 'REJECTED') {
+                        statusBadge = '<span class="badge bg-danger bg-opacity-10 text-danger border border-danger">Rejected</span>';
+                    } else if (rec.isLate) {
+                        statusBadge = '<span class="badge bg-orange bg-opacity-10 text-orange border" style="color:#fd7e14; border-color:#fd7e14;">Late</span>';
+                    }
+
+                    const locationText = rec.workMode === 'OFFICE' ?
+                        `<button class="btn btn-sm btn-link p-0 text-decoration-none" onclick="openLocationModal('${rec.id}')"><i class="bi bi-geo-alt-fill me-1"></i>${escapeHtml(rec.officeLocationName || 'Office')}</button>` :
+                        `<button class="btn btn-sm btn-link p-0 text-decoration-none text-warning" onclick="openLocationModal('${rec.id}')"><i class="bi bi-house-door-fill me-1"></i>Remote</button>`;
+
+                    const actionButtons = `
+                        <div class="text-end">
+                            <button class="btn btn-sm btn-light text-success" title="Approve" ${rec.approvalStatus === 'APPROVED' ? 'disabled' : ''} onclick="singleApprove('${rec.id}')"><i class="bi bi-check-lg"></i></button>
+                            <button class="btn btn-sm btn-light text-danger" title="Reject" ${rec.approvalStatus === 'REJECTED' ? 'disabled' : ''} onclick="singleReject('${rec.id}')"><i class="bi bi-x-lg"></i></button>
+                            <button class="btn btn-sm btn-light text-primary" title="History" onclick="openTimelineModal('${rec.userId}', '${escapeHtml(rec.userName || rec.userCode)}')"><i class="bi bi-clock-history"></i></button>
+                        </div>
+                    `;
+
+                    tr.innerHTML = `
+                        <td><input class="form-check-input att-row-select" type="checkbox" value="${rec.id}"></td>
+                        <td><div class="fw-bold">${escapeHtml(rec.userName || rec.userCode)}</div><small class="text-muted">${escapeHtml(rec.userCode || '')}</small></td>
+                        <td>${formatDate(rec.workDate)}</td>
+                        <td>${formatTime(rec.checkInAt)} ${rec.checkOutAt ? '- ' + formatTime(rec.checkOutAt) : ''}</td>
+                        <td>${locationText}</td>
+                        <td><span class="text-muted small">${escapeHtml(rec.devicePlatform || 'WEB')}</span></td>
+                        <td>${statusBadge}</td>
+                        <td>${actionButtons}</td>
+                    `;
+                    tbody.appendChild(tr);
+                });
+
+            } catch (err) {
+                tbody.innerHTML = `<tr><td colspan="8" class="text-center text-danger py-4">Failed to load attendance: ${escapeHtml(err.message)}</td></tr>`;
+            } finally {
+                if (loader) loader.classList.add('d-none');
+            }
+        }
+
+        // Select All Handler
+        document.getElementById('adminAttSelectAll')?.addEventListener('change', function () {
+            const checked = this.checked;
+            document.querySelectorAll('.att-row-select').forEach(cb => { cb.checked = checked; });
+        });
+
+        function getSelectedIds() {
+            return Array.from(document.querySelectorAll('.att-row-select:checked')).map(cb => cb.value);
+        }
+
+        // Bulk Approve
+        document.getElementById('btnBulkApprove')?.addEventListener('click', async () => {
+            const ids = getSelectedIds();
+            if (ids.length === 0) {
+                alert('Please select at least one attendance record.');
+                return;
+            }
+            try {
+                const res = await API.post('/attendance/bulk-decision', { ids, decision: 'APPROVE' });
+                showToast(`Approved ${res.successCount} of ${res.totalCount} records.`);
+                await loadAttendanceTable();
+                await loadAttendanceSummary();
+            } catch (err) {
+                alert('Bulk approve failed: ' + (err.message || 'Error'));
+            }
+        });
+
+        // Bulk Reject
+        document.getElementById('btnBulkReject')?.addEventListener('click', async () => {
+            const ids = getSelectedIds();
+            if (ids.length === 0) {
+                alert('Please select at least one attendance record.');
+                return;
+            }
+            const note = prompt('Enter rejection note (optional):');
+            try {
+                const res = await API.post('/attendance/bulk-decision', { ids, decision: 'REJECT', note: note || null });
+                showToast(`Rejected ${res.successCount} of ${res.totalCount} records.`);
+                await loadAttendanceTable();
+                await loadAttendanceSummary();
+            } catch (err) {
+                alert('Bulk reject failed: ' + (err.message || 'Error'));
+            }
+        });
+
+        // Single Approve / Reject
+        async function singleApprove(id) {
+            try {
+                await API.post(`/attendance/${id}/approve`);
+                showToast('Attendance Approved');
+                await loadAttendanceTable();
+                await loadAttendanceSummary();
+            } catch (err) {
+                alert('Approve failed: ' + err.message);
+            }
+        }
+
+        async function singleReject(id) {
+            const note = prompt('Rejection reason (optional):');
+            try {
+                await API.post(`/attendance/${id}/reject`, { note });
+                showToast('Attendance Rejected');
+                await loadAttendanceTable();
+                await loadAttendanceSummary();
+            } catch (err) {
+                alert('Reject failed: ' + err.message);
+            }
+        }
+
+        // Location Modal
+        function openLocationModal(id) {
+            const rec = attendanceRecords.find(r => r.id === id);
+            if (!rec) return;
+            activeRecordInModal = rec;
+
+            document.getElementById('locModalEmp').textContent = rec.userName || rec.userCode;
+            document.getElementById('locModalLat').textContent = rec.latitude != null ? rec.latitude.toFixed(6) : 'N/A';
+            document.getElementById('locModalLng').textContent = rec.longitude != null ? rec.longitude.toFixed(6) : 'N/A';
+            
+            let addr = rec.workMode === 'OFFICE' ? (rec.officeLocationName || 'Office') : 'Remote Check-In';
+            if (rec.distanceM != null) {
+                addr += ` (${Math.round(rec.distanceM)}m away)`;
+            }
+            document.getElementById('locModalAddr').textContent = addr;
+
+            if (locationModalInstance) locationModalInstance.show();
+        }
+
+        document.getElementById('locModalApproveBtn')?.addEventListener('click', async () => {
+            if (!activeRecordInModal) return;
+            await singleApprove(activeRecordInModal.id);
+            if (locationModalInstance) locationModalInstance.hide();
+        });
+
+        document.getElementById('locModalRejectBtn')?.addEventListener('click', async () => {
+            if (!activeRecordInModal) return;
+            await singleReject(activeRecordInModal.id);
+            if (locationModalInstance) locationModalInstance.hide();
+        });
+
+        // Timeline Modal
+        async function openTimelineModal(userId, userName) {
+            document.getElementById('attHistoryEmp').textContent = `Employee: ${userName}`;
+            const timelineContainer = document.getElementById('attHistoryTimeline');
+            timelineContainer.innerHTML = '<div class="text-muted small">Loading timeline...</div>';
+
+            if (attHistoryModalInstance) attHistoryModalInstance.show();
+
+            try {
+                const items = await API.get(`/attendance/${userId}/timeline?days=30`);
+                timelineContainer.innerHTML = '';
+
+                if (!items || items.length === 0) {
+                    timelineContainer.innerHTML = '<div class="text-muted small">No attendance records in last 30 days.</div>';
+                    return;
+                }
+
+                items.forEach((item, idx) => {
+                    const statusColor = item.approvalStatus === 'APPROVED' ? 'text-success' : (item.approvalStatus === 'REJECTED' ? 'text-danger' : 'text-warning');
+                    const div = document.createElement('div');
+                    div.className = `history-timeline-item ${idx === items.length - 1 ? 'border-0 mb-0' : ''}`;
+                    div.innerHTML = `
+                        <div class="d-flex justify-content-between">
+                            <strong class="text-dark">${escapeHtml(item.workDate)}</strong>
+                            <span class="${statusColor} fw-bold">${escapeHtml(item.approvalStatus)}</span>
+                        </div>
+                        <div class="text-muted small">Check-in: ${formatTime(item.checkInAt)} ${item.checkOutAt ? '• Check-out: ' + formatTime(item.checkOutAt) : ''} (${escapeHtml(item.workMode)})</div>
+                    `;
+                    timelineContainer.appendChild(div);
+                });
+            } catch (err) {
+                timelineContainer.innerHTML = `<div class="text-danger small">Failed to load timeline: ${escapeHtml(err.message)}</div>`;
+            }
+        }
+
+        // ==========================================
+        // LEAVE MANAGEMENT (Admin)
+        // ==========================================
+
+        async function loadLeaveSummary() {
+            try {
+                const summary = await API.get('/leave/summary');
+                if (summary) {
+                    document.getElementById('card-leave-pending').textContent = summary.pendingCount || 0;
+                    document.getElementById('card-leave-approved').textContent = summary.approvedCount || 0;
+                    document.getElementById('card-leave-rejected').textContent = summary.rejectedCount || 0;
+                    document.getElementById('card-leave-total').textContent = summary.totalRequests || 0;
+                }
+            } catch (err) {
+                console.error('Failed to load leave summary:', err);
+            }
+        }
+
+        async function loadLeaveTable() {
+            const tbody = document.getElementById('adminLeaveTbody');
+            const loader = document.getElementById('desktopLeaveLoader');
+            if (loader) loader.classList.remove('d-none');
+
+            const typeFilter = document.getElementById('adminLeaveTypeFilter')?.value || '';
+            const statusFilter = document.getElementById('adminLeaveStatusFilter')?.value || '';
+
+            let url = '/leave/requests?page=0&size=50&sort=createdAt,desc';
+            if (typeFilter) url += `&type=${typeFilter}`;
+            if (statusFilter) url += `&status=${statusFilter}`;
+
+            try {
+                const res = await API.get(url);
+                leaveRecords = (res && res.items) ? res.items : [];
+                tbody.innerHTML = '';
+
+                if (leaveRecords.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="8" class="text-center text-muted py-4">No leave requests found.</td></tr>';
+                    return;
+                }
+
+                leaveRecords.forEach(rec => {
+                    const tr = document.createElement('tr');
+                    tr.dataset.id = rec.id;
+
+                    let statusBadge = '<span class="badge bg-warning bg-opacity-10 text-warning border border-warning">Pending</span>';
+                    if (rec.approvalStatus === 'APPROVED') {
+                        statusBadge = '<span class="badge bg-success bg-opacity-10 text-success border border-success">Approved</span>';
+                    } else if (rec.approvalStatus === 'REJECTED') {
+                        statusBadge = '<span class="badge bg-danger bg-opacity-10 text-danger border border-danger">Rejected</span>';
+                    } else if (rec.approvalStatus === 'CANCELLED') {
+                        statusBadge = '<span class="badge bg-secondary bg-opacity-10 text-secondary border">Cancelled</span>';
+                    }
+
+                    let attachmentBtn = '';
+                    if (rec.hasAttachment) {
+                        attachmentBtn = `<button type="button" onclick="API.download('/leave/requests/${rec.id}/attachment', 'certificate')" class="btn btn-sm btn-light border ms-1" title="Certificate"><i class="bi bi-paperclip"></i></button>`;
+                    }
+
+                    const actionButtons = `
+                        <div class="text-end">
+                            <button class="btn btn-sm btn-light text-success" title="Approve" ${rec.approvalStatus === 'APPROVED' ? 'disabled' : ''} onclick="singleApproveLeave('${rec.id}')"><i class="bi bi-check-lg"></i></button>
+                            <button class="btn btn-sm btn-light text-danger" title="Reject" ${rec.approvalStatus === 'REJECTED' ? 'disabled' : ''} onclick="singleRejectLeave('${rec.id}')"><i class="bi bi-x-lg"></i></button>
+                            <button class="btn btn-sm btn-light text-info" title="Ledger" onclick="openLeaveLedger('${rec.userId}', '${escapeHtml(rec.userName || rec.userCode)}')"><i class="bi bi-journal-text"></i></button>
+                            ${attachmentBtn}
+                        </div>
+                    `;
+
+                    tr.innerHTML = `
+                        <td><input class="form-check-input leave-row-select" type="checkbox" value="${rec.id}"></td>
+                        <td><div class="fw-bold">${escapeHtml(rec.userName || rec.userCode)}</div><small class="text-muted">${escapeHtml(rec.userCode || '')}</small></td>
+                        <td><span class="badge bg-light text-dark border">${escapeHtml(rec.leaveType)}</span></td>
+                        <td>${rec.workingDays}</td>
+                        <td>${formatDate(rec.startDate)}</td>
+                        <td>${formatDate(rec.endDate)}</td>
+                        <td>${statusBadge}</td>
+                        <td>${actionButtons}</td>
+                    `;
+                    tbody.appendChild(tr);
+                });
+            } catch (err) {
+                tbody.innerHTML = `<tr><td colspan="8" class="text-center text-danger py-4">Failed to load leaves: ${escapeHtml(err.message)}</td></tr>`;
+            } finally {
+                if (loader) loader.classList.add('d-none');
+            }
+        }
+
+        function resetLeaveFilters() {
+            const typeSel = document.getElementById('adminLeaveTypeFilter');
+            const statusSel = document.getElementById('adminLeaveStatusFilter');
+            if (typeSel) typeSel.value = '';
+            if (statusSel) statusSel.value = '';
+            loadLeaveTable();
+        }
+
+        // Leave Select All
+        document.getElementById('adminLeaveSelectAll')?.addEventListener('change', function () {
+            const checked = this.checked;
+            document.querySelectorAll('.leave-row-select').forEach(cb => { cb.checked = checked; });
+        });
+
+        function getSelectedLeaveIds() {
+            return Array.from(document.querySelectorAll('.leave-row-select:checked')).map(cb => cb.value);
+        }
+
+        // Bulk Approve Leaves
+        document.getElementById('btnBulkApproveLeaves')?.addEventListener('click', async () => {
+            const ids = getSelectedLeaveIds();
+            if (ids.length === 0) {
+                alert('Please select at least one leave request.');
+                return;
+            }
+            try {
+                const res = await API.post('/leave/requests/bulk-decision', { ids, decision: 'APPROVE' });
+                showToast(`Approved ${res.successCount} of ${res.totalCount} leave requests.`);
+                await loadLeaveTable();
+                await loadLeaveSummary();
+            } catch (err) {
+                alert('Bulk approve failed: ' + (err.problem?.detail || err.message));
+            }
+        });
+
+        // Bulk Reject Leaves
+        document.getElementById('btnBulkRejectLeaves')?.addEventListener('click', async () => {
+            const ids = getSelectedLeaveIds();
+            if (ids.length === 0) {
+                alert('Please select at least one leave request.');
+                return;
+            }
+            const note = prompt('Please enter a rejection note (mandatory):');
+            if (note === null) return;
+            if (!note.trim()) {
+                alert('A rejection reason is required.');
+                return;
+            }
+            try {
+                const res = await API.post('/leave/requests/bulk-decision', { ids, decision: 'REJECT', note: note.trim() });
+                showToast(`Rejected ${res.successCount} of ${res.totalCount} leave requests.`);
+                await loadLeaveTable();
+                await loadLeaveSummary();
+            } catch (err) {
+                alert('Bulk reject failed: ' + (err.problem?.detail || err.message));
+            }
+        });
+
+        // Single Leave Decisions
+        async function singleApproveLeave(id) {
+            try {
+                await API.post(`/leave/requests/${id}/approve`, {});
+                showToast('Leave Approved');
+                await loadLeaveTable();
+                await loadLeaveSummary();
+            } catch (err) {
+                if (err.problem?.code === 'LEAVE_INSUFFICIENT_BALANCE') {
+                    if (confirm('Employee has insufficient balance to cover this leave. Would you like to approve it as Unpaid (loss of pay)?')) {
+                        try {
+                            await API.post(`/leave/requests/${id}/approve`, { asUnpaid: true });
+                            showToast('Leave Approved as Unpaid');
+                            await loadLeaveTable();
+                            await loadLeaveSummary();
+                            return;
+                        } catch (subErr) {
+                            alert('Approve failed: ' + (subErr.problem?.detail || subErr.message));
+                            return;
+                        }
+                    }
+                }
+                alert('Approve failed: ' + (err.problem?.detail || err.message));
+            }
+        }
+
+        async function singleRejectLeave(id) {
+            const note = prompt('Please enter rejection note (mandatory):');
+            if (note === null) return;
+            if (!note.trim()) {
+                alert('Rejection note is required.');
+                return;
+            }
+            try {
+                await API.post(`/leave/requests/${id}/reject`, { note: note.trim() });
+                showToast('Leave Rejected');
+                await loadLeaveTable();
+                await loadLeaveSummary();
+            } catch (err) {
+                alert('Reject failed: ' + (err.problem?.detail || err.message));
+            }
+        }
+
+        // Open Leave Ledger Modal
+        async function openLeaveLedger(userId, userName) {
+            document.getElementById('adminLedgerModalTitle').textContent = `Leave Ledger - ${userName}`;
+            document.getElementById('adminLedgerEarned').textContent = '--';
+            document.getElementById('adminLedgerUsed').textContent = '--';
+            document.getElementById('adminLedgerRemaining').textContent = '--';
+            document.getElementById('adminLedgerCarry').textContent = '--';
+            const tbody = document.getElementById('adminLedgerTbody');
+            tbody.innerHTML = '<tr><td colspan="5" class="text-center text-muted py-3">Loading ledger entries...</td></tr>';
+
+            if (leaveLedgerModalInstance) leaveLedgerModalInstance.show();
+
+            try {
+                const data = await API.get(`/leave/ledger/${userId}`);
+                if (data && data.balance) {
+                    document.getElementById('adminLedgerEarned').textContent = data.balance.earnedLeaves;
+                    document.getElementById('adminLedgerUsed').textContent = data.balance.usedLeaves;
+                    document.getElementById('adminLedgerRemaining').textContent = data.balance.availableBalance;
+                    document.getElementById('adminLedgerCarry').textContent = data.balance.carryForwarded;
+                }
+
+                tbody.innerHTML = '';
+                const entries = data.entries || [];
+                if (entries.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="5" class="text-center text-muted py-3">No ledger records found.</td></tr>';
+                    return;
+                }
+
+                entries.forEach(item => {
+                    const tr = document.createElement('tr');
+                    const daysColor = item.days > 0 ? 'text-success' : 'text-danger';
+                    const daysPrefix = item.days > 0 ? '+' : '';
+                    tr.innerHTML = `
+                        <td>${formatDate(item.effectiveOn)}</td>
+                        <td><span class="badge bg-light text-dark border">${escapeHtml(item.entryType)}</span></td>
+                        <td class="${daysColor} fw-bold">${daysPrefix}${item.days}</td>
+                        <td class="fw-bold">${item.balanceAfter}</td>
+                        <td class="text-muted small">${escapeHtml(item.description || '--')}</td>
+                    `;
+                    tbody.appendChild(tr);
+                });
+            } catch (err) {
+                tbody.innerHTML = `<tr><td colspan="5" class="text-center text-danger py-3">Failed: ${escapeHtml(err.message)}</td></tr>`;
+            }
+        }
+
+        // CSV Export
+        async function exportLeavesCsv() {
+            try {
+                const token = API.getToken();
+                const headers = token ? { 'Authorization': `Bearer ${token}` } : {};
+                const res = await fetch('/api/v1/leave/export?format=csv', { headers, credentials: 'same-origin' });
+                if (!res.ok) throw new Error('Export failed with status ' + res.status);
+                const blob = await res.blob();
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `leaves_${new Date().toISOString().slice(0,10)}.csv`;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                window.URL.revokeObjectURL(url);
+                showToast('Leave CSV Exported');
+            } catch (err) {
+                alert('Export failed: ' + err.message);
+            }
+        }
+
         // Theme Management
         const themeSelector = document.getElementById('themeSelector');
         const mobileThemeSelector = document.getElementById('mobileThemeSelector');
@@ -958,13 +1375,15 @@
 
         // Success Toasts (STEP 14)
         function showToast(message) {
-            document.getElementById('toastMessage').innerText = message;
+            const msgEl = document.getElementById('toastMessage');
+            if (msgEl) msgEl.innerText = message;
             const toastEl = document.getElementById('successToast');
-            const toast = new bootstrap.Toast(toastEl, { delay: 3000 });
-            toast.show();
+            if (toastEl) {
+                const toast = new bootstrap.Toast(toastEl, { delay: 3000 });
+                toast.show();
+            }
         }
 
-        // Action Handlers
         function handleAction(successMessage, modalId) {
             if(modalId) {
                 const modalEl = document.querySelector(modalId);
@@ -976,36 +1395,6 @@
             setTimeout(() => { showToast(successMessage); }, 400);
         }
 
-        // Loading Simulation (STEP 13)
-        function simulateDataLoad() {
-            // Desktop Attendance
-            const dAttTable = document.getElementById('desktopAttTable');
-            const dAttLoader = document.getElementById('desktopAttLoader');
-            if (dAttTable && dAttLoader) {
-                dAttTable.classList.add('d-none');
-                dAttLoader.classList.remove('d-none');
-                setTimeout(() => {
-                    dAttLoader.classList.add('d-none');
-                    dAttTable.classList.remove('d-none');
-                }, 800);
-            }
-            
-            // Desktop Leave
-            const dLeaveTable = document.getElementById('desktopLeaveTable');
-            const dLeaveLoader = document.getElementById('desktopLeaveLoader');
-            if (dLeaveTable && dLeaveLoader) {
-                dLeaveTable.classList.add('d-none');
-                dLeaveLoader.classList.remove('d-none');
-                setTimeout(() => {
-                    dLeaveLoader.classList.add('d-none');
-                    dLeaveTable.classList.remove('d-none');
-                }, 800);
-            }
-
-            // Mobile Loading simulation
-            showToast("Refreshing Data...");
-        }
-
         // Close FAB when modal opens
         document.querySelectorAll('[data-bs-toggle="modal"], [data-bs-toggle="offcanvas"]').forEach(btn => {
             btn.addEventListener('click', () => {
@@ -1013,7 +1402,6 @@
                 if(fab) fab.classList.remove('active');
             });
         });
-
     </script>
 </body>
 </html>

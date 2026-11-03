@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 
 <head>
@@ -8,8 +8,8 @@
 
     <!-- Fonts & Icons -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;900&display=swap" rel="stylesheet">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet" integrity="sha384-4LISF5TTJX/fLmGSxO53rV4miRxdg84mZsxmO8Rx5jGtp/LbrixFETvWa5a6sESd" crossorigin="anonymous">
 
     <style>
         body, html {
@@ -241,6 +241,8 @@
                 </nav>
             </div>
             <div class="sidebar-nav">
+                <a href="reports.html" title="Reports"><i class="bi bi-file-earmark-bar-graph"></i></a>
+                <a href="audit-logs.html" title="Audit Logs"><i class="bi bi-journal-text"></i></a>
                 <a href="settings.html" title="Settings"><i class="bi bi-gear-fill"></i></a>
                 <a href="../index.html" title="Logout"><i class="bi bi-box-arrow-right text-danger"></i></a>
             </div>
@@ -297,10 +299,13 @@
                     <div>
                         <h2 class="fw-bold text-dark mb-1">Payroll Management</h2>
                         <p class="text-muted small mb-0">Generate, monitor and release employee salaries based on attendance and task completion.</p>
-                        <span class="badge bg-primary mt-2">Current Cycle: July 2026</span>
+                        <div class="d-flex align-items-center gap-2 mt-2">
+                            <span class="badge bg-primary">Cycle:</span>
+                            <input type="month" id="adminCycleMonth" class="form-control form-control-sm" style="width: 150px;" value="2026-07" onchange="handleCycleMonthChange()">
+                        </div>
                     </div>
                     <div class="d-flex gap-2">
-                        <button class="btn btn-outline-secondary" onclick="simulateDataLoad()"><i class="bi bi-arrow-clockwise me-2"></i>Refresh</button>
+                        <button class="btn btn-outline-secondary" onclick="loadAdminPayroll()"><i class="bi bi-arrow-clockwise me-2"></i>Refresh</button>
                         <button class="btn btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#exportModal"><i class="bi bi-cloud-arrow-down me-2"></i>Export</button>
                         <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#generatePayrollModal"><i class="bi bi-cash-stack me-2"></i>Generate Payroll</button>
                     </div>
@@ -311,31 +316,31 @@
                     <div class="col-md-3">
                         <div class="card-custom text-center border-bottom border-primary border-3">
                             <span class="text-muted small d-block mb-1">💰 Total Payroll</span>
-                            <h3 class="fw-bold text-dark mb-0">₹12,45,000</h3>
+                            <h3 id="statTotalPayroll" class="fw-bold text-dark mb-0">₹0</h3>
                         </div>
                     </div>
                     <div class="col-md-3">
                         <div class="card-custom text-center border-bottom border-success border-3">
                             <span class="text-muted small d-block mb-1">✅ Released</span>
-                            <h3 class="fw-bold text-success mb-0">₹9,80,000</h3>
+                            <h3 id="statReleasedPayroll" class="fw-bold text-success mb-0">₹0</h3>
                         </div>
                     </div>
                     <div class="col-md-2">
                         <div class="card-custom text-center border-bottom border-warning border-3">
                             <span class="text-muted small d-block mb-1">🟡 Pending</span>
-                            <h3 class="fw-bold text-warning mb-0">₹1,20,000</h3>
+                            <h3 id="statPendingPayroll" class="fw-bold text-warning mb-0">₹0</h3>
                         </div>
                     </div>
                     <div class="col-md-2">
                         <div class="card-custom text-center border-bottom border-danger border-3">
                             <span class="text-muted small d-block mb-1">🔴 Retained</span>
-                            <h3 class="fw-bold text-danger mb-0">₹1,45,000</h3>
+                            <h3 id="statRetainedPayroll" class="fw-bold text-danger mb-0">₹0</h3>
                         </div>
                     </div>
                     <div class="col-md-2">
                         <div class="card-custom text-center bg-light border-0">
                             <span class="text-muted small d-block mb-1">Employees Paid</span>
-                            <h3 class="fw-bold text-dark mb-0">118 <span class="fs-6 text-muted">/ 125</span></h3>
+                            <h3 id="statPaidCount" class="fw-bold text-dark mb-0">0 <span id="statTotalCount" class="fs-6 text-muted">/ 0</span></h3>
                         </div>
                     </div>
                 </div>
@@ -349,36 +354,34 @@
                                 <div class="col-md-3">
                                     <div class="input-group">
                                         <span class="input-group-text bg-light border-end-0"><i class="bi bi-search"></i></span>
-                                        <input type="text" class="form-control bg-light border-start-0 ps-0" placeholder="Search Employee...">
+                                        <input type="text" id="filterSearchInput" class="form-control bg-light border-start-0 ps-0" placeholder="Search Employee...">
                                     </div>
                                 </div>
                                 <div class="col-md-2">
-                                    <select class="form-select text-muted bg-light">
-                                        <option selected>Department</option>
-                                        <option>IT</option>
-                                        <option>HR</option>
+                                    <select id="filterDeptSelect" class="form-select text-muted bg-light">
+                                        <option value="">All Departments</option>
                                     </select>
                                 </div>
                                 <div class="col-md-2">
-                                    <select class="form-select text-muted bg-light">
-                                        <option selected>Salary Status</option>
-                                        <option>Generated</option>
-                                        <option>Released</option>
-                                        <option>Pending</option>
-                                        <option>Retained</option>
+                                    <select id="filterStatusSelect" class="form-select text-muted bg-light">
+                                        <option value="">All Statuses</option>
+                                        <option value="GENERATED">Generated</option>
+                                        <option value="APPROVED">Approved</option>
+                                        <option value="REJECTED">Rejected</option>
+                                        <option value="RELEASED">Released</option>
                                     </select>
                                 </div>
                                 <div class="col-md-2">
-                                    <select class="form-select text-muted bg-light">
-                                        <option selected>Task %</option>
-                                        <option>≥ 70%</option>
-                                        <option>50-69%</option>
-                                        <option>< 50%</option>
+                                    <select id="filterBandSelect" class="form-select text-muted bg-light">
+                                        <option value="">All Bands</option>
+                                        <option value="HIGH">≥ 70% (100% Release)</option>
+                                        <option value="MEDIUM">50-69% (2-Day Retained)</option>
+                                        <option value="LOW">&lt; 50% (7-Day Retained)</option>
                                     </select>
                                 </div>
                                 <div class="col-md-3 d-flex gap-2 text-end">
-                                    <button class="btn btn-primary w-100" title="Search">Search</button>
-                                    <button class="btn btn-light text-muted w-100" title="Reset Filters"><i class="bi bi-arrow-counterclockwise"></i></button>
+                                    <button class="btn btn-primary w-100" onclick="applyAdminFilters()">Search</button>
+                                    <button class="btn btn-light text-muted w-100" onclick="resetAdminFilters()"><i class="bi bi-arrow-counterclockwise"></i></button>
                                 </div>
                             </div>
 
@@ -397,58 +400,14 @@
                                             <th>Dept</th>
                                             <th>Base Salary</th>
                                             <th>Task %</th>
-                                            <th>Released (50%+)</th>
+                                            <th>Tranche 1 / Paid</th>
                                             <th>Retained</th>
                                             <th>Status</th>
                                             <th class="text-end">Action</th>
                                         </tr>
                                     </thead>
-                                    <tbody>
-                                        <!-- Row 1: >= 70% Task Completion -->
-                                        <tr>
-                                            <td><div class="fw-bold">Amit Kumar</div><small class="text-muted">EMP001</small></td>
-                                            <td>IT</td>
-                                            <td>₹50,000</td>
-                                            <td><span class="badge bg-success bg-opacity-10 text-success">80%</span></td>
-                                            <td class="fw-medium text-success">₹50,000</td>
-                                            <td class="text-muted">₹0</td>
-                                            <td><span class="badge bg-success">Released</span></td>
-                                            <td class="text-end">
-                                                <button class="btn btn-sm btn-light text-primary" title="View Details" data-bs-toggle="modal" data-bs-target="#payrollDetailsModal"><i class="bi bi-eye"></i></button>
-                                                <button class="btn btn-sm btn-light text-success" title="Release Salary" disabled><i class="bi bi-cash"></i></button>
-                                                <button class="btn btn-sm btn-light text-secondary" title="Payslip" data-bs-toggle="modal" data-bs-target="#payslipModal"><i class="bi bi-receipt"></i></button>
-                                            </td>
-                                        </tr>
-                                        <!-- Row 2: 50-69% Task Completion -->
-                                        <tr>
-                                            <td><div class="fw-bold">Ravi Singh</div><small class="text-muted">EMP002</small></td>
-                                            <td>IT</td>
-                                            <td>₹45,000</td>
-                                            <td><span class="badge bg-warning bg-opacity-10 text-warning">60%</span></td>
-                                            <td class="fw-medium">₹22,500 <small class="text-muted">(50%)</small></td>
-                                            <td class="text-danger fw-medium">₹3,000 <small>(2 Days)</small></td>
-                                            <td><span class="badge bg-danger">Retained</span></td>
-                                            <td class="text-end">
-                                                <button class="btn btn-sm btn-light text-primary" data-bs-toggle="modal" data-bs-target="#payrollDetailsModal"><i class="bi bi-eye"></i></button>
-                                                <button class="btn btn-sm btn-primary" title="Force Release" data-bs-toggle="modal" data-bs-target="#releaseSalaryModal"><i class="bi bi-cash"></i></button>
-                                                <button class="btn btn-sm btn-light text-secondary" disabled><i class="bi bi-receipt"></i></button>
-                                            </td>
-                                        </tr>
-                                        <!-- Row 3: < 50% Task Completion -->
-                                        <tr>
-                                            <td><div class="fw-bold">Priya Patel</div><small class="text-muted">EMP003</small></td>
-                                            <td>HR</td>
-                                            <td>₹40,000</td>
-                                            <td><span class="badge bg-danger bg-opacity-10 text-danger">40%</span></td>
-                                            <td class="fw-medium">₹20,000 <small class="text-muted">(50%)</small></td>
-                                            <td class="text-danger fw-medium">₹9,333 <small>(7 Days)</small></td>
-                                            <td><span class="badge bg-warning text-dark">Pending</span></td>
-                                            <td class="text-end">
-                                                <button class="btn btn-sm btn-light text-primary" data-bs-toggle="modal" data-bs-target="#payrollDetailsModal"><i class="bi bi-eye"></i></button>
-                                                <button class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#releaseSalaryModal"><i class="bi bi-cash"></i></button>
-                                                <button class="btn btn-sm btn-light text-secondary" disabled><i class="bi bi-receipt"></i></button>
-                                            </td>
-                                        </tr>
+                                    <tbody id="adminPayrollTableBody">
+                                        <tr><td colspan="8" class="text-center py-4 text-muted small">Loading records...</td></tr>
                                     </tbody>
                                 </table>
                             </div>
@@ -458,6 +417,8 @@
                                 <i class="bi bi-wallet2 text-muted" style="font-size: 3rem;"></i>
                                 <h5 class="mt-3 text-dark fw-bold">Payroll Not Generated</h5>
                                 <p class="text-muted">Generate payroll for the current month to view records.</p>
+                                <button class="btn btn-primary mt-2" data-bs-toggle="modal" data-bs-target="#generatePayrollModal">Generate Payroll</button>
+                            </div>
                                 <button class="btn btn-primary mt-2" data-bs-toggle="modal" data-bs-target="#generatePayrollModal">Generate Payroll</button>
                             </div>
 
@@ -737,7 +698,7 @@
         <!-- Offcanvas Mobile Menu -->
         <div class="offcanvas offcanvas-start" tabindex="-1" id="mobileMenu" style="width: 280px; background: #111;">
             <div class="offcanvas-header border-bottom border-secondary">
-                <h5 class="offcanvas-title text-white fw-bold"><i class="bi bi-layers-fill me-2"></i>Octopyder</h5>
+                <h5 class="offcanvas-title text-white fw-bold"><i class="bi bi-layers-fill me-2"></i>Puk's</h5>
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="offcanvas"></button>
             </div>
             <div class="offcanvas-body d-flex flex-column justify-content-between">
@@ -767,36 +728,47 @@
                 </div>
                 <div class="modal-body p-4">
                     <div id="genConfig">
-                        <div class="mb-3"><label class="form-label small text-muted">Payroll Month</label><select class="form-select"><option>July 2026</option></select></div>
-                        <div class="mb-4"><label class="form-label small text-muted">Department</label><select class="form-select"><option>All Departments</option><option>IT</option><option>HR</option></select></div>
-                        <label class="form-label small text-muted d-block mb-2">Generate Based On:</label>
-                        <div class="form-check mb-2"><input class="form-check-input" type="checkbox" checked disabled><label class="form-check-label small text-dark">50% Base Salary</label></div>
-                        <div class="form-check mb-2"><input class="form-check-input" type="checkbox" checked><label class="form-check-label small text-dark">Attendance / Deductions</label></div>
-                        <div class="form-check mb-2"><input class="form-check-input" type="checkbox" checked><label class="form-check-label small text-dark">Task Completion (Retention Logic)</label></div>
-                        <div class="form-check mb-4"><input class="form-check-input" type="checkbox" checked><label class="form-check-label small text-dark">Approved Leaves</label></div>
-                        <button type="button" class="btn btn-primary w-100" onclick="startPayrollGeneration()">Generate Payroll</button>
+                        <div class="mb-3">
+                            <label class="form-label small text-muted">Payroll Month</label>
+                            <input type="month" id="genMonthInput" class="form-control" value="2026-07">
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label small text-muted">Department</label>
+                            <select id="genDeptSelect" class="form-select">
+                                <option value="">All Departments</option>
+                            </select>
+                        </div>
+                        <div class="form-check mb-2">
+                            <input class="form-check-input" type="checkbox" id="genTreatPending">
+                            <label class="form-check-label small text-dark" for="genTreatPending">Treat Pending Attendance as Present</label>
+                        </div>
+                        <div class="form-check mb-4">
+                            <input class="form-check-input" type="checkbox" id="genRecalculate">
+                            <label class="form-check-label small text-dark" for="genRecalculate">Recalculate Existing Open Records</label>
+                        </div>
+                        <button type="button" class="btn btn-primary w-100" id="submitGenPayrollBtn" onclick="executePayrollGeneration()">Generate Payroll</button>
                     </div>
                     
                     <div id="genProgress" class="d-none text-center py-3">
                         <h6 class="fw-bold text-primary mb-3">Calculating Salary...</h6>
                         <div class="progress mb-2" style="height: 10px;">
-                            <div class="progress-bar progress-bar-striped progress-bar-animated bg-primary" id="genProgressBar" style="width: 0%"></div>
+                            <div class="progress-bar progress-bar-striped progress-bar-animated bg-primary" id="genProgressBar" style="width: 100%"></div>
                         </div>
-                        <small class="text-muted" id="genProgressText">0%</small>
+                        <small class="text-muted" id="genProgressText">Processing...</small>
                     </div>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- STEP 6 & 8: Payroll Details & Salary Calculation Modal -->
+    <!-- STEP 6 & 8: Payroll Details Modal -->
     <div class="modal fade" id="payrollDetailsModal" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered modal-lg modal-dialog-scrollable">
             <div class="modal-content border-0 shadow">
                 <div class="modal-header bg-light">
                     <div>
                         <h5 class="modal-title fw-bold mb-0">Employee Salary Details</h5>
-                        <span class="text-muted small">Amit Kumar &bull; EMP001 &bull; IT Department</span>
+                        <span id="detailsEmpSubtitle" class="text-muted small">Loading...</span>
                     </div>
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
@@ -805,36 +777,39 @@
                         <!-- Salary Breakup -->
                         <div class="col-md-7">
                             <div class="bg-white p-3 rounded border h-100">
-                                <h6 class="fw-bold text-dark border-bottom pb-2 mb-3">Salary Breakup</h6>
-                                <div class="d-flex justify-content-between mb-2 small"><span class="text-muted">Basic Salary</span><strong class="text-dark">₹40,000</strong></div>
-                                <div class="d-flex justify-content-between mb-2 small"><span class="text-muted">Allowances</span><strong class="text-dark">₹8,000</strong></div>
-                                <div class="d-flex justify-content-between mb-3 small"><span class="text-muted">Bonus</span><strong class="text-dark">₹2,000</strong></div>
-                                <div class="d-flex justify-content-between mb-3 border-bottom pb-2 bg-light p-2 rounded"><span class="fw-bold text-dark">Gross Salary</span><strong class="text-primary">₹50,000</strong></div>
+                                <h6 class="fw-bold text-dark border-bottom pb-2 mb-3">Earnings</h6>
+                                <div id="detailsEarningsList" class="mb-3"></div>
+                                <div class="d-flex justify-content-between mb-3 border-bottom pb-2 bg-light p-2 rounded">
+                                    <span class="fw-bold text-dark">Gross Salary</span>
+                                    <strong id="detailsGross" class="text-primary">₹0.00</strong>
+                                </div>
                                 
                                 <h6 class="fw-bold text-dark border-bottom pb-2 mb-3 mt-4">Deductions</h6>
-                                <div class="d-flex justify-content-between mb-2 small"><span class="text-muted">Late Deduction</span><strong class="text-danger">- ₹0</strong></div>
-                                <div class="d-flex justify-content-between mb-2 small"><span class="text-muted">Leave Deduction</span><strong class="text-danger">- ₹0</strong></div>
-                                <div class="d-flex justify-content-between mb-3 small"><span class="text-muted">Tax (TDS)</span><strong class="text-danger">- ₹0</strong></div>
-                                <div class="d-flex justify-content-between mb-2 border-bottom pb-2 bg-light p-2 rounded"><span class="fw-bold text-dark">Total Deductions</span><strong class="text-danger">₹0</strong></div>
+                                <div id="detailsDeductionsList" class="mb-3"></div>
+                                <div class="d-flex justify-content-between mb-2 border-bottom pb-2 bg-light p-2 rounded">
+                                    <span class="fw-bold text-dark">Total Deductions</span>
+                                    <strong id="detailsTotalDeductions" class="text-danger">₹0.00</strong>
+                                </div>
                             </div>
                         </div>
 
-                        <!-- Calculation & Task Rule (Step 8) -->
+                        <!-- Calculation & Task Rule -->
                         <div class="col-md-5">
                             <div class="bg-white p-3 rounded border h-100 border-primary">
-                                <h6 class="fw-bold text-primary border-bottom pb-2 mb-3"><i class="bi bi-shield-check me-2"></i>Task Completion Logic</h6>
+                                <h6 class="fw-bold text-primary border-bottom pb-2 mb-3"><i class="bi bi-shield-check me-2"></i>Performance & Retention</h6>
                                 
-                                <div class="d-flex justify-content-between mb-2 small"><span class="text-muted">Approved Tasks</span><strong class="text-success fs-6">80%</strong></div>
-                                <p class="small text-muted mb-3 pb-2 border-bottom">Since tasks are ≥ 70%, 100% of the remaining salary is released.</p>
+                                <div class="d-flex justify-content-between mb-2 small"><span class="text-muted">Approved Tasks</span><strong id="detailsTaskPct" class="text-success fs-6">0%</strong></div>
+                                <div class="d-flex justify-content-between mb-2 small"><span class="text-muted">Attendance</span><strong id="detailsAttendance" class="text-dark">0/0 Days</strong></div>
+                                <p id="detailsRuleNote" class="small text-muted mb-3 pb-2 border-bottom">Rule summary</p>
 
-                                <div class="d-flex justify-content-between mb-2 small"><span class="text-muted">50% Auto Released</span><strong class="text-dark">₹25,000</strong></div>
-                                <div class="d-flex justify-content-between mb-2 small"><span class="text-muted">Task Based Release</span><strong class="text-success">+ ₹25,000</strong></div>
-                                <div class="d-flex justify-content-between mb-4 small"><span class="text-muted">Retained Salary</span><strong class="text-danger">- ₹0</strong></div>
+                                <div class="d-flex justify-content-between mb-2 small"><span class="text-muted">Default Release (Tranche 1)</span><strong id="detailsTranche1" class="text-dark">₹0.00</strong></div>
+                                <div class="d-flex justify-content-between mb-2 small"><span class="text-muted">Performance Unlocked</span><strong id="detailsTaskUnlocked" class="text-success">₹0.00</strong></div>
+                                <div class="d-flex justify-content-between mb-4 small"><span class="text-muted">Retained</span><strong id="detailsRetained" class="text-danger">₹0.00</strong></div>
                                 
                                 <div class="bg-primary bg-opacity-10 p-3 rounded border border-primary text-center mt-auto">
                                     <span class="d-block small fw-bold text-primary mb-1">Final Net Salary</span>
-                                    <h3 class="fw-bold text-dark mb-0">₹50,000</h3>
-                                    <span class="badge bg-success mt-2">Released</span>
+                                    <h3 id="detailsNetSalary" class="fw-bold text-dark mb-0">₹0.00</h3>
+                                    <span id="detailsStatusBadge" class="badge bg-secondary mt-2">Status</span>
                                 </div>
                             </div>
                         </div>
@@ -844,62 +819,35 @@
         </div>
     </div>
 
-    <!-- STEP 9: Release Salary Confirmation Modal -->
+    <!-- STEP 9: Release Remainder Confirmation Modal -->
     <div class="modal fade" id="releaseSalaryModal" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered modal-sm">
             <div class="modal-content border-0 shadow text-center">
                 <div class="modal-body p-4">
                     <i class="bi bi-cash-stack text-primary display-4 mb-3 d-block"></i>
                     <h5 class="fw-bold mb-2">Release Salary</h5>
-                    <p class="text-dark fw-bold mb-1">Ravi Singh</p>
-                    <p class="text-muted small mb-2">Total Amount to Release:</p>
-                    <h4 class="text-success fw-bold mb-4">₹22,500</h4>
+                    <p class="text-dark fw-bold mb-1" id="releaseEmpName">Employee</p>
+                    <p class="text-muted small mb-2">Amount to Release:</p>
+                    <h4 class="text-success fw-bold mb-3" id="releaseAmountText">₹0.00</h4>
                     
-                    <div class="alert alert-warning p-2 small mb-4 text-start">
-                        <i class="bi bi-exclamation-triangle me-1"></i> <strong>Note:</strong> ₹3,000 (2 Days) is retained due to 60% task completion.
+                    <div class="text-start mb-2">
+                        <label class="form-label small text-muted mb-1">Payment Reference (Req.)</label>
+                        <input type="text" id="releasePaymentRef" class="form-control form-control-sm" placeholder="e.g. TXN987654" required>
+                    </div>
+                    <div class="text-start mb-3">
+                        <label class="form-label small text-muted mb-1">Payment Method</label>
+                        <select id="releasePaymentMethod" class="form-select form-select-sm">
+                            <option value="NEFT" selected>NEFT / RTGS</option>
+                            <option value="IMPS">IMPS</option>
+                            <option value="UPI">UPI</option>
+                            <option value="CHEQUE">Cheque</option>
+                            <option value="BANK_TRANSFER">Bank Transfer</option>
+                        </select>
                     </div>
 
                     <div class="d-flex gap-2 w-100">
                         <button type="button" class="btn btn-light flex-grow-1" data-bs-dismiss="modal">Cancel</button>
-                        <button type="button" class="btn btn-primary flex-grow-1" onclick="handleAction('Salary Released Successfully', '#releaseSalaryModal')">Confirm</button>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- STEP 10: Payslip Preview Modal -->
-    <div class="modal fade" id="payslipModal" tabindex="-1" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered modal-md">
-            <div class="modal-content border-0 shadow">
-                <div class="modal-body p-5">
-                    
-                    <!-- Payslip Content -->
-                    <div class="text-center mb-4">
-                        <div class="payslip-logo mb-2"><i class="bi bi-layers-fill"></i></div>
-                        <h5 class="fw-bold text-dark mb-0">Octopyder Solutions</h5>
-                        <p class="text-muted small">Payroll Management System &bull; July 2026</p>
-                    </div>
-
-                    <div class="border-top border-bottom py-2 mb-4 small">
-                        <div class="row">
-                            <div class="col-6"><span class="text-muted">Employee:</span> <strong class="text-dark">Amit Kumar</strong></div>
-                            <div class="col-6 text-end"><span class="text-muted">Emp ID:</span> <strong class="text-dark">EMP001</strong></div>
-                            <div class="col-6"><span class="text-muted">Dept:</span> <strong class="text-dark">IT</strong></div>
-                            <div class="col-6 text-end"><span class="text-muted">Task %:</span> <strong class="text-dark">80%</strong></div>
-                        </div>
-                    </div>
-
-                    <div class="d-flex flex-column gap-1 small mb-4">
-                        <div class="payslip-row"><span class="text-muted">Basic Salary</span><strong class="text-dark">₹40,000</strong></div>
-                        <div class="payslip-row"><span class="text-muted">Allowances & Bonus</span><strong class="text-dark">₹10,000</strong></div>
-                        <div class="payslip-row"><span class="text-muted">Deductions</span><strong class="text-dark">₹0</strong></div>
-                        <div class="payslip-row"><span class="text-muted">Task-Based Retained</span><strong class="text-dark">₹0</strong></div>
-                        <div class="payslip-row bg-light p-2 rounded mt-2 border-0"><span class="fw-bold text-dark">Final Salary</span><strong class="text-primary fs-6">₹50,000</strong></div>
-                    </div>
-
-                    <div class="text-center mt-4">
-                        <button type="button" class="btn btn-outline-secondary w-100" onclick="handleAction('Payslip Downloaded', '#payslipModal')"><i class="bi bi-file-earmark-pdf me-2"></i>Download PDF</button>
+                        <button type="button" class="btn btn-primary flex-grow-1" onclick="confirmReleaseSalary()">Confirm Release</button>
                     </div>
                 </div>
             </div>
@@ -916,21 +864,356 @@
                 </div>
                 <div class="modal-body p-4">
                     <div class="d-flex flex-column gap-2">
-                        <button class="btn btn-outline-danger" onclick="handleAction('Payroll Exported as PDF', '#exportModal')"><i class="bi bi-file-earmark-pdf me-2"></i> Export as PDF</button>
-                        <button class="btn btn-outline-success" onclick="handleAction('Payroll Exported as Excel', '#exportModal')"><i class="bi bi-file-earmark-excel me-2"></i> Export as Excel</button>
-                        <button class="btn btn-outline-secondary" onclick="handleAction('Payroll Exported as CSV', '#exportModal')"><i class="bi bi-filetype-csv me-2"></i> Export as CSV</button>
+                        <button class="btn btn-outline-danger" onclick="triggerExport('pdf')"><i class="bi bi-file-earmark-pdf me-2"></i> Export as PDF</button>
+                        <button class="btn btn-outline-success" onclick="triggerExport('xlsx')"><i class="bi bi-file-earmark-excel me-2"></i> Export as Excel</button>
+                        <button class="btn btn-outline-secondary" onclick="triggerExport('csv')"><i class="bi bi-filetype-csv me-2"></i> Export as CSV</button>
                     </div>
                 </div>
             </div>
         </div>
     </div>
 
-
     <!-- Bootstrap JS Bundle -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL" crossorigin="anonymous"></script>
 
     <!-- UI Logic Script -->
     <script>
+        let currentSelectedRecordId = null;
+        let releaseModalInstance = null;
+        let detailsModalInstance = null;
+        let genModalInstance = null;
+
+        function formatInr(val) {
+            const num = Number(val || 0);
+            return '₹' + num.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+        }
+
+        function showToast(message) {
+            alert(message);
+        }
+
+        async function loadDepartments() {
+            try {
+                const depts = await API.get('/org/departments');
+                const list = Array.isArray(depts) ? depts : [];
+                const filterSelect = document.getElementById('filterDeptSelect');
+                const genSelect = document.getElementById('genDeptSelect');
+
+                list.forEach(d => {
+                    const opt1 = document.createElement('option');
+                    opt1.value = d.id;
+                    opt1.textContent = d.name;
+                    filterSelect.appendChild(opt1);
+
+                    const opt2 = document.createElement('option');
+                    opt2.value = d.id;
+                    opt2.textContent = d.name;
+                    genSelect.appendChild(opt2);
+                });
+            } catch (e) {
+                console.error('Failed to load departments', e);
+            }
+        }
+
+        async function loadSummary(month) {
+            try {
+                const s = await API.get(`/payroll/summary?month=${month}`);
+                if (!s) return;
+                document.getElementById('statTotalPayroll').textContent = formatInr(s.totalGross);
+                document.getElementById('statReleasedPayroll').textContent = formatInr(s.totalReleased);
+                document.getElementById('statPendingPayroll').textContent = formatInr(s.totalPending);
+                document.getElementById('statRetainedPayroll').textContent = formatInr(s.totalRetained);
+                document.getElementById('statPaidCount').innerHTML = `${s.paidEmployeesCount} <span class="fs-6 text-muted">/ ${s.totalEmployeesCount}</span>`;
+            } catch (e) {
+                console.error('Failed to load summary', e);
+            }
+        }
+
+        async function loadAdminPayroll() {
+            const month = document.getElementById('adminCycleMonth').value || '2026-07';
+            const deptId = document.getElementById('filterDeptSelect').value;
+            const status = document.getElementById('filterStatusSelect').value;
+            const band = document.getElementById('filterBandSelect').value;
+            const search = document.getElementById('filterSearchInput').value.trim();
+
+            const tbody = document.getElementById('adminPayrollTableBody');
+            tbody.innerHTML = '<tr><td colspan="8" class="text-center py-4 text-muted small">Loading records...</td></tr>';
+
+            await loadSummary(month);
+
+            let url = `/payroll/records?month=${month}&page=0&size=100`;
+            if (deptId) url += `&departmentId=${deptId}`;
+            if (status) url += `&status=${status}`;
+            if (band) url += `&band=${band}`;
+
+            try {
+                const res = await API.get(url);
+                let items = res.items || [];
+                if (search) {
+                    const q = search.toLowerCase();
+                    items = items.filter(r => (r.userName && r.userName.toLowerCase().includes(q)) || (r.userCode && r.userCode.toLowerCase().includes(q)));
+                }
+
+                tbody.innerHTML = '';
+                if (items.length === 0) {
+                    document.getElementById('desktopTableContainer').classList.add('d-none');
+                    document.getElementById('desktopEmptyState').classList.remove('d-none');
+                    return;
+                }
+
+                document.getElementById('desktopTableContainer').classList.remove('d-none');
+                document.getElementById('desktopEmptyState').classList.add('d-none');
+
+                items.forEach(record => {
+                    const tr = document.createElement('tr');
+                    const compPct = Number(record.completionPct || 0);
+                    let badgeClass = 'bg-danger text-danger';
+                    if (compPct >= 70) badgeClass = 'bg-success text-success';
+                    else if (compPct >= 50) badgeClass = 'bg-warning text-warning';
+
+                    let statusBadge = '<span class="badge bg-warning text-dark">Generated</span>';
+                    if (record.status === 'APPROVED') statusBadge = '<span class="badge bg-primary">Approved</span>';
+                    else if (record.status === 'RELEASED') statusBadge = '<span class="badge bg-success">Released</span>';
+                    else if (record.status === 'REJECTED') statusBadge = '<span class="badge bg-danger">Rejected</span>';
+
+                    tr.innerHTML = `
+                        <td><div class="fw-bold">${record.userName || 'Employee'}</div><small class="text-muted">${record.userCode || ''}</small></td>
+                        <td>${record.departmentName || '—'}</td>
+                        <td>${formatInr(record.gross)}</td>
+                        <td><span class="badge ${badgeClass} bg-opacity-10">${compPct.toFixed(0)}%</span></td>
+                        <td class="fw-medium text-success">${formatInr(record.paidAmount > 0 ? record.paidAmount : record.tranche1Amount)}</td>
+                        <td class="text-muted">${record.retentionAmount > 0 ? formatInr(record.retentionAmount) + ' (' + record.retentionDays + 'd)' : '₹0'}</td>
+                        <td>${statusBadge}</td>
+                        <td class="text-end action-cell"></td>
+                    `;
+
+                    const actionCell = tr.querySelector('.action-cell');
+
+                    // View details button
+                    const viewBtn = document.createElement('button');
+                    viewBtn.className = 'btn btn-sm btn-light text-primary me-1';
+                    viewBtn.title = 'View Details';
+                    viewBtn.innerHTML = '<i class="bi bi-eye"></i>';
+                    viewBtn.onclick = () => viewRecordDetails(record);
+                    actionCell.appendChild(viewBtn);
+
+                    // Release Default (50%) button
+                    if (Number(record.paidAmount || 0) === 0 && (record.status === 'GENERATED' || record.status === 'APPROVED')) {
+                        const relDefBtn = document.createElement('button');
+                        relDefBtn.className = 'btn btn-sm btn-light text-warning me-1';
+                        relDefBtn.title = 'Release Default 50%';
+                        relDefBtn.innerHTML = '<i class="bi bi-cash-stack"></i> 50%';
+                        relDefBtn.onclick = () => releaseDefaultSalary(record.id);
+                        actionCell.appendChild(relDefBtn);
+                    }
+
+                    // Release Remainder button
+                    if (record.status === 'APPROVED' && Number(record.paidAmount || 0) < Number(record.netPayable || 0)) {
+                        const relBtn = document.createElement('button');
+                        relBtn.className = 'btn btn-sm btn-primary me-1';
+                        relBtn.title = 'Release Remainder';
+                        relBtn.innerHTML = '<i class="bi bi-cash"></i>';
+                        relBtn.onclick = () => openReleaseModal(record);
+                        actionCell.appendChild(relBtn);
+                    }
+
+                    // Payslip button
+                    const slipBtn = document.createElement('button');
+                    slipBtn.className = 'btn btn-sm btn-light text-secondary';
+                    slipBtn.title = 'Payslip PDF';
+                    slipBtn.innerHTML = '<i class="bi bi-receipt"></i>';
+                    if (record.status === 'APPROVED' || record.status === 'RELEASED') {
+                        slipBtn.onclick = () => downloadAdminPayslip(record.id, record.userCode, record.month);
+                    } else {
+                        slipBtn.disabled = true;
+                    }
+                    actionCell.appendChild(slipBtn);
+
+                    tbody.appendChild(tr);
+                });
+            } catch (e) {
+                tbody.innerHTML = `<tr><td colspan="8" class="text-center py-4 text-danger small">Failed to load payroll: ${e.message}</td></tr>`;
+            }
+        }
+
+        async function executePayrollGeneration() {
+            const month = document.getElementById('genMonthInput').value;
+            const deptId = document.getElementById('genDeptSelect').value || null;
+            const treatPendingAsPresent = document.getElementById('genTreatPending').checked;
+            const recalculate = document.getElementById('genRecalculate').checked;
+
+            if (!month) {
+                alert('Please select a payroll month');
+                return;
+            }
+
+            document.getElementById('genConfig').classList.add('d-none');
+            document.getElementById('genProgress').classList.remove('d-none');
+
+            try {
+                const res = await API.post('/payroll/runs', {
+                    month,
+                    departmentId: deptId,
+                    treatPendingAsPresent,
+                    recalculate
+                });
+
+                showToast(`Payroll generated successfully. Processed ${res.totalProcessed || 0} employees.`);
+                const modal = bootstrap.Modal.getInstance(document.getElementById('generatePayrollModal'));
+                if (modal) modal.hide();
+
+                document.getElementById('adminCycleMonth').value = month;
+                loadAdminPayroll();
+            } catch (err) {
+                alert('Payroll generation failed: ' + (err.problem?.detail || err.message));
+            } finally {
+                document.getElementById('genConfig').classList.remove('d-none');
+                document.getElementById('genProgress').classList.add('d-none');
+            }
+        }
+
+        async function releaseDefaultSalary(recordId) {
+            if (!confirm('Release 50% default tranche for this employee?')) return;
+            try {
+                await API.post(`/payroll/records/${recordId}/release-default`, {});
+                showToast('Default 50% released successfully');
+                loadAdminPayroll();
+            } catch (e) {
+                alert('Release failed: ' + (e.problem?.detail || e.message));
+            }
+        }
+
+        function openReleaseModal(record) {
+            currentSelectedRecordId = record.id;
+            document.getElementById('releaseEmpName').textContent = `${record.userName || 'Employee'} (${record.userCode || ''})`;
+            const remainder = Number(record.netPayable || 0) - Number(record.paidAmount || 0);
+            document.getElementById('releaseAmountText').textContent = formatInr(remainder);
+            document.getElementById('releasePaymentRef').value = '';
+
+            if (!releaseModalInstance) {
+                releaseModalInstance = new bootstrap.Modal(document.getElementById('releaseSalaryModal'));
+            }
+            releaseModalInstance.show();
+        }
+
+        async function confirmReleaseSalary() {
+            const ref = document.getElementById('releasePaymentRef').value.trim();
+            const method = document.getElementById('releasePaymentMethod').value;
+            if (!ref) {
+                alert('Payment Reference is required');
+                return;
+            }
+            if (!currentSelectedRecordId) return;
+
+            try {
+                const today = new Date().toISOString().slice(0, 10);
+                await API.post(`/payroll/records/${currentSelectedRecordId}/release`, {
+                    paymentDate: today,
+                    paymentRef: ref,
+                    paymentMethod: method
+                });
+                if (releaseModalInstance) releaseModalInstance.hide();
+                showToast('Salary released successfully');
+                loadAdminPayroll();
+            } catch (e) {
+                alert('Release failed: ' + (e.problem?.detail || e.message));
+            }
+        }
+
+        async function viewRecordDetails(record) {
+            document.getElementById('detailsEmpSubtitle').textContent = `${record.userName || 'Employee'} • ${record.userCode || ''} • ${record.departmentName || ''}`;
+            document.getElementById('detailsGross').textContent = formatInr(record.gross);
+            document.getElementById('detailsNetSalary').textContent = formatInr(record.netPayable);
+
+            const compPct = Number(record.completionPct || 0);
+            document.getElementById('detailsTaskPct').textContent = compPct.toFixed(1) + '%';
+            document.getElementById('detailsAttendance').textContent = `${record.presentDays}/${record.workingDays} Days`;
+            document.getElementById('detailsTranche1').textContent = formatInr(record.tranche1Amount);
+            document.getElementById('detailsTaskUnlocked').textContent = formatInr(record.taskUnlockedAmount);
+            document.getElementById('detailsRetained').textContent = formatInr(record.retentionAmount);
+            document.getElementById('detailsStatusBadge').textContent = record.status;
+
+            // Lines breakdown
+            const earnList = document.getElementById('detailsEarningsList');
+            earnList.innerHTML = '';
+            const dedList = document.getElementById('detailsDeductionsList');
+            dedList.innerHTML = '';
+
+            let totalDed = 0;
+            (record.lines || []).forEach(l => {
+                const div = document.createElement('div');
+                div.className = 'd-flex justify-content-between mb-2 small';
+                div.innerHTML = `<span class="text-muted">${l.title}</span><strong>${formatInr(l.amount)}</strong>`;
+                if (l.kind === 'EARNING') {
+                    earnList.appendChild(div);
+                } else {
+                    totalDed += Number(l.amount || 0);
+                    div.querySelector('strong').className = 'text-danger';
+                    div.querySelector('strong').textContent = '- ' + formatInr(l.amount);
+                    dedList.appendChild(div);
+                }
+            });
+            document.getElementById('detailsTotalDeductions').textContent = '- ' + formatInr(totalDed);
+
+            if (!detailsModalInstance) {
+                detailsModalInstance = new bootstrap.Modal(document.getElementById('payrollDetailsModal'));
+            }
+            detailsModalInstance.show();
+        }
+
+        async function downloadAdminPayslip(recordId, code, month) {
+            try {
+                const token = Auth.getToken ? Auth.getToken() : null;
+                const headers = token ? { 'Authorization': 'Bearer ' + token } : {};
+                const res = await fetch(`/api/v1/payroll/records/${recordId}/payslip.pdf`, { headers });
+                if (!res.ok) {
+                    alert('Payslip download failed with status ' + res.status);
+                    return;
+                }
+                const blob = await res.blob();
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `payslip-${code || 'emp'}-${month}.pdf`;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                window.URL.revokeObjectURL(url);
+            } catch (e) {
+                alert('Download failed: ' + e.message);
+            }
+        }
+
+        async function triggerExport(format) {
+            const month = document.getElementById('adminCycleMonth').value || '2026-07';
+            const deptId = document.getElementById('filterDeptSelect').value;
+            let url = `/payroll/export?format=${format}&month=${month}`;
+            if (deptId) url += `&departmentId=${deptId}`;
+            try {
+                await API.download(url, `payroll-${month}.${format}`);
+            } catch(e) {
+                alert('Export failed: ' + e.message);
+            }
+            const modal = bootstrap.Modal.getInstance(document.getElementById('exportModal'));
+            if (modal) modal.hide();
+        }
+
+        function handleCycleMonthChange() {
+            loadAdminPayroll();
+        }
+
+        function applyAdminFilters() {
+            loadAdminPayroll();
+        }
+
+        function resetAdminFilters() {
+            document.getElementById('filterDeptSelect').value = '';
+            document.getElementById('filterStatusSelect').value = '';
+            document.getElementById('filterBandSelect').value = '';
+            document.getElementById('filterSearchInput').value = '';
+            loadAdminPayroll();
+        }
+
         // Theme Management
         const themeSelector = document.getElementById('themeSelector');
         const mobileThemeSelector = document.getElementById('mobileThemeSelector');
@@ -942,6 +1225,8 @@
                 if(mobileThemeSelector) mobileThemeSelector.value = savedTheme;
                 if (savedTheme !== 'default') document.body.classList.add(savedTheme);
             }
+            loadDepartments();
+            loadAdminPayroll();
         });
 
         function syncTheme(e) {
@@ -955,120 +1240,6 @@
 
         if(themeSelector) themeSelector.addEventListener('change', syncTheme);
         if(mobileThemeSelector) mobileThemeSelector.addEventListener('change', syncTheme);
-
-        // Success Toasts (STEP 15)
-        function showToast(message) {
-            document.getElementById('toastMessage').innerText = message;
-            const toastEl = document.getElementById('successToast');
-            const toast = new bootstrap.Toast(toastEl, { delay: 3000 });
-            toast.show();
-        }
-
-        // Action Handlers
-        function handleAction(successMessage, modalId) {
-            if(modalId) {
-                const modalEl = document.querySelector(modalId);
-                if(modalEl) {
-                    const modal = bootstrap.Modal.getInstance(modalEl);
-                    if (modal) { modal.hide(); }
-                }
-            }
-            setTimeout(() => { showToast(successMessage); }, 400);
-            if (successMessage.includes("Released")) simulateDataLoad();
-        }
-
-        // Generate Payroll Simulation (STEP 5)
-        function startPayrollGeneration() {
-            document.getElementById('genConfig').classList.add('d-none');
-            document.getElementById('genProgress').classList.remove('d-none');
-            
-            let progress = 0;
-            const bar = document.getElementById('genProgressBar');
-            const text = document.getElementById('genProgressText');
-            
-            const interval = setInterval(() => {
-                progress += 20;
-                bar.style.width = progress + '%';
-                text.innerText = progress + '%';
-                
-                if (progress >= 100) {
-                    clearInterval(interval);
-                    setTimeout(() => {
-                        const modal = bootstrap.Modal.getInstance(document.getElementById('generatePayrollModal'));
-                        modal.hide();
-                        showToast("Payroll Generated Successfully");
-                        
-                        // Reset modal for next time
-                        setTimeout(() => {
-                            document.getElementById('genConfig').classList.remove('d-none');
-                            document.getElementById('genProgress').classList.add('d-none');
-                            bar.style.width = '0%';
-                            text.innerText = '0%';
-                            simulateDataLoad();
-                        }, 500);
-                    }, 500);
-                }
-            }, 300);
-        }
-
-        // Loading Simulation (STEP 14)
-        function simulateDataLoad() {
-            // Desktop
-            const dTable = document.getElementById('desktopTableContainer');
-            const dLoader = document.getElementById('desktopLoader');
-            const dPag = document.getElementById('desktopPagination');
-            
-            if (dTable && dLoader) {
-                dTable.classList.add('d-none');
-                dPag.classList.add('d-none');
-                dLoader.classList.remove('d-none');
-                setTimeout(() => {
-                    dLoader.classList.add('d-none');
-                    dTable.classList.remove('d-none');
-                    dPag.classList.remove('d-none');
-                }, 800);
-            }
-
-            // Mobile
-            const mCards = document.getElementById('mobCardsContainer');
-            const mLoader = document.getElementById('mobileLoader');
-            const mBtn = document.getElementById('mobileLoadMore');
-            
-            if (mCards && mLoader) {
-                mCards.classList.add('d-none');
-                if(mBtn) mBtn.classList.add('d-none');
-                mLoader.classList.remove('d-none');
-                setTimeout(() => {
-                    mLoader.classList.add('d-none');
-                    mCards.classList.remove('d-none');
-                    if(mBtn) mBtn.classList.remove('d-none');
-                }, 800);
-            }
-        }
-
-        // Mobile Load More
-        const loadMoreBtn = document.getElementById('mobileLoadMore');
-        if(loadMoreBtn) {
-            loadMoreBtn.addEventListener('click', function() {
-                const originalText = this.innerHTML;
-                this.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Loading...';
-                this.disabled = true;
-                setTimeout(() => {
-                    this.innerHTML = originalText;
-                    this.disabled = false;
-                    showToast("More records loaded");
-                }, 1000);
-            });
-        }
-
-        // Close FAB when modal opens
-        document.querySelectorAll('[data-bs-toggle="modal"], [data-bs-toggle="offcanvas"]').forEach(btn => {
-            btn.addEventListener('click', () => {
-                const fab = document.getElementById('fab');
-                if(fab) fab.classList.remove('active');
-            });
-        });
-
     </script>
 </body>
 </html>

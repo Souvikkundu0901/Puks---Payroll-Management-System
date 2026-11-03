@@ -3,16 +3,16 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Salary Details - Octopyder</title>
+    <title>Salary Details - Puk's</title>
     
     <!-- Google Fonts: Inter -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;900&display=swap" rel="stylesheet">
     
     <!-- Bootstrap 5 CSS -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
     
     <!-- Bootstrap Icons -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet" integrity="sha384-4LISF5TTJX/fLmGSxO53rV4miRxdg84mZsxmO8Rx5jGtp/LbrixFETvWa5a6sESd" crossorigin="anonymous">
     
     <style>
         /* =========================================
@@ -519,13 +519,13 @@
     <!-- Auth & Role Guard -->
     <script src="../js/api.js"></script>
     <script src="../js/auth.js"></script>
-    <script>Auth.require("EMPLOYEE");</script>
+    <script>Auth.require(["EMPLOYEE", "MANAGER"]);</script>
 </head>
 <body>
 
     <!-- Mobile Header -->
     <div class="mobile-header sticky-top">
-        <h4 class="mb-0 fw-bold"><i class="bi bi-layers-fill text-white me-2"></i>Octopyder</h4>
+        <h4 class="mb-0 fw-bold"><i class="bi bi-layers-fill text-white me-2"></i>Puk's</h4>
         <button class="btn btn-outline-light border-0" data-bs-toggle="modal" data-bs-target="#logoutModal" title="Logout">
             <i class="bi bi-box-arrow-right fs-3"></i>
         </button>
@@ -535,7 +535,7 @@
     <nav class="sidebar d-flex flex-column" id="sidebar">
         <div class="sidebar-brand d-flex align-items-center">
             <i class="bi bi-layers-fill me-2"></i>
-            <span>Octopyder</span>
+            <span>Puk's</span>
         </div>
         
         <div class="p-3">
@@ -589,11 +589,14 @@
         <!-- Page Header -->
         <div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center mb-4 page-header gap-3">
             <div>
-                <h2 class="fw-bold mb-0">Salary & Payroll (July 2026 Cycle)</h2>
+                <h2 class="fw-bold mb-0">Salary & Payroll (<span id="headerMonthLabel">Loading...</span>)</h2>
                 <p class="text-muted mb-0">View your performance-linked compensation, payslips, and transaction history.</p>
             </div>
-            <div>
-                <button class="btn btn-danger fw-bold" onclick="alert('Downloading Estimated Payslip...')"><i class="bi bi-file-earmark-pdf me-2"></i> Download Payslip</button>
+            <div class="d-flex align-items-center gap-2">
+                <select id="monthSelector" class="form-select form-select-sm shadow-none" style="min-width: 140px;">
+                    <option value="">Select Month</option>
+                </select>
+                <button id="downloadPayslipTopBtn" class="btn btn-danger fw-bold"><i class="bi bi-file-earmark-pdf me-2"></i> Download Payslip</button>
             </div>
         </div>
 
@@ -605,7 +608,7 @@
                         <div class="card-icon bg-secondary bg-opacity-15 text-secondary me-3"><i class="bi bi-cash-stack"></i></div>
                         <div>
                             <h6 class="text-muted mb-1 small fw-semibold">Gross Salary</h6>
-                            <h4 class="fw-bold text-dark mb-0">₹50,000</h4>
+                            <h4 id="kpiGrossSalary" class="fw-bold text-dark mb-0">₹0.00</h4>
                         </div>
                     </div>
                 </div>
@@ -616,7 +619,7 @@
                         <div class="card-icon bg-warning bg-opacity-15 text-warning-emphasis me-3"><i class="bi bi-dash-circle-fill"></i></div>
                         <div>
                             <h6 class="text-muted mb-1 small fw-semibold">Total Deductions</h6>
-                            <h4 class="fw-bold mb-0 text-danger">- ₹6,633</h4>
+                            <h4 id="kpiTotalDeductions" class="fw-bold mb-0 text-danger">- ₹0.00</h4>
                         </div>
                     </div>
                 </div>
@@ -627,7 +630,7 @@
                         <div class="card-icon bg-success bg-opacity-15 text-success me-3"><i class="bi bi-wallet-fill"></i></div>
                         <div>
                             <h6 class="text-muted mb-1 small fw-semibold">Net Salary</h6>
-                            <h4 class="fw-bold mb-0 text-success">₹43,367</h4>
+                            <h4 id="kpiNetSalary" class="fw-bold mb-0 text-success">₹0.00</h4>
                         </div>
                     </div>
                 </div>
@@ -638,7 +641,7 @@
                         <div class="card-icon bg-primary bg-opacity-15 text-primary me-3"><i class="bi bi-bank"></i></div>
                         <div>
                             <h6 class="text-muted mb-1 small fw-semibold">Salary Status</h6>
-                            <span class="badge bg-warning text-dark border border-warning fw-bold px-2 py-1 mt-1">Partially Retained</span>
+                            <span id="kpiSalaryStatus" class="badge bg-secondary text-white fw-bold px-2 py-1 mt-1">Pending</span>
                         </div>
                     </div>
                 </div>
@@ -669,17 +672,17 @@
                     <div class="col-lg-6 ps-lg-4 border-lg-start">
                         <div class="d-flex justify-content-between align-items-end mb-3">
                             <div>
-                                <h6 class="fw-bold text-dark mb-1">Current Cycle Performance (July)</h6>
-                                <p class="small text-muted mb-0">You achieved a <strong>55% Approved Task Completion</strong> rate.</p>
+                                <h6 class="fw-bold text-dark mb-1">Performance Details (<span id="cycleMonthName">Cycle</span>)</h6>
+                                <p class="small text-muted mb-0">Task Completion Rate: <strong id="taskCompletionPct">0%</strong></p>
                             </div>
-                            <h3 class="fw-bold text-dark mb-0">93.3% <span class="fs-6 text-muted fw-normal">Released</span></h3>
+                            <h3 class="fw-bold text-dark mb-0"><span id="releasedPctText">0%</span> <span class="fs-6 text-muted fw-normal">Released</span></h3>
                         </div>
                         
                         <!-- Professional Stacked Progress Bar -->
                         <div class="progress mb-3" style="height: 1.25rem; border-radius: 0.5rem; box-shadow: inset 0 1px 2px rgba(0,0,0,0.075);">
-                            <div class="progress-bar bg-success" role="progressbar" style="width: 50%" aria-valuenow="50" aria-valuemin="0" aria-valuemax="100" title="50% Default Release">50%</div>
-                            <div class="progress-bar bg-primary" role="progressbar" style="width: 43.3%" aria-valuenow="43.3" aria-valuemin="0" aria-valuemax="100" title="43.3% Performance Unlocked">43.3%</div>
-                            <div class="progress-bar bg-warning progress-bar-striped text-dark fw-bold" role="progressbar" style="width: 6.7%" aria-valuenow="6.7" aria-valuemin="0" aria-valuemax="100" title="6.7% Retained"></div>
+                            <div id="progressBarDefault" class="progress-bar bg-success" role="progressbar" style="width: 50%" aria-valuenow="50" aria-valuemin="0" aria-valuemax="100" title="50% Default Release">50%</div>
+                            <div id="progressBarUnlocked" class="progress-bar bg-primary" role="progressbar" style="width: 0%" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" title="Performance Unlocked">0%</div>
+                            <div id="progressBarRetained" class="progress-bar bg-warning progress-bar-striped text-dark fw-bold" role="progressbar" style="width: 0%" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" title="Retained"></div>
                         </div>
 
                         <!-- Clean Legend -->
@@ -690,7 +693,7 @@
                                         <span class="bg-success rounded-circle me-1" style="width:10px; height:10px;"></span>
                                         <span class="fw-semibold text-muted" style="font-size: 0.75rem;">Default (50%)</span>
                                     </div>
-                                    <span class="fw-bold text-dark">₹25,000</span>
+                                    <span id="defaultAmountText" class="fw-bold text-dark">₹0.00</span>
                                 </div>
                             </div>
                             <div class="col-4">
@@ -699,7 +702,7 @@
                                         <span class="bg-primary rounded-circle me-1" style="width:10px; height:10px;"></span>
                                         <span class="fw-semibold text-muted" style="font-size: 0.75rem;">Unlocked</span>
                                     </div>
-                                    <span class="fw-bold text-dark">₹21,667</span>
+                                    <span id="unlockedAmountText" class="fw-bold text-dark">₹0.00</span>
                                 </div>
                             </div>
                             <div class="col-4">
@@ -708,14 +711,14 @@
                                         <span class="bg-warning rounded-circle me-1" style="width:10px; height:10px;"></span>
                                         <span class="fw-semibold text-muted" style="font-size: 0.75rem;">Retained</span>
                                     </div>
-                                    <span class="fw-bold text-dark">₹3,333</span>
+                                    <span id="retainedAmountText" class="fw-bold text-dark">₹0.00</span>
                                 </div>
                             </div>
                         </div>
 
-                        <div class="text-center">
-                            <div class="alert alert-warning py-2 mb-0 d-inline-block small fw-medium border-warning-subtle text-start">
-                                <i class="bi bi-exclamation-triangle-fill text-warning me-1"></i> As per policy, <strong>2 days of salary (₹3,333)</strong> is temporarily retained and will be released next cycle upon completion.
+                        <div class="text-center" id="retentionAlertContainer" style="display:none;">
+                            <div id="retentionAlertBanner" class="alert alert-warning py-2 mb-0 d-inline-block small fw-medium border-warning-subtle text-start">
+                                <i class="bi bi-exclamation-triangle-fill text-warning me-1"></i> <span id="retentionAlertText"></span>
                             </div>
                         </div>
                     </div>
@@ -730,7 +733,7 @@
             <div class="col-xl-7">
                 <div class="card dashboard-card h-100 bg-white">
                     <div class="card-header bg-transparent border-0 pt-4 pb-2">
-                        <h5 class="fw-bold text-dark mb-0">July Salary Breakdown</h5>
+                        <h5 class="fw-bold text-dark mb-0"><span id="breakdownMonthLabel">Cycle</span> Salary Breakdown</h5>
                     </div>
                     <div class="card-body">
                         <div class="row">
@@ -738,18 +741,13 @@
                             <div class="col-md-6 pe-md-4 border-md-end mb-4 mb-md-0">
                                 <h6 class="fw-bold text-success mb-3 border-bottom pb-2">Earnings</h6>
                                 <table class="table table-borderless breakdown-table mb-0 w-100">
-                                    <tbody>
-                                        <tr><td>Basic Pay</td><td class="text-end fw-medium text-dark">₹25,000</td></tr>
-                                        <tr><td>HRA (House Rent)</td><td class="text-end fw-medium text-dark">₹10,000</td></tr>
-                                        <tr><td>Medical Allowance</td><td class="text-end fw-medium text-dark">₹5,000</td></tr>
-                                        <tr><td>Travel Allowance</td><td class="text-end fw-medium text-dark">₹5,000</td></tr>
-                                        <tr><td>Performance Bonus</td><td class="text-end fw-medium text-dark">₹5,000</td></tr>
-                                        <tr><td>Incentives</td><td class="text-end fw-medium text-dark">₹0</td></tr>
+                                    <tbody id="earningsTableBody">
+                                        <tr><td colspan="2" class="text-muted small">No earnings data</td></tr>
                                     </tbody>
                                     <tfoot>
                                         <tr class="table-total">
                                             <td class="py-3 text-dark rounded-start">Gross Earnings</td>
-                                            <td class="py-3 text-end text-success fs-5 rounded-end">₹50,000</td>
+                                            <td id="grossEarningsFooter" class="py-3 text-end text-success fs-5 rounded-end">₹0.00</td>
                                         </tr>
                                     </tfoot>
                                 </table>
@@ -759,19 +757,13 @@
                             <div class="col-md-6 ps-md-4">
                                 <h6 class="fw-bold text-danger mb-3 border-bottom pb-2">Deductions & Retentions</h6>
                                 <table class="table table-borderless breakdown-table mb-0 w-100">
-                                    <tbody>
-                                        <tr><td>Income Tax (TDS)</td><td class="text-end fw-medium text-dark">₹1,000</td></tr>
-                                        <tr><td>Provident Fund (PF)</td><td class="text-end fw-medium text-dark">₹2,100</td></tr>
-                                        <tr><td>Professional Tax</td><td class="text-end fw-medium text-dark">₹200</td></tr>
-                                        <tr>
-                                            <td>Retentions <span class="badge bg-warning text-dark ms-1 border-0">2 Days</span></td>
-                                            <td class="text-end fw-medium text-danger">₹3,333</td>
-                                        </tr>
+                                    <tbody id="deductionsTableBody">
+                                        <tr><td colspan="2" class="text-muted small">No deductions</td></tr>
                                     </tbody>
                                     <tfoot>
                                         <tr class="table-total">
                                             <td class="py-3 text-dark rounded-start">Total Deductions</td>
-                                            <td class="py-3 text-end text-danger fs-5 rounded-end">₹6,633</td>
+                                            <td id="totalDeductionsFooter" class="py-3 text-end text-danger fs-5 rounded-end">₹0.00</td>
                                         </tr>
                                     </tfoot>
                                 </table>
@@ -792,23 +784,23 @@
                         <ul class="list-group list-group-flush mb-0">
                             <li class="list-group-item d-flex justify-content-between px-0 py-3 border-bottom">
                                 <span class="text-muted small fw-medium">Bank Name</span>
-                                <span class="fw-bold text-dark"><i class="bi bi-bank2 text-primary me-2"></i>HDFC Bank Ltd.</span>
+                                <span id="paymentBankName" class="fw-bold text-dark"><i class="bi bi-bank2 text-primary me-2"></i>—</span>
                             </li>
                             <li class="list-group-item d-flex justify-content-between px-0 py-3 border-bottom">
                                 <span class="text-muted small fw-medium">Account Number</span>
-                                <span class="fw-bold text-dark">XXXX-XXXX-1234</span>
+                                <span id="paymentAccountNum" class="fw-bold text-dark">XXXX-XXXX-XXXX</span>
                             </li>
                             <li class="list-group-item d-flex justify-content-between px-0 py-3 border-bottom">
                                 <span class="text-muted small fw-medium">IFSC Code</span>
-                                <span class="fw-bold text-dark">HDFC0001234</span>
+                                <span id="paymentIfsc" class="fw-bold text-dark">—</span>
                             </li>
                             <li class="list-group-item d-flex justify-content-between px-0 py-3 border-bottom">
                                 <span class="text-muted small fw-medium">Payment Date</span>
-                                <span class="fw-bold text-warning-emphasis"><i class="bi bi-clock-history me-1"></i> 31 July 2026 (Scheduled)</span>
+                                <span id="paymentDateVal" class="fw-bold text-dark">—</span>
                             </li>
                             <li class="list-group-item d-flex justify-content-between px-0 py-3 border-0">
-                                <span class="text-muted small fw-medium">Transaction ID</span>
-                                <span class="fw-mono text-dark small bg-light px-2 py-1 rounded border">Pending Processing</span>
+                                <span class="text-muted small fw-medium">Transaction ID / Ref</span>
+                                <span id="paymentRefVal" class="fw-mono text-dark small bg-light px-2 py-1 rounded border">Not Available</span>
                             </li>
                         </ul>
                     </div>
@@ -817,11 +809,11 @@
                 <!-- Salary Slip Actions -->
                 <div class="card dashboard-card bg-white">
                     <div class="card-body p-4 text-center">
-                        <h6 class="fw-bold text-dark mb-3">Current Salary Slip Options</h6>
+                        <h6 class="fw-bold text-dark mb-3">Salary Slip Options</h6>
                         <div class="d-flex justify-content-center gap-2 flex-wrap">
-                            <button class="btn btn-outline-danger px-3 fw-medium" onclick="alert('Viewing Estimated Payslip...')"><i class="bi bi-eye me-1"></i> View</button>
-                            <button class="btn btn-outline-danger px-3 fw-medium" onclick="alert('Opening Print Dialog...')"><i class="bi bi-printer me-1"></i> Print</button>
-                            <button class="btn btn-danger px-3 fw-medium" onclick="alert('Downloading PDF...')"><i class="bi bi-download me-1"></i> PDF</button>
+                            <button id="viewPayslipBtn" class="btn btn-outline-danger px-3 fw-medium"><i class="bi bi-eye me-1"></i> View</button>
+                            <button id="printPayslipBtn" class="btn btn-outline-danger px-3 fw-medium"><i class="bi bi-printer me-1"></i> Print</button>
+                            <button id="downloadPayslipBtn" class="btn btn-danger px-3 fw-medium"><i class="bi bi-download me-1"></i> PDF</button>
                         </div>
                     </div>
                 </div>
@@ -832,9 +824,10 @@
         <div class="card dashboard-card bg-white">
             <div class="card-header bg-transparent border-0 pt-4 pb-2 d-flex justify-content-between align-items-center">
                 <h5 class="fw-bold text-dark mb-0">Salary History</h5>
-                <select class="form-select form-select-sm w-auto shadow-none">
-                    <option>2026</option>
-                    <option>2025</option>
+                <select id="historyYearSelect" class="form-select form-select-sm w-auto shadow-none">
+                    <option value="ALL">All Cycles</option>
+                    <option value="2026" selected>2026</option>
+                    <option value="2025">2025</option>
                 </select>
             </div>
             <div class="card-body p-0">
@@ -850,35 +843,9 @@
                                 <th class="pe-4">Action</th>
                             </tr>
                         </thead>
-                        <tbody>
-                            <!-- Current Active Cycle -->
-                            <tr class="current-cycle-row">
-                                <td class="text-start ps-4 fw-bold py-3 text-dark">July 2026</td>
-                                <td class="fw-medium py-3 text-dark">₹50,000</td>
-                                <td class="text-danger fw-medium py-3">-₹6,633</td>
-                                <td class="fw-bold text-warning-emphasis py-3">₹43,367</td>
-                                <td class="py-3">
-                                    <span class="badge bg-warning text-dark border border-warning">Processing</span><br>
-                                    <small class="text-muted" style="font-size:0.65rem;">(2-Day Retention Applied)</small>
-                                </td>
-                                <td class="pe-4 py-3"><button class="btn btn-sm btn-light border text-danger" onclick="alert('Downloading July Est. PDF')"><i class="bi bi-download me-1"></i> Download</button></td>
-                            </tr>
-                            <!-- Historical Data -->
+                        <tbody id="salaryHistoryBody">
                             <tr>
-                                <td class="text-start ps-4 fw-bold py-3 text-dark">June 2026</td>
-                                <td class="fw-medium py-3 text-dark">₹50,000</td>
-                                <td class="text-danger fw-medium py-3">-₹3,300</td>
-                                <td class="fw-bold text-success py-3">₹46,700</td>
-                                <td class="py-3"><span class="badge bg-success text-white border border-success">Paid</span></td>
-                                <td class="pe-4 py-3"><button class="btn btn-sm btn-light border text-danger" onclick="alert('Downloading June PDF')"><i class="bi bi-download me-1"></i> Download</button></td>
-                            </tr>
-                            <tr>
-                                <td class="text-start ps-4 fw-bold py-3 text-dark">May 2026</td>
-                                <td class="fw-medium py-3 text-dark">₹50,000</td>
-                                <td class="text-danger fw-medium py-3">-₹3,300</td>
-                                <td class="fw-bold text-success py-3">₹46,700</td>
-                                <td class="py-3"><span class="badge bg-success text-white border border-success">Paid</span></td>
-                                <td class="pe-4 py-3"><button class="btn btn-sm btn-light border text-danger" onclick="alert('Downloading May PDF')"><i class="bi bi-download me-1"></i> Download</button></td>
+                                <td colspan="6" class="py-4 text-muted small">Loading salary history...</td>
                             </tr>
                         </tbody>
                     </table>
@@ -904,16 +871,306 @@
     </div>
 
     <!-- Bootstrap JS Bundle -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL" crossorigin="anonymous"></script>
     
     <!-- JavaScript Logic -->
     <script>
-        // --- 0. Theme Initializer ---
+        let mySalaryRecords = [];
+        let activeRecord = null;
+
+        function formatInr(val) {
+            const num = Number(val || 0);
+            return '₹' + num.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+        }
+
+        function formatMonth(monthStr) {
+            if (!monthStr) return '';
+            try {
+                const parts = monthStr.split('-');
+                if (parts.length >= 2) {
+                    const date = new Date(parseInt(parts[0], 10), parseInt(parts[1], 10) - 1, 1);
+                    return date.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
+                }
+            } catch (e) {}
+            return monthStr;
+        }
+
+        function getStatusBadge(status) {
+            switch (status) {
+                case 'RELEASED':
+                    return '<span class="badge bg-success text-white border border-success">Released</span>';
+                case 'APPROVED':
+                    return '<span class="badge bg-primary text-white border border-primary">Approved</span>';
+                case 'REJECTED':
+                    return '<span class="badge bg-danger text-white border border-danger">Rejected</span>';
+                case 'GENERATED':
+                default:
+                    return '<span class="badge bg-warning text-dark border border-warning">Processing</span>';
+            }
+        }
+
+        async function downloadPayslipPdf(monthStr) {
+            if (!monthStr) return;
+            const rec = mySalaryRecords.find(r => r.month === monthStr) || activeRecord;
+            if (rec && (rec.status === 'GENERATED' || rec.status === 'REJECTED')) {
+                alert('Payslip PDF is only generated after payroll approval.');
+                return;
+            }
+            try {
+                await API.download(`/payroll/me/${monthStr}/payslip.pdf`, `payslip-${monthStr}.pdf`);
+            } catch (e) {
+                alert('Unable to download payslip: ' + (e.message || 'Error downloading file'));
+            }
+        }
+
+        async function loadMonthDetails(monthStr) {
+            if (!monthStr) return;
+            try {
+                const record = await API.get(`/payroll/me/${monthStr}`);
+                activeRecord = record;
+                renderRecordDetails(record);
+            } catch (e) {
+                console.error('Failed to load month details', e);
+            }
+        }
+
+        function renderRecordDetails(record) {
+            if (!record) return;
+            const monthName = formatMonth(record.month);
+
+            // Header labels
+            document.getElementById('headerMonthLabel').textContent = monthName;
+            document.getElementById('cycleMonthName').textContent = monthName;
+            document.getElementById('breakdownMonthLabel').textContent = monthName;
+
+            // KPI Cards
+            document.getElementById('kpiGrossSalary').textContent = formatInr(record.gross);
+            const totalDeductions = (record.lines || [])
+                .filter(l => l.kind === 'DEDUCTION' || l.kind === 'ADJUSTMENT')
+                .reduce((sum, l) => sum + Number(l.amount || 0), 0);
+            document.getElementById('kpiTotalDeductions').textContent = '- ' + formatInr(totalDeductions);
+            document.getElementById('kpiNetSalary').textContent = formatInr(record.netPayable);
+
+            // Status Badge
+            const statusEl = document.getElementById('kpiSalaryStatus');
+            statusEl.innerHTML = getStatusBadge(record.status);
+
+            // Performance Panel
+            const compPct = Number(record.completionPct || 0);
+            const releasedPct = Number(record.releasedPct || 0);
+            document.getElementById('taskCompletionPct').textContent = compPct.toFixed(1) + '%';
+            document.getElementById('releasedPctText').textContent = releasedPct.toFixed(1) + '%';
+
+            // Progress Bar Segments
+            const defaultPct = 50.0;
+            const unlockedPct = Math.max(0, releasedPct - defaultPct);
+            const retainedPct = Math.max(0, 100.0 - releasedPct);
+
+            const pDefault = document.getElementById('progressBarDefault');
+            const pUnlocked = document.getElementById('progressBarUnlocked');
+            const pRetained = document.getElementById('progressBarRetained');
+
+            pDefault.style.width = defaultPct + '%';
+            pDefault.textContent = defaultPct + '%';
+
+            pUnlocked.style.width = unlockedPct + '%';
+            pUnlocked.textContent = unlockedPct > 0 ? unlockedPct.toFixed(1) + '%' : '';
+
+            pRetained.style.width = retainedPct + '%';
+            pRetained.textContent = retainedPct > 0 ? retainedPct.toFixed(1) + '%' : '';
+
+            // Legend Amounts
+            document.getElementById('defaultAmountText').textContent = formatInr(record.tranche1Amount);
+            document.getElementById('unlockedAmountText').textContent = formatInr(record.taskUnlockedAmount);
+            document.getElementById('retainedAmountText').textContent = formatInr(record.retentionAmount);
+
+            // Retention Alert Box
+            const retAlertCont = document.getElementById('retentionAlertContainer');
+            const retDays = record.retentionDays || 0;
+            const retAmt = Number(record.retentionAmount || 0);
+            if (retDays > 0 && retAmt > 0) {
+                retAlertCont.style.display = 'block';
+                document.getElementById('retentionAlertText').textContent =
+                    `As per policy, ${retDays} days of salary (${formatInr(retAmt)}) is temporarily retained based on task completion.`;
+            } else {
+                retAlertCont.style.display = 'none';
+            }
+
+            // Earnings Table
+            const earningsTbody = document.getElementById('earningsTableBody');
+            earningsTbody.innerHTML = '';
+            const earningsLines = (record.lines || []).filter(l => l.kind === 'EARNING');
+            if (earningsLines.length === 0) {
+                earningsTbody.innerHTML = '<tr><td colspan="2" class="text-muted small">No earnings data</td></tr>';
+            } else {
+                earningsLines.forEach(line => {
+                    const tr = document.createElement('tr');
+                    const tdTitle = document.createElement('td');
+                    tdTitle.textContent = line.title;
+                    const tdAmt = document.createElement('td');
+                    tdAmt.className = 'text-end fw-medium text-dark';
+                    tdAmt.textContent = formatInr(line.amount);
+                    tr.appendChild(tdTitle);
+                    tr.appendChild(tdAmt);
+                    earningsTbody.appendChild(tr);
+                });
+            }
+            document.getElementById('grossEarningsFooter').textContent = formatInr(record.gross);
+
+            // Deductions Table
+            const deductionsTbody = document.getElementById('deductionsTableBody');
+            deductionsTbody.innerHTML = '';
+            const deductionLines = (record.lines || []).filter(l => l.kind === 'DEDUCTION' || l.kind === 'ADJUSTMENT');
+            if (deductionLines.length === 0) {
+                deductionsTbody.innerHTML = '<tr><td colspan="2" class="text-muted small">No deductions</td></tr>';
+            } else {
+                deductionLines.forEach(line => {
+                    const tr = document.createElement('tr');
+                    const tdTitle = document.createElement('td');
+                    tdTitle.textContent = line.title;
+                    const tdAmt = document.createElement('td');
+                    tdAmt.className = 'text-end fw-medium text-danger';
+                    tdAmt.textContent = '- ' + formatInr(line.amount);
+                    tr.appendChild(tdTitle);
+                    tr.appendChild(tdAmt);
+                    deductionsTbody.appendChild(tr);
+                });
+            }
+            document.getElementById('totalDeductionsFooter').textContent = '- ' + formatInr(totalDeductions);
+
+            // Payment Information
+            if (record.bankDetails) {
+                document.getElementById('paymentBankName').innerHTML = `<i class="bi bi-bank2 text-primary me-2"></i>` + (record.bankDetails.bankName || '—');
+                document.getElementById('paymentAccountNum').textContent = record.bankDetails.accountNumberMasked || 'XXXX-XXXX-XXXX';
+                document.getElementById('paymentIfsc').textContent = record.bankDetails.ifsc || '—';
+            }
+            if (record.paymentDate) {
+                document.getElementById('paymentDateVal').textContent = record.paymentDate + (record.paymentMethod ? ` (${record.paymentMethod})` : '');
+            } else {
+                document.getElementById('paymentDateVal').textContent = 'Pending Disbursement';
+            }
+            if (record.paymentRef) {
+                document.getElementById('paymentRefVal').textContent = record.paymentRef;
+            } else {
+                document.getElementById('paymentRefVal').textContent = 'Pending Processing';
+            }
+        }
+
+        function renderHistoryTable(records) {
+            const tbody = document.getElementById('salaryHistoryBody');
+            tbody.innerHTML = '';
+            if (!records || records.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="6" class="py-4 text-muted small">No payroll records found.</td></tr>';
+                return;
+            }
+
+            records.forEach(r => {
+                const tr = document.createElement('tr');
+                if (activeRecord && activeRecord.month === r.month) {
+                    tr.className = 'current-cycle-row';
+                }
+
+                // Month
+                const tdMonth = document.createElement('td');
+                tdMonth.className = 'text-start ps-4 fw-bold py-3 text-dark';
+                tdMonth.textContent = formatMonth(r.month);
+
+                // Gross
+                const tdGross = document.createElement('td');
+                tdGross.className = 'fw-medium py-3 text-dark';
+                tdGross.textContent = formatInr(r.gross);
+
+                // Deductions
+                const dedTotal = Number(r.gross || 0) - Number(r.netPayable || 0);
+                const tdDeduct = document.createElement('td');
+                tdDeduct.className = 'text-danger fw-medium py-3';
+                tdDeduct.textContent = dedTotal > 0 ? '- ' + formatInr(dedTotal) : '₹0.00';
+
+                // Net Disbursed / Payable
+                const tdNet = document.createElement('td');
+                tdNet.className = 'fw-bold text-success py-3';
+                tdNet.textContent = formatInr(r.paidAmount > 0 ? r.paidAmount : r.netPayable);
+
+                // Status
+                const tdStatus = document.createElement('td');
+                tdStatus.className = 'py-3';
+                tdStatus.innerHTML = getStatusBadge(r.status);
+
+                // Action
+                const tdAction = document.createElement('td');
+                tdAction.className = 'pe-4 py-3';
+                const btn = document.createElement('button');
+                btn.className = 'btn btn-sm btn-light border text-danger';
+                btn.innerHTML = '<i class="bi bi-download me-1"></i> Download';
+                btn.onclick = () => downloadPayslipPdf(r.month);
+                tdAction.appendChild(btn);
+
+                tr.appendChild(tdMonth);
+                tr.appendChild(tdGross);
+                tr.appendChild(tdDeduct);
+                tr.appendChild(tdNet);
+                tr.appendChild(tdStatus);
+                tr.appendChild(tdAction);
+
+                tbody.appendChild(tr);
+            });
+        }
+
+        async function initPage() {
+            try {
+                const list = await API.get('/payroll/me');
+                mySalaryRecords = Array.isArray(list) ? list : [];
+
+                const selector = document.getElementById('monthSelector');
+                selector.innerHTML = '';
+
+                if (mySalaryRecords.length === 0) {
+                    document.getElementById('headerMonthLabel').textContent = 'No Records';
+                    document.getElementById('salaryHistoryBody').innerHTML = '<tr><td colspan="6" class="py-4 text-muted small">No payroll records generated yet.</td></tr>';
+                    return;
+                }
+
+                mySalaryRecords.forEach((r, idx) => {
+                    const opt = document.createElement('option');
+                    opt.value = r.month;
+                    opt.textContent = formatMonth(r.month);
+                    if (idx === 0) opt.selected = true;
+                    selector.appendChild(opt);
+                });
+
+                selector.addEventListener('change', (e) => {
+                    loadMonthDetails(e.target.value);
+                });
+
+                // Load first month
+                await loadMonthDetails(mySalaryRecords[0].month);
+                renderHistoryTable(mySalaryRecords);
+            } catch (e) {
+                console.error('Failed to initialize salary page', e);
+            }
+        }
+
+        // Payslip Buttons
+        document.getElementById('downloadPayslipTopBtn')?.addEventListener('click', () => {
+            if (activeRecord) downloadPayslipPdf(activeRecord.month);
+        });
+        document.getElementById('downloadPayslipBtn')?.addEventListener('click', () => {
+            if (activeRecord) downloadPayslipPdf(activeRecord.month);
+        });
+        document.getElementById('viewPayslipBtn')?.addEventListener('click', () => {
+            if (activeRecord) downloadPayslipPdf(activeRecord.month);
+        });
+        document.getElementById('printPayslipBtn')?.addEventListener('click', () => {
+            if (activeRecord) downloadPayslipPdf(activeRecord.month);
+        });
+
+        // Theme Initializer
         document.addEventListener('DOMContentLoaded', () => {
             const savedTheme = localStorage.getItem('payrollTheme');
             if (savedTheme && savedTheme !== 'default') {
                 document.body.classList.add(savedTheme);
             }
+            initPage();
         });
 
         // Sidebar Toggle Logic

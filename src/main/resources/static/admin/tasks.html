@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 
 <head>
@@ -8,8 +8,8 @@
 
     <!-- Fonts & Icons -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;900&display=swap" rel="stylesheet">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet" integrity="sha384-4LISF5TTJX/fLmGSxO53rV4miRxdg84mZsxmO8Rx5jGtp/LbrixFETvWa5a6sESd" crossorigin="anonymous">
 
     <style>
         body, html {
@@ -326,11 +326,12 @@
                 <div class="d-flex justify-content-between align-items-end mb-4">
                     <div>
                         <h2 class="fw-bold text-dark mb-1">Task Management</h2>
-                        <p class="text-muted small mb-0">Assign, monitor and manage employee tasks across all departments.<br>Total Tasks : <strong>245</strong></p>
+                        <p class="text-muted small mb-0">Assign, monitor and manage employee tasks across all departments.<br>Total Tasks : <strong id="stat-total-header">0</strong></p>
                     </div>
                     <div class="d-flex gap-2">
-                        <button class="btn btn-outline-secondary" onclick="showToast('Importing tasks...')"><i class="bi bi-cloud-download me-2"></i>Import</button>
-                        <button class="btn btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#exportModal"><i class="bi bi-cloud-upload me-2"></i>Export</button>
+                        <input type="file" id="taskImportInput" accept=".csv" class="d-none">
+                        <button class="btn btn-outline-secondary" id="btnImportTasks"><i class="bi bi-cloud-download me-2"></i>Import</button>
+                        <button class="btn btn-outline-secondary" id="btnExportTasks"><i class="bi bi-cloud-upload me-2"></i>Export</button>
                         <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#assignTaskModal"><i class="bi bi-plus-lg me-2"></i>Assign Task</button>
                     </div>
                 </div>
@@ -340,25 +341,25 @@
                     <div class="col-md-3">
                         <div class="card-custom text-center border-bottom border-primary border-3">
                             <span class="text-muted small d-block mb-1">📋 Total Tasks</span>
-                            <h3 class="fw-bold text-dark mb-0">245</h3>
+                            <h3 class="fw-bold text-dark mb-0" id="stat-total-desk">0</h3>
                         </div>
                     </div>
                     <div class="col-md-3">
                         <div class="card-custom text-center border-bottom border-success border-3">
                             <span class="text-muted small d-block mb-1">✅ Completed</span>
-                            <h3 class="fw-bold text-success mb-0">170</h3>
+                            <h3 class="fw-bold text-success mb-0" id="stat-completed-desk">0</h3>
                         </div>
                     </div>
                     <div class="col-md-3">
                         <div class="card-custom text-center border-bottom border-warning border-3">
                             <span class="text-muted small d-block mb-1">🟡 Pending</span>
-                            <h3 class="fw-bold text-warning mb-0">40</h3>
+                            <h3 class="fw-bold text-warning mb-0" id="stat-pending-desk">0</h3>
                         </div>
                     </div>
                     <div class="col-md-3">
                         <div class="card-custom text-center border-bottom border-danger border-3">
                             <span class="text-muted small d-block mb-1">🔴 Overdue</span>
-                            <h3 class="fw-bold text-danger mb-0">35</h3>
+                            <h3 class="fw-bold text-danger mb-0" id="stat-overdue-desk">0</h3>
                         </div>
                     </div>
                 </div>
@@ -368,47 +369,31 @@
                     
                     <!-- Search & Filters -->
                     <div class="row g-2 mb-4 align-items-center">
-                        <div class="col-md-2">
-                            <select class="form-select text-muted">
-                                <option selected>Employee</option>
-                                <option>Amit</option>
-                                <option>Rahul</option>
-                            </select>
+                        <div class="col-md-3">
+                            <input type="text" id="filterSearch" class="form-control" placeholder="Search title/code...">
                         </div>
                         <div class="col-md-2">
-                            <select class="form-select text-muted">
-                                <option selected>Manager</option>
-                                <option>Rahul</option>
-                                <option>Priya</option>
+                            <select class="form-select text-muted" id="filterPriority">
+                                <option value="">All Priorities</option>
+                                <option value="HIGH">High</option>
+                                <option value="MEDIUM">Medium</option>
+                                <option value="LOW">Low</option>
                             </select>
                         </div>
-                        <div class="col-md-2">
-                            <select class="form-select text-muted">
-                                <option selected>Department</option>
-                                <option>IT</option>
-                                <option>HR</option>
+                        <div class="col-md-3">
+                            <select class="form-select text-muted" id="filterStatus">
+                                <option value="">All Statuses</option>
+                                <option value="ASSIGNED">Assigned</option>
+                                <option value="IN_PROGRESS">In Progress</option>
+                                <option value="PENDING_APPROVAL">Pending Approval</option>
+                                <option value="APPROVED">Completed (Approved)</option>
+                                <option value="REJECTED">Rejected</option>
+                                <option value="CANCELLED">Cancelled</option>
                             </select>
                         </div>
-                        <div class="col-md-2">
-                            <select class="form-select text-muted">
-                                <option selected>Priority</option>
-                                <option>High</option>
-                                <option>Medium</option>
-                                <option>Low</option>
-                            </select>
-                        </div>
-                        <div class="col-md-2">
-                            <select class="form-select text-muted">
-                                <option selected>Status</option>
-                                <option>Assigned</option>
-                                <option>In Progress</option>
-                                <option>Pending Approval</option>
-                                <option>Completed</option>
-                            </select>
-                        </div>
-                        <div class="col-md-2 d-flex gap-2 text-end">
-                            <button class="btn btn-primary w-100" title="Apply Filters">Search</button>
-                            <button class="btn btn-light text-muted w-100" title="Reset Filters"><i class="bi bi-arrow-counterclockwise"></i></button>
+                        <div class="col-md-4 d-flex gap-2 text-end">
+                            <button class="btn btn-primary w-100" id="btnApplyFilters" title="Apply Filters">Filter</button>
+                            <button class="btn btn-light text-muted w-100" id="btnResetFilters" title="Reset Filters"><i class="bi bi-arrow-counterclockwise me-1"></i>Reset</button>
                         </div>
                     </div>
 
@@ -435,63 +420,7 @@
                                 </tr>
                             </thead>
                             <tbody id="desktopTableBody">
-                                <!-- Row 1 -->
-                                <tr>
-                                    <td class="fw-medium">TSK001</td>
-                                    <td><div class="fw-bold">Website UI</div></td>
-                                    <td>Amit</td>
-                                    <td>Rahul</td>
-                                    <td><span class="badge bg-danger bg-opacity-10 text-danger border border-danger">High</span></td>
-                                    <td style="min-width: 120px;">
-                                        <div class="d-flex justify-content-between small text-muted mb-1"><span>Progress</span><span>70%</span></div>
-                                        <div class="progress progress-slim"><div class="progress-bar bg-primary" style="width: 70%"></div></div>
-                                    </td>
-                                    <td>15 Aug</td>
-                                    <td><span class="badge bg-warning bg-opacity-10 text-warning border border-warning">In Progress</span></td>
-                                    <td class="text-end">
-                                        <button class="btn btn-sm btn-light text-primary" title="View" data-bs-toggle="modal" data-bs-target="#viewTaskModal"><i class="bi bi-eye"></i></button>
-                                        <button class="btn btn-sm btn-light text-secondary" title="Edit" data-bs-toggle="modal" data-bs-target="#editTaskModal"><i class="bi bi-pencil"></i></button>
-                                        <button class="btn btn-sm btn-light text-danger" title="Delete" data-bs-toggle="modal" data-bs-target="#deleteTaskModal"><i class="bi bi-trash"></i></button>
-                                    </td>
-                                </tr>
-                                <!-- Row 2 -->
-                                <tr>
-                                    <td class="fw-medium">TSK002</td>
-                                    <td><div class="fw-bold">Payroll Logic Fix</div></td>
-                                    <td>Ravi</td>
-                                    <td>Priya</td>
-                                    <td><span class="badge bg-success bg-opacity-10 text-success border border-success">Low</span></td>
-                                    <td style="min-width: 120px;">
-                                        <div class="d-flex justify-content-between small text-muted mb-1"><span>Progress</span><span>100%</span></div>
-                                        <div class="progress progress-slim"><div class="progress-bar bg-info" style="width: 100%"></div></div>
-                                    </td>
-                                    <td>12 Aug</td>
-                                    <td><span class="badge bg-info bg-opacity-10 text-info border border-info">Pending Approval</span></td>
-                                    <td class="text-end">
-                                        <button class="btn btn-sm btn-light text-primary" data-bs-toggle="modal" data-bs-target="#viewTaskModal"><i class="bi bi-eye"></i></button>
-                                        <button class="btn btn-sm btn-light text-secondary" data-bs-toggle="modal" data-bs-target="#editTaskModal"><i class="bi bi-pencil"></i></button>
-                                        <button class="btn btn-sm btn-light text-danger" data-bs-toggle="modal" data-bs-target="#deleteTaskModal"><i class="bi bi-trash"></i></button>
-                                    </td>
-                                </tr>
-                                <!-- Row 3 -->
-                                <tr>
-                                    <td class="fw-medium">TSK003</td>
-                                    <td><div class="fw-bold">Database Migration</div></td>
-                                    <td>Amit</td>
-                                    <td>Rahul</td>
-                                    <td><span class="badge bg-warning bg-opacity-10 text-warning border border-warning">Medium</span></td>
-                                    <td style="min-width: 120px;">
-                                        <div class="d-flex justify-content-between small text-muted mb-1"><span>Progress</span><span>0%</span></div>
-                                        <div class="progress progress-slim"><div class="progress-bar bg-secondary" style="width: 0%"></div></div>
-                                    </td>
-                                    <td>20 Aug</td>
-                                    <td><span class="badge bg-secondary bg-opacity-10 text-secondary border border-secondary">Assigned</span></td>
-                                    <td class="text-end">
-                                        <button class="btn btn-sm btn-light text-primary" data-bs-toggle="modal" data-bs-target="#viewTaskModal"><i class="bi bi-eye"></i></button>
-                                        <button class="btn btn-sm btn-light text-secondary" data-bs-toggle="modal" data-bs-target="#editTaskModal"><i class="bi bi-pencil"></i></button>
-                                        <button class="btn btn-sm btn-light text-danger" data-bs-toggle="modal" data-bs-target="#deleteTaskModal"><i class="bi bi-trash"></i></button>
-                                    </td>
-                                </tr>
+                                <!-- Populated dynamically -->
                             </tbody>
                         </table>
                     </div>
@@ -500,19 +429,15 @@
                     <div id="desktopEmptyState" class="d-none py-5 text-center">
                         <i class="bi bi-kanban text-muted" style="font-size: 3rem;"></i>
                         <h5 class="mt-3 text-dark fw-bold">No Tasks Available</h5>
-                        <p class="text-muted">Assign your first task to an employee.</p>
+                        <p class="text-muted">No tasks found matching criteria.</p>
                         <button class="btn btn-primary mt-2" data-bs-toggle="modal" data-bs-target="#assignTaskModal">Assign Task</button>
                     </div>
 
                     <!-- STEP 12: Pagination -->
                     <div class="d-flex justify-content-between align-items-center mt-4 pt-3 border-top" id="desktopPagination">
-                        <span class="text-muted small">Showing 1-10 of 245 Tasks</span>
-                        <ul class="pagination pagination-sm mb-0">
-                            <li class="page-item disabled"><a class="page-link" href="#">Previous</a></li>
-                            <li class="page-item active"><a class="page-link" href="#">1</a></li>
-                            <li class="page-item"><a class="page-link" href="#">2</a></li>
-                            <li class="page-item"><a class="page-link" href="#">3</a></li>
-                            <li class="page-item"><a class="page-link" href="#">Next</a></li>
+                        <span class="text-muted small" id="desktopPaginationInfo">Showing 0 Tasks</span>
+                        <ul class="pagination pagination-sm mb-0" id="desktopPaginationList">
+                            <!-- Populated dynamically -->
                         </ul>
                     </div>
                 </div>
@@ -780,7 +705,7 @@
         <!-- Offcanvas Mobile Menu -->
         <div class="offcanvas offcanvas-start" tabindex="-1" id="mobileMenu" style="width: 280px; background: #111;">
             <div class="offcanvas-header border-bottom border-secondary">
-                <h5 class="offcanvas-title text-white fw-bold"><i class="bi bi-layers-fill me-2"></i>Octopyder</h5>
+                <h5 class="offcanvas-title text-white fw-bold"><i class="bi bi-layers-fill me-2"></i>Puk's</h5>
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="offcanvas"></button>
             </div>
             <div class="offcanvas-body d-flex flex-column justify-content-between">
@@ -812,25 +737,24 @@
                     <form id="assignTaskForm">
                         <h6 class="fw-bold text-primary mb-3 border-bottom pb-2">Task Information</h6>
                         <div class="row g-3 mb-4">
-                            <div class="col-md-12"><label class="form-label small">Task Title</label><input type="text" class="form-control" required></div>
-                            <div class="col-md-12"><label class="form-label small">Description</label><textarea class="form-control" rows="3" required placeholder="Textual description only (No subtasks)"></textarea></div>
+                            <div class="col-md-12"><label class="form-label small">Task Title</label><input type="text" id="assignTitle" class="form-control" required></div>
+                            <div class="col-md-12"><label class="form-label small">Description</label><textarea id="assignDesc" class="form-control" rows="3" required placeholder="Textual description only (No subtasks)"></textarea></div>
                         </div>
 
                         <h6 class="fw-bold text-primary mb-3 border-bottom pb-2">Assignment</h6>
                         <div class="row g-3 mb-4">
-                            <div class="col-md-4"><label class="form-label small">Department</label><select class="form-select"><option>IT</option><option>HR</option></select></div>
-                            <div class="col-md-4"><label class="form-label small">Employee</label><select class="form-select"><option>Amit Kumar</option><option>Ravi</option></select></div>
-                            <div class="col-md-4"><label class="form-label small">Manager</label><select class="form-select"><option>Rahul Sharma</option><option>Priya</option></select></div>
-                            <div class="col-md-4"><label class="form-label small">Priority</label><select class="form-select"><option>High</option><option>Medium</option><option>Low</option></select></div>
-                            <div class="col-md-4"><label class="form-label small">Deadline Date</label><input type="date" class="form-control"></div>
-                            <div class="col-md-4"><label class="form-label small">Deadline Time</label><input type="time" class="form-control"></div>
+                            <div class="col-md-4"><label class="form-label small">Employee</label><select id="assignEmployee" class="form-select" required><option value="">Select Employee</option></select></div>
+                            <div class="col-md-4"><label class="form-label small">Manager</label><select id="assignManager" class="form-select" required><option value="">Select Manager</option></select></div>
+                            <div class="col-md-4"><label class="form-label small">Priority</label><select id="assignPriority" class="form-select"><option value="HIGH">High</option><option value="MEDIUM" selected>Medium</option><option value="LOW">Low</option></select></div>
+                            <div class="col-md-6"><label class="form-label small">Deadline Date</label><input type="date" id="assignDeadlineDate" class="form-control" required></div>
+                            <div class="col-md-6"><label class="form-label small">Deadline Time</label><input type="time" id="assignDeadlineTime" class="form-control" value="18:00"></div>
                         </div>
                     </form>
                 </div>
                 <div class="modal-footer bg-light">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                    <button type="button" class="btn btn-outline-secondary">Reset</button>
-                    <button type="button" class="btn btn-primary px-4" onclick="handleAction('Task Assigned Successfully', '#assignTaskModal')">Assign</button>
+                    <button type="button" class="btn btn-outline-secondary" onclick="document.getElementById('assignTaskForm').reset()">Reset</button>
+                    <button type="button" class="btn btn-primary px-4" id="btnSubmitAssign">Assign</button>
                 </div>
             </div>
         </div>
@@ -842,8 +766,8 @@
             <div class="modal-content border-0 shadow">
                 <div class="modal-header bg-light align-items-center">
                     <div>
-                        <h5 class="modal-title fw-bold mb-0">Website UI</h5>
-                        <span class="text-muted small">TSK001 &bull; Due: 15 Aug</span>
+                        <h5 class="modal-title fw-bold mb-0" id="viewModalTitle">Task</h5>
+                        <span class="text-muted small" id="viewModalSub">-</span>
                     </div>
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
@@ -864,71 +788,49 @@
                         <!-- Overview -->
                         <div class="tab-pane fade show active" id="tab-overview">
                             <div class="row g-4 mb-4">
-                                <div class="col-6 col-md-4"><label class="small text-muted d-block">Task ID</label><span class="fw-medium">TSK001</span></div>
-                                <div class="col-6 col-md-4"><label class="small text-muted d-block">Employee</label><span class="fw-medium">Amit</span></div>
-                                <div class="col-6 col-md-4"><label class="small text-muted d-block">Manager</label><span class="fw-medium">Rahul</span></div>
-                                <div class="col-6 col-md-4"><label class="small text-muted d-block">Priority</label><span class="badge bg-danger bg-opacity-10 text-danger border border-danger">High</span></div>
-                                <div class="col-6 col-md-4"><label class="small text-muted d-block">Deadline</label><span class="fw-medium text-danger">15 Aug, 5:00 PM</span></div>
-                                <div class="col-6 col-md-4"><label class="small text-muted d-block">Status</label><span class="badge bg-warning bg-opacity-10 text-warning border border-warning">In Progress</span></div>
+                                <div class="col-6 col-md-4"><label class="small text-muted d-block">Task ID</label><span class="fw-medium" id="viewModalCode">-</span></div>
+                                <div class="col-6 col-md-4"><label class="small text-muted d-block">Employee</label><span class="fw-medium" id="viewModalEmployee">-</span></div>
+                                <div class="col-6 col-md-4"><label class="small text-muted d-block">Manager</label><span class="fw-medium" id="viewModalManager">-</span></div>
+                                <div class="col-6 col-md-4"><label class="small text-muted d-block">Priority</label><span id="viewModalPriority">-</span></div>
+                                <div class="col-6 col-md-4"><label class="small text-muted d-block">Deadline</label><span class="fw-medium" id="viewModalDeadline">-</span></div>
+                                <div class="col-6 col-md-4"><label class="small text-muted d-block">Status</label><span id="viewModalStatus">-</span></div>
                             </div>
                             <div class="bg-light p-3 rounded border">
                                 <label class="small text-muted d-block mb-1">Description</label>
-                                <p class="mb-0 text-dark small">Design and implement the new Dashboard UI components based on the approved Figma files. Ensure responsiveness and adhere to the theme guidelines.</p>
+                                <p class="mb-0 text-dark small" id="viewModalDesc">-</p>
                             </div>
                         </div>
 
                         <!-- STEP 10: Timeline / Status Flow -->
                         <div class="tab-pane fade" id="tab-timeline">
-                            <div class="task-timeline small">
-                                <div class="task-timeline-item completed">
-                                    <div class="fw-bold text-dark">Created & Assigned</div>
-                                    <div class="text-muted">By Admin &bull; 01 Aug, 10:00 AM</div>
-                                </div>
-                                <div class="task-timeline-item completed">
-                                    <div class="fw-bold text-dark">Started (In Progress)</div>
-                                    <div class="text-muted">By Amit &bull; 02 Aug, 09:30 AM</div>
-                                </div>
-                                <div class="task-timeline-item completed">
-                                    <div class="fw-bold text-dark">Progress Updated (70%)</div>
-                                    <div class="text-muted">By Amit &bull; 05 Aug, 04:15 PM</div>
-                                </div>
-                                <div class="task-timeline-item opacity-50">
-                                    <div class="fw-bold text-dark">Pending Approval</div>
-                                    <div class="text-muted">Awaiting Completion</div>
-                                </div>
-                                <div class="task-timeline-item opacity-50 border-0 mb-0">
-                                    <div class="fw-bold text-dark">Completed</div>
-                                    <div class="text-muted">Awaiting Manager Approval</div>
-                                </div>
+                            <div class="task-timeline small" id="viewModalTimeline">
+                                <span class="text-muted">Loading activities...</span>
                             </div>
                         </div>
 
                         <!-- STEP 9: Progress Update -->
                         <div class="tab-pane fade" id="tab-progress">
-                            <h6 class="fw-bold mb-3">Current Progress: <span class="text-primary">70%</span></h6>
+                            <h6 class="fw-bold mb-3">Current Progress: <span class="text-primary" id="viewModalProgressText">0%</span></h6>
                             <div class="progress mb-4" style="height: 15px; border-radius: 10px;">
-                                <div class="progress-bar bg-primary progress-bar-striped progress-bar-animated" style="width: 70%"></div>
+                                <div class="progress-bar bg-primary progress-bar-striped progress-bar-animated" id="viewModalProgressBar" style="width: 0%"></div>
                             </div>
-                            <!-- Admin view is read-only. Employees would see this slider. -->
+                            <!-- Admin view is read-only per BR-T4/D23 -->
                             <label class="form-label small text-muted">Update Progress (Employee Action Only)</label>
-                            <input type="range" class="form-range" min="0" max="100" step="10" value="70" disabled>
+                            <input type="range" class="form-range" id="viewModalProgressSlider" min="0" max="100" step="10" value="0" disabled>
                             <div class="d-flex justify-content-between small text-muted">
-                                <span>10%</span><span>50%</span><span>100%</span>
+                                <span>0%</span><span>50%</span><span>100%</span>
                             </div>
                         </div>
 
                         <!-- Comments -->
                         <div class="tab-pane fade" id="tab-comments">
-                            <div class="d-flex flex-column gap-3 mb-4" style="max-height: 250px; overflow-y: auto;">
-                                <div class="bg-light p-2 px-3 rounded border">
-                                    <div class="d-flex justify-content-between mb-1"><strong class="small text-dark">Amit (Employee)</strong><small class="text-muted">05 Aug</small></div>
-                                    <p class="mb-0 small">Completed Login Page and Sidebar UI.</p>
-                                </div>
-                                <div class="bg-primary bg-opacity-10 p-2 px-3 rounded border border-primary">
-                                    <div class="d-flex justify-content-between mb-1"><strong class="small text-dark">Rahul (Manager)</strong><small class="text-muted">05 Aug</small></div>
-                                    <p class="mb-0 small">Great. Continue Dashboard KPI cards next.</p>
-                                </div>
+                            <div class="d-flex flex-column gap-3 mb-4" id="viewModalCommentsList" style="max-height: 250px; overflow-y: auto;">
+                                <span class="text-muted small">Loading comments...</span>
                             </div>
+                            <form id="viewModalCommentForm" class="d-flex gap-2">
+                                <input type="text" id="viewModalCommentInput" class="form-control form-control-sm" placeholder="Write a comment..." required>
+                                <button type="submit" class="btn btn-sm btn-primary px-3">Send</button>
+                            </form>
                         </div>
 
                     </div>
@@ -946,19 +848,19 @@
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body p-4">
-                    <form>
+                    <form id="editTaskForm">
                         <div class="row g-3 mb-4">
-                            <div class="col-md-12"><label class="form-label small">Task Title</label><input type="text" class="form-control" value="Website UI"></div>
-                            <div class="col-md-12"><label class="form-label small">Description</label><textarea class="form-control" rows="3">Design and implement the new Dashboard UI components...</textarea></div>
-                            <div class="col-md-4"><label class="form-label small">Deadline</label><input type="date" class="form-control" value="2026-08-15"></div>
-                            <div class="col-md-4"><label class="form-label small">Priority</label><select class="form-select"><option selected>High</option><option>Medium</option></select></div>
-                            <div class="col-md-4"><label class="form-label small">Employee</label><select class="form-select"><option selected>Amit</option></select></div>
+                            <div class="col-md-12"><label class="form-label small">Task Title</label><input type="text" id="editTitle" class="form-control" required></div>
+                            <div class="col-md-12"><label class="form-label small">Description</label><textarea id="editDesc" class="form-control" rows="3"></textarea></div>
+                            <div class="col-md-4"><label class="form-label small">Deadline</label><input type="date" id="editDeadlineDate" class="form-control" required></div>
+                            <div class="col-md-4"><label class="form-label small">Priority</label><select id="editPriority" class="form-select"><option value="HIGH">High</option><option value="MEDIUM">Medium</option><option value="LOW">Low</option></select></div>
+                            <div class="col-md-4"><label class="form-label small">Employee</label><select id="editEmployee" class="form-select" required></select></div>
                         </div>
                     </form>
                 </div>
                 <div class="modal-footer bg-light">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                    <button type="button" class="btn btn-primary px-4" onclick="handleAction('Task Updated Successfully', '#editTaskModal')">Update</button>
+                    <button type="button" class="btn btn-primary px-4" id="btnSubmitEdit">Update</button>
                 </div>
             </div>
         </div>
@@ -970,12 +872,12 @@
             <div class="modal-content border-0 shadow text-center">
                 <div class="modal-body p-4">
                     <i class="bi bi-trash text-danger display-4 mb-3 d-block"></i>
-                    <h5 class="fw-bold mb-2">Delete Task?</h5>
-                    <p class="text-dark fw-bold mb-1">Website UI</p>
-                    <p class="text-muted small mb-4">This action cannot be undone.</p>
+                    <h5 class="fw-bold mb-2">Cancel Task?</h5>
+                    <p class="text-dark fw-bold mb-1" id="deleteTaskTitle">Task</p>
+                    <p class="text-muted small mb-4">This action will soft-cancel the task record.</p>
                     <div class="d-flex gap-2 w-100">
-                        <button type="button" class="btn btn-light flex-grow-1" data-bs-dismiss="modal">Cancel</button>
-                        <button type="button" class="btn btn-danger flex-grow-1" onclick="handleAction('Task Deleted Successfully', '#deleteTaskModal')">Delete</button>
+                        <button type="button" class="btn btn-light flex-grow-1" data-bs-dismiss="modal">Close</button>
+                        <button type="button" class="btn btn-danger flex-grow-1" id="confirmDeleteBtn">Cancel Task</button>
                     </div>
                 </div>
             </div>
@@ -992,9 +894,7 @@
                 </div>
                 <div class="modal-body p-4">
                     <div class="d-flex flex-column gap-2">
-                        <button class="btn btn-outline-danger" onclick="handleAction('Task Exported Successfully (PDF)', '#exportModal')"><i class="bi bi-file-earmark-pdf me-2"></i> Export as PDF</button>
-                        <button class="btn btn-outline-success" onclick="handleAction('Task Exported Successfully (Excel)', '#exportModal')"><i class="bi bi-file-earmark-excel me-2"></i> Export as Excel</button>
-                        <button class="btn btn-outline-secondary" onclick="handleAction('Task Exported Successfully (CSV)', '#exportModal')"><i class="bi bi-filetype-csv me-2"></i> Export as CSV</button>
+                        <button class="btn btn-outline-secondary" id="btnExportCsvModal"><i class="bi bi-filetype-csv me-2"></i> Export as CSV</button>
                     </div>
                 </div>
             </div>
@@ -1003,10 +903,43 @@
 
 
     <!-- Bootstrap JS Bundle -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL" crossorigin="anonymous"></script>
 
     <!-- UI Logic Script -->
     <script>
+        // State
+        let currentPage = 0;
+        const pageSize = 10;
+        let totalPages = 0;
+        let tasksList = [];
+        let currentTaskId = null;
+        let currentTaskVersion = 0;
+
+        function escapeHtml(str) {
+            if (!str) return '';
+            return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+        }
+
+        function formatDate(isoStr) {
+            if (!isoStr) return 'N/A';
+            try {
+                const d = new Date(isoStr);
+                return d.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' });
+            } catch (e) {
+                return isoStr;
+            }
+        }
+
+        function formatDateTime(isoStr) {
+            if (!isoStr) return 'N/A';
+            try {
+                const d = new Date(isoStr);
+                return d.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' });
+            } catch (e) {
+                return isoStr;
+            }
+        }
+
         // Theme Management
         const themeSelector = document.getElementById('themeSelector');
         const mobileThemeSelector = document.getElementById('mobileThemeSelector');
@@ -1018,6 +951,7 @@
                 if(mobileThemeSelector) mobileThemeSelector.value = savedTheme;
                 if (savedTheme !== 'default') document.body.classList.add(savedTheme);
             }
+            initApp();
         });
 
         function syncTheme(e) {
@@ -1040,65 +974,586 @@
             toast.show();
         }
 
-        // Action Handlers
-        function handleAction(successMessage, modalId) {
-            const modalEl = document.querySelector(modalId);
-            const modal = bootstrap.Modal.getInstance(modalEl);
-            if (modal) { modal.hide(); }
-            
-            setTimeout(() => { showToast(successMessage); }, 400);
-            simulateDataLoad();
+        // Initialize application
+        async function initApp() {
+            try {
+                await Promise.all([
+                    loadTaskSummary(),
+                    loadDropdownData(),
+                    loadTasks(0)
+                ]);
+            } catch (err) {
+                console.error("Init failed:", err);
+            }
         }
 
-        // Loading Simulation (STEP 15)
-        function simulateDataLoad() {
-            // Desktop
-            const dTable = document.getElementById('desktopTableContainer');
-            const dLoader = document.getElementById('desktopLoader');
-            const dPag = document.getElementById('desktopPagination');
-            
-            if (dTable && dLoader) {
-                dTable.classList.add('d-none');
-                dPag.classList.add('d-none');
-                dLoader.classList.remove('d-none');
-                setTimeout(() => {
-                    dLoader.classList.add('d-none');
-                    dTable.classList.remove('d-none');
-                    dPag.classList.remove('d-none');
-                }, 800);
-            }
+        // Summary KPI stats
+        async function loadTaskSummary() {
+            try {
+                const summary = await API.get('/tasks/summary');
+                if (summary) {
+                    const total = summary.total ?? 0;
+                    const comp = summary.completed ?? 0;
+                    const pend = summary.pending ?? 0;
+                    const over = summary.overdue ?? 0;
 
-            // Mobile
-            const mCards = document.getElementById('mobileCardsContainer');
+                    const headerEl = document.getElementById('stat-total-header');
+                    if (headerEl) headerEl.textContent = total;
+
+                    const td = document.getElementById('stat-total-desk');
+                    const cd = document.getElementById('stat-completed-desk');
+                    const pd = document.getElementById('stat-pending-desk');
+                    const od = document.getElementById('stat-overdue-desk');
+                    if (td) td.textContent = total;
+                    if (cd) cd.textContent = comp;
+                    if (pd) pd.textContent = pend;
+                    if (od) od.textContent = over;
+
+                    // Mobile KPI
+                    const mobGrid = document.querySelector('.mobile-kpi-grid');
+                    if (mobGrid) {
+                        const h5s = mobGrid.querySelectorAll('h5');
+                        if (h5s.length >= 4) {
+                            h5s[0].textContent = total;
+                            h5s[1].textContent = comp;
+                            h5s[2].textContent = pend;
+                            h5s[3].textContent = over;
+                        }
+                    }
+                }
+            } catch (err) {
+                console.error("Failed to load task summary:", err);
+            }
+        }
+
+        // Populate employees & managers dropdowns
+        async function loadDropdownData() {
+            try {
+                const [empRes, mgrRes] = await Promise.all([
+                    API.get('/employees?page=0&size=100').catch(() => ({ items: [] })),
+                    API.get('/managers?page=0&size=100').catch(() => ({ items: [] }))
+                ]);
+
+                const employees = (empRes && empRes.items) ? empRes.items : [];
+                const managers = (mgrRes && mgrRes.items) ? mgrRes.items : [];
+
+                const assignEmp = document.getElementById('assignEmployee');
+                const assignMgr = document.getElementById('assignManager');
+                const editEmp = document.getElementById('editEmployee');
+
+                if (assignEmp) {
+                    assignEmp.innerHTML = '<option value="">Select Employee</option>';
+                    employees.forEach(e => {
+                        assignEmp.innerHTML += `<option value="${e.id}">${escapeHtml(e.firstName + ' ' + e.lastName)} (${e.code})</option>`;
+                    });
+                }
+
+                if (editEmp) {
+                    editEmp.innerHTML = '<option value="">Select Employee</option>';
+                    employees.forEach(e => {
+                        editEmp.innerHTML += `<option value="${e.id}">${escapeHtml(e.firstName + ' ' + e.lastName)} (${e.code})</option>`;
+                    });
+                }
+
+                if (assignMgr) {
+                    assignMgr.innerHTML = '<option value="">Select Manager</option>';
+                    managers.forEach(m => {
+                        assignMgr.innerHTML += `<option value="${m.id}">${escapeHtml(m.firstName + ' ' + m.lastName)} (${m.code})</option>`;
+                    });
+                }
+            } catch (err) {
+                console.error("Failed to load dropdowns:", err);
+            }
+        }
+
+        // Load tasks with filters
+        async function loadTasks(page = 0) {
+            currentPage = page;
+            const loader = document.getElementById('desktopLoader');
+            const tableCont = document.getElementById('desktopTableContainer');
+            const emptyState = document.getElementById('desktopEmptyState');
             const mLoader = document.getElementById('mobileLoader');
-            const mBtn = document.getElementById('mobileLoadMore');
-            
-            if (mCards && mLoader) {
-                mCards.classList.add('d-none');
-                mBtn.classList.add('d-none');
-                mLoader.classList.remove('d-none');
-                setTimeout(() => {
-                    mLoader.classList.add('d-none');
-                    mCards.classList.remove('d-none');
-                    mBtn.classList.remove('d-none');
-                }, 800);
+            const mCards = document.getElementById('mobileCardsContainer');
+
+            if (loader) loader.classList.remove('d-none');
+            if (tableCont) tableCont.classList.add('d-none');
+            if (emptyState) emptyState.classList.add('d-none');
+            if (mLoader) mLoader.classList.remove('d-none');
+            if (mCards) mCards.classList.add('d-none');
+
+            const searchVal = document.getElementById('filterSearch')?.value.trim() || '';
+            const priorityVal = document.getElementById('filterPriority')?.value || '';
+            const statusVal = document.getElementById('filterStatus')?.value || '';
+
+            let query = `?page=${page}&size=${pageSize}&sort=createdAt,desc`;
+            if (priorityVal) query += `&priority=${encodeURIComponent(priorityVal)}`;
+            if (statusVal) query += `&status=${encodeURIComponent(statusVal)}`;
+
+            try {
+                const res = await API.get(`/tasks${query}`);
+                tasksList = (res && res.items) ? res.items : [];
+                totalPages = res ? (res.totalPages || 0) : 0;
+
+                // Client-side search refinement if search text provided
+                let displayItems = tasksList;
+                if (searchVal) {
+                    const s = searchVal.toLowerCase();
+                    displayItems = tasksList.filter(t => 
+                        (t.title && t.title.toLowerCase().includes(s)) ||
+                        (t.code && t.code.toLowerCase().includes(s)) ||
+                        (t.assigneeName && t.assigneeName.toLowerCase().includes(s))
+                    );
+                }
+
+                renderDesktopTable(displayItems, res ? res.totalItems : displayItems.length);
+                renderMobileCards(displayItems);
+            } catch (err) {
+                console.error("Failed to fetch tasks:", err);
+            } finally {
+                if (loader) loader.classList.add('d-none');
+                if (mLoader) mLoader.classList.add('d-none');
+                if (tableCont) tableCont.classList.remove('d-none');
+                if (mCards) mCards.classList.remove('d-none');
             }
         }
 
-        // Mobile Load More Simulation (STEP 12)
-        const loadMoreBtn = document.getElementById('mobileLoadMore');
-        if(loadMoreBtn) {
-            loadMoreBtn.addEventListener('click', function() {
-                const originalText = this.innerHTML;
-                this.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Loading...';
-                this.disabled = true;
-                setTimeout(() => {
-                    this.innerHTML = originalText;
-                    this.disabled = false;
-                    showToast("More tasks loaded");
-                }, 1000);
+        function getPriorityBadge(priority) {
+            switch (priority) {
+                case 'HIGH':
+                    return '<span class="badge bg-danger bg-opacity-10 text-danger border border-danger">High</span>';
+                case 'MEDIUM':
+                    return '<span class="badge bg-warning bg-opacity-10 text-warning border border-warning">Medium</span>';
+                case 'LOW':
+                default:
+                    return '<span class="badge bg-success bg-opacity-10 text-success border border-success">Low</span>';
+            }
+        }
+
+        function getStatusBadge(status) {
+            switch (status) {
+                case 'ASSIGNED':
+                    return '<span class="badge bg-secondary bg-opacity-10 text-secondary border border-secondary">Assigned</span>';
+                case 'IN_PROGRESS':
+                    return '<span class="badge bg-warning bg-opacity-10 text-warning border border-warning">In Progress</span>';
+                case 'PENDING_APPROVAL':
+                    return '<span class="badge bg-info bg-opacity-10 text-info border border-info">Pending Approval</span>';
+                case 'APPROVED':
+                    return '<span class="badge bg-success bg-opacity-10 text-success border border-success">Approved</span>';
+                case 'REJECTED':
+                    return '<span class="badge bg-danger bg-opacity-10 text-danger border border-danger">Rejected</span>';
+                case 'CANCELLED':
+                    return '<span class="badge bg-dark bg-opacity-10 text-muted border border-dark">Cancelled</span>';
+                default:
+                    return `<span class="badge bg-secondary">${status}</span>`;
+            }
+        }
+
+        function renderDesktopTable(items, totalItems) {
+            const tbody = document.getElementById('desktopTableBody');
+            const emptyState = document.getElementById('desktopEmptyState');
+            const tableCont = document.getElementById('desktopTableContainer');
+            const pagInfo = document.getElementById('desktopPaginationInfo');
+            const pagList = document.getElementById('desktopPaginationList');
+
+            if (!tbody) return;
+            tbody.innerHTML = '';
+
+            if (!items || items.length === 0) {
+                tableCont.classList.add('d-none');
+                emptyState.classList.remove('d-none');
+                if (pagInfo) pagInfo.textContent = 'Showing 0 Tasks';
+                if (pagList) pagList.innerHTML = '';
+                return;
+            }
+
+            tableCont.classList.remove('d-none');
+            emptyState.classList.add('d-none');
+
+            items.forEach(t => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td class="fw-medium">${escapeHtml(t.code)}</td>
+                    <td><div class="fw-bold">${escapeHtml(t.title)}</div></td>
+                    <td>${escapeHtml(t.assigneeName || 'Unassigned')}</td>
+                    <td>${escapeHtml(t.managerName || 'Manager')}</td>
+                    <td>${getPriorityBadge(t.priority)}</td>
+                    <td style="min-width: 120px;">
+                        <div class="d-flex justify-content-between small text-muted mb-1">
+                            <span>Progress</span><span>${t.progress || 0}%</span>
+                        </div>
+                        <div class="progress progress-slim">
+                            <div class="progress-bar ${t.progress === 100 ? 'bg-success' : 'bg-primary'}" style="width: ${t.progress || 0}%"></div>
+                        </div>
+                    </td>
+                    <td>${formatDate(t.deadlineAt)}</td>
+                    <td>${getStatusBadge(t.status)}</td>
+                    <td class="text-end">
+                        <button class="btn btn-sm btn-light text-primary btn-view-task" data-id="${t.id}" title="View"><i class="bi bi-eye"></i></button>
+                        <button class="btn btn-sm btn-light text-secondary btn-edit-task" data-id="${t.id}" title="Edit"><i class="bi bi-pencil"></i></button>
+                        <button class="btn btn-sm btn-light text-danger btn-delete-task" data-id="${t.id}" title="Delete"><i class="bi bi-trash"></i></button>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+
+            // Pagination UI
+            const start = currentPage * pageSize + 1;
+            const end = Math.min((currentPage + 1) * pageSize, totalItems);
+            if (pagInfo) pagInfo.textContent = `Showing ${start}-${end} of ${totalItems} Tasks`;
+
+            if (pagList) {
+                pagList.innerHTML = '';
+                const prevDisabled = currentPage === 0 ? 'disabled' : '';
+                pagList.innerHTML += `<li class="page-item ${prevDisabled}"><a class="page-link" href="#" onclick="loadTasks(${currentPage - 1}); return false;">Previous</a></li>`;
+
+                for (let i = 0; i < totalPages; i++) {
+                    const active = i === currentPage ? 'active' : '';
+                    pagList.innerHTML += `<li class="page-item ${active}"><a class="page-link" href="#" onclick="loadTasks(${i}); return false;">${i + 1}</a></li>`;
+                }
+
+                const nextDisabled = currentPage >= totalPages - 1 ? 'disabled' : '';
+                pagList.innerHTML += `<li class="page-item ${nextDisabled}"><a class="page-link" href="#" onclick="loadTasks(${currentPage + 1}); return false;">Next</a></li>`;
+            }
+        }
+
+        function renderMobileCards(items) {
+            const mCards = document.getElementById('mobileCardsContainer');
+            if (!mCards) return;
+            mCards.innerHTML = '';
+
+            items.forEach(t => {
+                const card = document.createElement('div');
+                card.className = 'task-mobile-card';
+                card.innerHTML = `
+                    <div class="d-flex justify-content-between align-items-start">
+                        <div>
+                            <h6 class="fw-bold text-dark mb-0">${escapeHtml(t.title)}</h6>
+                            <span class="text-muted small">${escapeHtml(t.code)}</span>
+                        </div>
+                        ${getPriorityBadge(t.priority)}
+                    </div>
+                    <div class="d-flex justify-content-between align-items-center mt-2">
+                        <div class="small text-muted d-flex flex-column gap-1">
+                            <span><i class="bi bi-person me-1"></i>Emp: ${escapeHtml(t.assigneeName || 'Unassigned')}</span>
+                            <span><i class="bi bi-shield me-1"></i>Mgr: ${escapeHtml(t.managerName || 'Manager')}</span>
+                            <span><i class="bi bi-calendar me-1"></i>Due: ${formatDate(t.deadlineAt)}</span>
+                            <span><i class="bi bi-clock me-1"></i>Status: ${t.status}</span>
+                        </div>
+                        <div class="circular-progress" style="--value:${t.progress || 0};"><span>${t.progress || 0}%</span></div>
+                    </div>
+                    <div class="task-mobile-card-actions">
+                        <button class="btn btn-sm btn-light flex-grow-1 text-primary fw-medium btn-view-task" data-id="${t.id}">View <i class="bi bi-chevron-right ms-1"></i></button>
+                        <button class="btn btn-sm btn-light text-secondary px-3 btn-edit-task" data-id="${t.id}" title="Edit"><i class="bi bi-pencil"></i></button>
+                        <button class="btn btn-sm btn-light text-danger px-3 btn-delete-task" data-id="${t.id}" title="Delete"><i class="bi bi-trash"></i></button>
+                    </div>
+                `;
+                mCards.appendChild(card);
             });
         }
+
+        // Filter triggers
+        document.getElementById('btnApplyFilters')?.addEventListener('click', () => loadTasks(0));
+        document.getElementById('btnResetFilters')?.addEventListener('click', () => {
+            const s = document.getElementById('filterSearch');
+            const p = document.getElementById('filterPriority');
+            const st = document.getElementById('filterStatus');
+            if (s) s.value = '';
+            if (p) p.value = '';
+            if (st) st.value = '';
+            loadTasks(0);
+        });
+
+        // View, Edit, Delete Modal instances
+        const viewModal = new bootstrap.Modal(document.getElementById('viewTaskModal'));
+        const editModal = new bootstrap.Modal(document.getElementById('editTaskModal'));
+        const deleteModal = new bootstrap.Modal(document.getElementById('deleteTaskModal'));
+        const assignModal = new bootstrap.Modal(document.getElementById('assignTaskModal'));
+        const exportModalEl = document.getElementById('exportModal');
+        const exportModal = exportModalEl ? new bootstrap.Modal(exportModalEl) : null;
+
+        // Delegate table & cards clicks
+        document.addEventListener('click', async (e) => {
+            const btn = e.target.closest('button');
+            if (!btn) return;
+            const taskId = btn.getAttribute('data-id');
+
+            // View Task
+            if (btn.classList.contains('btn-view-task') && taskId) {
+                openViewModal(taskId);
+            }
+
+            // Edit Task
+            if (btn.classList.contains('btn-edit-task') && taskId) {
+                openEditModal(taskId);
+            }
+
+            // Delete Task
+            if (btn.classList.contains('btn-delete-task') && taskId) {
+                openDeleteModal(taskId);
+            }
+        });
+
+        // View Task Modal logic
+        async function openViewModal(taskId) {
+            const task = tasksList.find(t => t.id === taskId);
+            if (!task) return;
+            currentTaskId = taskId;
+
+            document.getElementById('viewModalTitle').textContent = task.title || 'Untitled';
+            document.getElementById('viewModalSub').textContent = `${task.code} • Due: ${formatDate(task.deadlineAt)}`;
+            document.getElementById('viewModalCode').textContent = task.code;
+            document.getElementById('viewModalEmployee').textContent = task.assigneeName || 'Unassigned';
+            document.getElementById('viewModalManager').textContent = task.managerName || 'Manager';
+            document.getElementById('viewModalPriority').innerHTML = getPriorityBadge(task.priority);
+            document.getElementById('viewModalDeadline').textContent = formatDateTime(task.deadlineAt);
+            document.getElementById('viewModalStatus').innerHTML = getStatusBadge(task.status);
+            document.getElementById('viewModalDesc').textContent = task.description || 'No description';
+
+            // Progress (read-only per BR-T4/D23)
+            const prog = task.progress || 0;
+            document.getElementById('viewModalProgressText').textContent = `${prog}%`;
+            document.getElementById('viewModalProgressBar').style.width = `${prog}%`;
+            document.getElementById('viewModalProgressSlider').value = prog;
+
+            viewModal.show();
+
+            // Load timeline activities
+            loadTimeline(taskId);
+            // Load comments
+            loadComments(taskId);
+        }
+
+        async function loadTimeline(taskId) {
+            const container = document.getElementById('viewModalTimeline');
+            container.innerHTML = '<span class="text-muted">Loading activities...</span>';
+            try {
+                const activities = await API.get(`/tasks/${taskId}/activities`);
+                if (!activities || activities.length === 0) {
+                    container.innerHTML = '<span class="text-muted">No activity records found.</span>';
+                    return;
+                }
+                container.innerHTML = '';
+                activities.forEach(a => {
+                    const item = document.createElement('div');
+                    item.className = 'task-timeline-item completed';
+                    item.innerHTML = `
+                        <div class="fw-bold text-dark">${escapeHtml(a.activityType)}</div>
+                        <div class="text-muted">By ${escapeHtml(a.userName || 'System')} &bull; ${formatDateTime(a.createdAt)}</div>
+                        ${a.note ? `<div class="small text-secondary">${escapeHtml(a.note)}</div>` : ''}
+                    `;
+                    container.appendChild(item);
+                });
+            } catch (err) {
+                container.innerHTML = '<span class="text-danger">Failed to load timeline.</span>';
+            }
+        }
+
+        async function loadComments(taskId) {
+            const list = document.getElementById('viewModalCommentsList');
+            list.innerHTML = '<span class="text-muted small">Loading comments...</span>';
+            try {
+                const comments = await API.get(`/tasks/${taskId}/comments`);
+                if (!comments || comments.length === 0) {
+                    list.innerHTML = '<span class="text-muted small">No comments yet.</span>';
+                    return;
+                }
+                list.innerHTML = '';
+                comments.forEach(c => {
+                    const row = document.createElement('div');
+                    row.className = 'bg-light p-2 px-3 rounded border';
+                    row.innerHTML = `
+                        <div class="d-flex justify-content-between mb-1">
+                            <strong class="small text-dark">${escapeHtml(c.authorName || 'User')}</strong>
+                            <small class="text-muted">${formatDateTime(c.createdAt)}</small>
+                        </div>
+                        <p class="mb-0 small">${escapeHtml(c.comment)}</p>
+                    `;
+                    list.appendChild(row);
+                });
+            } catch (err) {
+                list.innerHTML = '<span class="text-danger small">Failed to load comments.</span>';
+            }
+        }
+
+        // Post comment from view modal
+        document.getElementById('viewModalCommentForm')?.addEventListener('submit', async function(e) {
+            e.preventDefault();
+            const input = document.getElementById('viewModalCommentInput');
+            const comment = input.value.trim();
+            if (!comment || !currentTaskId) return;
+
+            try {
+                await API.post(`/tasks/${currentTaskId}/comments`, { comment });
+                input.value = '';
+                await loadComments(currentTaskId);
+                showToast("Comment posted.");
+            } catch (err) {
+                alert(err.message || "Failed to post comment");
+            }
+        });
+
+        // Assign Task Submission
+        document.getElementById('btnSubmitAssign')?.addEventListener('click', async function() {
+            const form = document.getElementById('assignTaskForm');
+            if (!form.checkValidity()) {
+                form.reportValidity();
+                return;
+            }
+
+            const title = document.getElementById('assignTitle').value.trim();
+            const description = document.getElementById('assignDesc').value.trim();
+            const employeeId = document.getElementById('assignEmployee').value;
+            const managerId = document.getElementById('assignManager').value;
+            const priority = document.getElementById('assignPriority').value;
+            const deadlineDate = document.getElementById('assignDeadlineDate').value;
+            const deadlineTime = document.getElementById('assignDeadlineTime').value || '18:00';
+
+            const deadlineAt = new Date(`${deadlineDate}T${deadlineTime}:00Z`).toISOString();
+
+            this.disabled = true;
+            try {
+                await API.post('/tasks', {
+                    title,
+                    description,
+                    employeeId,
+                    managerId,
+                    priority,
+                    deadlineAt
+                });
+                assignModal.hide();
+                form.reset();
+                showToast("Task assigned successfully.");
+                await Promise.all([loadTaskSummary(), loadTasks(0)]);
+            } catch (err) {
+                alert(err.message || "Failed to assign task");
+            } finally {
+                this.disabled = false;
+            }
+        });
+
+        // Edit Task Modal logic
+        function openEditModal(taskId) {
+            const task = tasksList.find(t => t.id === taskId);
+            if (!task) return;
+            currentTaskId = taskId;
+            currentTaskVersion = task.version ?? 0;
+
+            document.getElementById('editTitle').value = task.title || '';
+            document.getElementById('editDesc').value = task.description || '';
+            document.getElementById('editPriority').value = task.priority || 'MEDIUM';
+            if (task.deadlineAt) {
+                document.getElementById('editDeadlineDate').value = task.deadlineAt.slice(0, 10);
+            }
+            if (task.assigneeId) {
+                document.getElementById('editEmployee').value = task.assigneeId;
+            }
+            editModal.show();
+        }
+
+        // Edit Task Submit
+        document.getElementById('btnSubmitEdit')?.addEventListener('click', async function() {
+            const title = document.getElementById('editTitle').value.trim();
+            const description = document.getElementById('editDesc').value.trim();
+            const priority = document.getElementById('editPriority').value;
+            const deadlineDate = document.getElementById('editDeadlineDate').value;
+            const employeeId = document.getElementById('editEmployee').value;
+
+            const deadlineAt = deadlineDate ? new Date(`${deadlineDate}T18:00:00Z`).toISOString() : null;
+
+            this.disabled = true;
+            try {
+                await API.put(`/tasks/${currentTaskId}`, {
+                    title,
+                    description,
+                    priority,
+                    deadlineAt,
+                    employeeId,
+                    version: currentTaskVersion
+                });
+                editModal.hide();
+                showToast("Task updated successfully.");
+                await loadTasks(currentPage);
+            } catch (err) {
+                alert(err.message || "Failed to update task");
+            } finally {
+                this.disabled = false;
+            }
+        });
+
+        // Delete/Cancel Task Modal logic
+        function openDeleteModal(taskId) {
+            const task = tasksList.find(t => t.id === taskId);
+            if (!task) return;
+            currentTaskId = taskId;
+            document.getElementById('deleteTaskTitle').textContent = task.title;
+            deleteModal.show();
+        }
+
+        document.getElementById('confirmDeleteBtn')?.addEventListener('click', async function() {
+            if (!currentTaskId) return;
+            this.disabled = true;
+            try {
+                await API.delete(`/tasks/${currentTaskId}`);
+                deleteModal.hide();
+                showToast("Task cancelled successfully.");
+                await Promise.all([loadTaskSummary(), loadTasks(currentPage)]);
+            } catch (err) {
+                alert(err.message || "Failed to cancel task");
+            } finally {
+                this.disabled = false;
+            }
+        });
+
+        // Export CSV Handler
+        async function handleExport() {
+            try {
+                const token = API.getToken();
+                const res = await fetch('/api/v1/tasks/export', {
+                    headers: token ? { 'Authorization': `Bearer ${token}` } : {}
+                });
+                if (!res.ok) throw new Error("Export failed");
+                const blob = await res.blob();
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `tasks_${new Date().toISOString().slice(0, 10)}.csv`;
+                document.body.appendChild(a);
+                a.click();
+                a.remove();
+                window.URL.revokeObjectURL(url);
+                if (exportModal) exportModal.hide();
+                showToast("Tasks exported successfully as CSV.");
+            } catch (err) {
+                alert(err.message || "Failed to export tasks");
+            }
+        }
+
+        document.getElementById('btnExportTasks')?.addEventListener('click', handleExport);
+        document.getElementById('btnExportCsvModal')?.addEventListener('click', handleExport);
+
+        // Import CSV Handler
+        const importInput = document.getElementById('taskImportInput');
+        document.getElementById('btnImportTasks')?.addEventListener('click', () => {
+            if (importInput) importInput.click();
+        });
+
+        importInput?.addEventListener('change', async function() {
+            if (!this.files || this.files.length === 0) return;
+            const file = this.files[0];
+            const formData = new FormData();
+            formData.append('file', file);
+
+            try {
+                showToast("Uploading and importing tasks CSV...");
+                const res = await API.post('/tasks/import', formData);
+                showToast(`Imported ${res?.importedCount || 0} tasks successfully!`);
+                await Promise.all([loadTaskSummary(), loadTasks(0)]);
+            } catch (err) {
+                alert(err.message || "Failed to import tasks CSV");
+            } finally {
+                this.value = '';
+            }
+        });
 
         // Close FAB when modal opens
         document.querySelectorAll('[data-bs-toggle="modal"]').forEach(btn => {
@@ -1107,7 +1562,6 @@
                 if(fab) fab.classList.remove('active');
             });
         });
-
     </script>
 </body>
 </html>

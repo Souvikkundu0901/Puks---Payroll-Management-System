@@ -1,18 +1,18 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Employee Profile - Octopyder</title>
+    <title>Employee Profile - Puk's</title>
     
     <!-- Google Fonts: Inter -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;900&display=swap" rel="stylesheet">
     
     <!-- Bootstrap 5 CSS -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
     
     <!-- Bootstrap Icons -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet" integrity="sha384-4LISF5TTJX/fLmGSxO53rV4miRxdg84mZsxmO8Rx5jGtp/LbrixFETvWa5a6sESd" crossorigin="anonymous">
     
     <style>
         /* =========================================
@@ -527,7 +527,7 @@
 
     <!-- Mobile Header -->
     <div class="mobile-header sticky-top">
-        <h4 class="mb-0 fw-bold"><i class="bi bi-layers-fill text-white me-2"></i>Octopyder</h4>
+        <h4 class="mb-0 fw-bold"><i class="bi bi-layers-fill text-white me-2"></i>Puk's</h4>
         <button class="btn btn-outline-light border-0" data-bs-toggle="modal" data-bs-target="#logoutModal" title="Logout">
             <i class="bi bi-box-arrow-right fs-3"></i>
         </button>
@@ -536,7 +536,7 @@
     <!-- Sidebar -->
     <nav class="sidebar d-flex flex-column" id="sidebar">
         
-        <div class="sidebar-brand d-flex align-items-center"><i class="bi bi-layers-fill text-white me-2"></i><span>Octopyder</span></div>
+        <div class="sidebar-brand d-flex align-items-center"><i class="bi bi-layers-fill text-white me-2"></i><span>Puk's</span></div>
         <div class="p-3"><small class="text-uppercase fw-bold" style="letter-spacing: 1px; font-size: 0.75rem; color: rgba(255,255,255,0.7);">Employee Portal</small></div>
         
         <ul class="nav flex-column mb-auto">
@@ -862,7 +862,7 @@
     </div>
 
     <!-- Bootstrap JS Bundle -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL" crossorigin="anonymous"></script>
     
     <!-- Page Logic -->
     <script>
@@ -881,8 +881,13 @@
             }
         });
 
-        function downloadIDCard() {
-            alert("ID Card download is being generated. This feature will be linked with Phase 5 Reports.");
+        async function downloadIDCard() {
+            try {
+                const code = document.getElementById('display-card-empcode')?.textContent?.trim() || 'EMP';
+                await API.download('/me/id-card.pdf', `id-card-${code}.pdf`);
+            } catch (err) {
+                alert('Failed to download ID card: ' + (err.message || 'Error'));
+            }
         }
 
         async function loadProfile() {
@@ -890,10 +895,12 @@
                 const profile = await API.get('/me/profile');
                 
                 const defaultAvatar = 'https://ui-avatars.com/api/?name=' + encodeURIComponent(profile.fullName || 'User') + '&background=7b5eea&color=fff&size=120';
-                const avatarSrc = profile.avatarUrl || defaultAvatar;
+                const photoUrl = profile.photoUrl || profile.avatarUrl;
 
                 const profileImg = document.getElementById('profileImage');
-                if (profileImg) profileImg.src = avatarSrc;
+                if (profileImg) {
+                    API.loadAuthenticatedImage(profileImg, photoUrl, defaultAvatar);
+                }
 
                 const dispName = document.getElementById('display-name');
                 if (dispName) dispName.textContent = profile.fullName || 'Employee';

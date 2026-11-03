@@ -1,13 +1,13 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Review Leave - Octopyder</title>
+    <title>Review Leave - Puk's</title>
 
     <!-- Bootstrap 5 CSS -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
 
     <style>
         /* Typography & Core Variables */
@@ -970,7 +970,7 @@
     <div class="dashboard">
         <!-- Top Navigation -->
         <div class="top-nav">
-            <div class="logo">Octopyder</div>
+            <div class="logo">Puk's</div>
             <div class="nav-links">
                 <a href="dashboard.html">Dashboard</a>
                 <a href="assign-task.html">Assign Task</a>
@@ -1061,12 +1061,10 @@
                         </ul>
                     </div>
 
-                    <form onsubmit="event.preventDefault(); alert('Fetching employee ledger details...');">
+                    <form onsubmit="openSelectedEmployeeLedger(event)">
                         <label class="form-label">Check Employee Balance</label>
-                        <select class="form-select mb-3">
-                            <option>Aman Singh (Current Balance: 3 PL)</option>
-                            <option>Priya Roy (Current Balance: 1 PL)</option>
-                            <option>Rahul Sharma (Current Balance: 0 PL)</option>
+                        <select class="form-select mb-3" id="ledgerEmployeeSelect">
+                            <option value="" disabled selected>Loading team employees...</option>
                         </select>
 
                         <button type="submit" class="btn-create">View Full Ledger</button>
@@ -1080,24 +1078,8 @@
                             <span class="section-title">Recent Leave History</span>
                         </div>
 
-                        <div class="employee-list-item">
-                            <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRh5nGOiKvXUTinKVcl9GyxToN5WhMnqb1C2ozzqLT-gw&s"
-                                style="width:30px; height:30px; border-radius:50%; object-fit:cover;">
-                            <div class="emp-info flex-grow-1">
-                                <h4>Neha Gupta <span class="tag-status">Approved</span></h4>
-                                <p><strong>Paid Leave</strong> • Aug 01 to Aug 02</p>
-                                <p><em>Reason: Personal work.</em></p>
-                            </div>
-                        </div>
-
-                        <div class="employee-list-item">
-                            <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRh5nGOiKvXUTinKVcl9GyxToN5WhMnqb1C2ozzqLT-gw&s"
-                                style="width:30px; height:30px; border-radius:50%; object-fit:cover;">
-                            <div class="emp-info flex-grow-1">
-                                <h4>Vikram Kumar <span class="tag-reject">Rejected</span></h4>
-                                <p><strong>Unpaid Leave</strong> • Jul 25</p>
-                                <p><em>Reason: Rejected due to ongoing high-priority release.</em></p>
-                            </div>
+                        <div id="recentLeaveHistoryList">
+                            <div class="text-muted small p-2">Loading recent leaves...</div>
                         </div>
                     </div>
                 </div>
@@ -1111,112 +1093,8 @@
                 </div>
 
                 <!-- Pipeline is scrollable -->
-                <div class="tasks-container">
-
-                    <!-- Leave Request 1 -->
-                    <div class="task-card glass">
-                        <div class="task-header">
-                            <div class="task-title-group">
-                                <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRh5nGOiKvXUTinKVcl9GyxToN5WhMnqb1C2ozzqLT-gw&s"
-                                    style="width:40px; height:40px; border-radius:12px; object-fit:cover;">
-                                <div>
-                                    <div class="d-flex align-items-center">
-                                        <span class="task-title">Aman Singh</span>
-                                        <span class="priority-badge badge-paid">Paid Leave (PL)</span>
-                                    </div>
-                                    <div class="task-tags">
-                                        <span class="task-tag">🗓️ Aug 15 - Aug 16 (2 Days)</span>
-                                        <span class="task-tag balance">Balance: 3 Paid Leaves</span>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="task-desc">
-                            <strong>Reason:</strong> Traveling to hometown to attend a family function. All current
-                            tasks are handed over to Priya.
-                        </div>
-
-                        <div class="task-controls">
-                            <div class="control-group">
-                                <button class="btn-action btn-delete"
-                                    onclick="handleLeaveAction(this, 'Rejected')">Reject Request</button>
-                                <button class="btn-action btn-approve"
-                                    onclick="handleLeaveAction(this, 'Approved')">Approve Request</button>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Leave Request 2 -->
-                    <div class="task-card glass">
-                        <div class="task-header">
-                            <div class="task-title-group">
-                                <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRh5nGOiKvXUTinKVcl9GyxToN5WhMnqb1C2ozzqLT-gw&s"
-                                    style="width:40px; height:40px; border-radius:12px; object-fit:cover;">
-                                <div>
-                                    <div class="d-flex align-items-center">
-                                        <span class="task-title">Priya Roy</span>
-                                        <span class="priority-badge badge-sick">Sick Leave</span>
-                                    </div>
-                                    <div class="task-tags">
-                                        <span class="task-tag">🗓️ Aug 10 (1 Day)</span>
-                                        <span class="task-tag balance">Balance: 1 Paid Leave</span>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="task-desc">
-                            <strong>Reason:</strong> Not feeling well. Have a mild fever and need to visit the doctor
-                            today.
-                        </div>
-
-                        <div class="task-controls">
-                            <div class="control-group">
-                                <button class="btn-action btn-delete"
-                                    onclick="handleLeaveAction(this, 'Rejected')">Reject Request</button>
-                                <button class="btn-action btn-approve"
-                                    onclick="handleLeaveAction(this, 'Approved')">Approve Request</button>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Leave Request 3 -->
-                    <div class="task-card glass">
-                        <div class="task-header">
-                            <div class="task-title-group">
-                                <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRh5nGOiKvXUTinKVcl9GyxToN5WhMnqb1C2ozzqLT-gw&s"
-                                    style="width:40px; height:40px; border-radius:12px; object-fit:cover;">
-                                <div>
-                                    <div class="d-flex align-items-center">
-                                        <span class="task-title">Rahul Sharma</span>
-                                        <span class="priority-badge badge-unpaid">Unpaid Leave</span>
-                                    </div>
-                                    <div class="task-tags">
-                                        <span class="task-tag text-danger" style="font-weight: 600;">⚠️ Insufficient
-                                            Balance</span>
-                                        <span class="task-tag">🗓️ Aug 20 - Aug 25 (6 Days)</span>
-                                        <span class="task-tag balance">Balance: 0 Paid Leaves</span>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="task-desc">
-                            <strong>Reason:</strong> Personal emergency requiring me to be out of the city. I
-                            acknowledge this will result in loss of pay.
-                        </div>
-
-                        <div class="task-controls">
-                            <div class="control-group">
-                                <button class="btn-action btn-delete"
-                                    onclick="handleLeaveAction(this, 'Rejected')">Reject Request</button>
-                                <button class="btn-action btn-approve"
-                                    onclick="handleLeaveAction(this, 'Approved')">Approve Unpaid</button>
-                            </div>
-                        </div>
-                    </div>
-
+                <div class="tasks-container" id="pendingLeavesContainer">
+                    <div class="text-muted p-4 text-center">Loading pending leave requests...</div>
                 </div>
             </div>
         </div>
@@ -1365,7 +1243,7 @@
                     <h4 style="font-size: 18px; font-weight: 600; color: var(--text-main); margin-bottom: 10px;">End
                         Session?</h4>
                     <p style="font-size: 12px; color: var(--text-muted); margin-bottom: 20px;">Are you sure you want to
-                        log out of Octopyder?</p>
+                        log out of Puk's?</p>
 
                     <div style="display: flex; gap: 10px; justify-content: center;">
                         <button type="button" class="btn-action btn-delete" style="flex: 1; padding: 10px;"
@@ -1378,8 +1256,58 @@
         </div>
     </div>
 
+    <!-- Employee Ledger Modal for Manager -->
+    <div class="modal fade" id="managerLedgerModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-lg modal-dialog-scrollable">
+            <div class="modal-content glass border-0 shadow">
+                <div class="modal-header border-0 pb-0">
+                    <h5 class="modal-title fw-semibold" id="managerLedgerModalTitle">Employee Leave Ledger</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body p-4">
+                    <div class="row text-center g-2 mb-4">
+                        <div class="col-3"><div class="p-2 border rounded glass"><h4 class="fw-bold mb-0 text-dark" id="mgrLedgerEarned">0</h4><small class="text-muted">Earned</small></div></div>
+                        <div class="col-3"><div class="p-2 border rounded glass"><h4 class="fw-bold mb-0 text-danger" id="mgrLedgerUsed">0</h4><small class="text-muted">Used</small></div></div>
+                        <div class="col-3"><div class="p-2 border rounded glass"><h4 class="fw-bold mb-0 text-primary" id="mgrLedgerBalance">0</h4><small class="text-primary fw-medium">Available</small></div></div>
+                        <div class="col-3"><div class="p-2 border rounded glass"><h4 class="fw-bold mb-0 text-success" id="mgrLedgerCarry">0</h4><small class="text-muted">Carry Fwd</small></div></div>
+                    </div>
+                    <h6 class="fw-bold mb-3">Ledger Entries</h6>
+                    <div class="table-responsive">
+                        <table class="table table-sm align-middle small mb-0">
+                            <thead><tr><th>Effective Date</th><th>Type</th><th>Days</th><th>Balance After</th><th>Description</th></tr></thead>
+                            <tbody id="mgrLedgerEntriesTbody">
+                                <tr><td colspan="5" class="text-center text-muted py-3">Loading entries...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- Global Functions Script -->
     <script>
+        function escapeHtml(str) {
+            if (str == null) return '';
+            const div = document.createElement('div');
+            div.textContent = String(str);
+            return div.innerHTML;
+        }
+
+        function formatDate(dateStr) {
+            if (!dateStr) return '';
+            try {
+                const parts = dateStr.split('-');
+                if (parts.length === 3) {
+                    const d = new Date(parts[0], parts[1] - 1, parts[2]);
+                    return d.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' });
+                }
+                return dateStr;
+            } catch (e) {
+                return dateStr;
+            }
+        }
+
         function updateDateTime() {
             const now = new Date();
             const dateOptions = { month: 'long', day: 'numeric', year: 'numeric' };
@@ -1398,54 +1326,257 @@
             e.preventDefault();
             alert('Password updated successfully! Please use your new password next time you log in.');
 
-            // Hide the modal using Bootstrap's JS API
             const profileModalEl = document.getElementById('profileModal');
             const modal = bootstrap.Modal.getInstance(profileModalEl);
-            modal.hide();
-
-            // Reset the form
+            if (modal) modal.hide();
             e.target.reset();
         }
 
-        function executeLogout() {
-            // Here you would clear session storage, cookies, or auth tokens
-            sessionStorage.clear();
-            alert('Session securely ended. Redirecting to login page...');
+        async function executeLogout() {
+            try {
+                await API.post('/auth/logout');
+            } catch (e) {}
+            Auth.logout();
+        }
 
-            // Redirect to your login page 
-            window.location.href = '../index.html';
+        let managerLedgerModalInstance = null;
+
+        // Initialize Page
+        document.addEventListener('DOMContentLoaded', async () => {
+            const user = await Auth.require('MANAGER');
+            if (!user) return;
+
+            const modalEl = document.getElementById('managerLedgerModal');
+            if (modalEl) managerLedgerModalInstance = new bootstrap.Modal(modalEl);
+
+            await loadTeamEmployees();
+            await loadPendingLeaves();
+            await loadRecentLeaveHistory();
+        });
+
+        // Load Team Employees into Select
+        async function loadTeamEmployees() {
+            const select = document.getElementById('ledgerEmployeeSelect');
+            try {
+                const res = await API.get('/employees?page=0&size=100');
+                const employees = (res && res.items) ? res.items : [];
+                select.innerHTML = '<option value="" disabled selected>Select an employee...</option>';
+
+                employees.forEach(emp => {
+                    const opt = document.createElement('option');
+                    opt.value = emp.id;
+                    opt.textContent = `${emp.fullName || emp.employeeCode} (${emp.employeeCode})`;
+                    select.appendChild(opt);
+                });
+            } catch (err) {
+                select.innerHTML = '<option value="" disabled>Failed to load employees</option>';
+            }
+        }
+
+        // Open Ledger Modal for Selected Employee
+        async function openSelectedEmployeeLedger(e) {
+            e.preventDefault();
+            const select = document.getElementById('ledgerEmployeeSelect');
+            const userId = select.value;
+            if (!userId) {
+                alert('Please select an employee first.');
+                return;
+            }
+
+            const empName = select.options[select.selectedIndex].text;
+            document.getElementById('managerLedgerModalTitle').textContent = `Leave Ledger - ${empName}`;
+            document.getElementById('mgrLedgerEarned').textContent = '--';
+            document.getElementById('mgrLedgerUsed').textContent = '--';
+            document.getElementById('mgrLedgerBalance').textContent = '--';
+            document.getElementById('mgrLedgerCarry').textContent = '--';
+            const tbody = document.getElementById('mgrLedgerEntriesTbody');
+            tbody.innerHTML = '<tr><td colspan="5" class="text-center text-muted py-3">Loading entries...</td></tr>';
+
+            if (managerLedgerModalInstance) managerLedgerModalInstance.show();
+
+            try {
+                const data = await API.get(`/leave/ledger/${userId}`);
+                if (data && data.balance) {
+                    document.getElementById('mgrLedgerEarned').textContent = data.balance.earnedLeaves;
+                    document.getElementById('mgrLedgerUsed').textContent = data.balance.usedLeaves;
+                    document.getElementById('mgrLedgerBalance').textContent = data.balance.availableBalance;
+                    document.getElementById('mgrLedgerCarry').textContent = data.balance.carryForwarded;
+                }
+
+                tbody.innerHTML = '';
+                const entries = data.entries || [];
+                if (entries.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="5" class="text-center text-muted py-3">No ledger transactions found.</td></tr>';
+                    return;
+                }
+
+                entries.forEach(item => {
+                    const tr = document.createElement('tr');
+                    const daysColor = item.days > 0 ? 'text-success' : 'text-danger';
+                    const daysPrefix = item.days > 0 ? '+' : '';
+                    tr.innerHTML = `
+                        <td>${formatDate(item.effectiveOn)}</td>
+                        <td><span class="badge bg-light text-dark border">${escapeHtml(item.entryType)}</span></td>
+                        <td class="${daysColor} fw-bold">${daysPrefix}${item.days}</td>
+                        <td class="fw-bold">${item.balanceAfter}</td>
+                        <td class="text-muted small">${escapeHtml(item.description || '--')}</td>
+                    `;
+                    tbody.appendChild(tr);
+                });
+            } catch (err) {
+                tbody.innerHTML = `<tr><td colspan="5" class="text-center text-danger py-3">Failed to load ledger: ${escapeHtml(err.message)}</td></tr>`;
+            }
+        }
+
+        // Load Pending Leaves
+        async function loadPendingLeaves() {
+            const container = document.getElementById('pendingLeavesContainer');
+            try {
+                const res = await API.get('/leave/requests?status=PENDING&page=0&size=50&sort=createdAt,asc');
+                const list = (res && res.items) ? res.items : [];
+                container.innerHTML = '';
+
+                if (list.length === 0) {
+                    container.innerHTML = `
+                        <div class="glass" style="padding: 40px; text-align: center; border-radius: 20px;">
+                            <h4 style="color: var(--text-muted); font-weight: 500;">All Clear!</h4>
+                            <p style="font-size: 12px; color: var(--text-muted); margin-top: 10px;">No pending leave requests to review.</p>
+                        </div>
+                    `;
+                    return;
+                }
+
+                list.forEach(req => {
+                    const card = document.createElement('div');
+                    card.className = 'task-card glass mb-3';
+                    card.dataset.id = req.id;
+
+                    let typeBadge = 'badge-paid';
+                    if (req.leaveType === 'SICK') typeBadge = 'badge-sick';
+                    if (req.leaveType === 'UNPAID') typeBadge = 'badge-unpaid';
+
+                    let attachmentBtn = '';
+                    if (req.hasAttachment) {
+                        attachmentBtn = `<button type="button" onclick="API.download('/leave/requests/${req.id}/attachment', 'certificate')" class="btn-action" style="background:#e7f5ff;color:#1c7ed6;border:none;"><i class="bi bi-paperclip"></i> Certificate</button>`;
+                    }
+
+                    card.innerHTML = `
+                        <div class="task-header">
+                            <div class="task-title-group">
+                                <img src="https://ui-avatars.com/api/?name=${encodeURIComponent(req.userName || 'User')}&background=random"
+                                    style="width:40px; height:40px; border-radius:12px; object-fit:cover;">
+                                <div>
+                                    <div class="d-flex align-items-center">
+                                        <span class="task-title">${escapeHtml(req.userName || req.userCode)}</span>
+                                        <span class="priority-badge ${typeBadge} ms-2">${escapeHtml(req.leaveType)}</span>
+                                    </div>
+                                    <div class="task-tags mt-1">
+                                        <span class="task-tag">🗓️ ${formatDate(req.startDate)} - ${formatDate(req.endDate)} (${req.workingDays} Days)</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="task-desc">
+                            <strong>Reason:</strong> ${escapeHtml(req.reason)}
+                        </div>
+
+                        <div class="task-controls">
+                            <div class="control-group">
+                                ${attachmentBtn}
+                                <button class="btn-action btn-delete" onclick="rejectLeave('${req.id}')">Reject</button>
+                                <button class="btn-action btn-approve" style="background:#fff3bf;color:#d9480f;" onclick="approveLeave('${req.id}', true)">Approve as Unpaid</button>
+                                <button class="btn-action btn-approve" onclick="approveLeave('${req.id}', false)">Approve</button>
+                            </div>
+                        </div>
+                    `;
+                    container.appendChild(card);
+                });
+            } catch (err) {
+                container.innerHTML = `<div class="text-danger p-4 text-center">Failed to load pending requests: ${escapeHtml(err.message)}</div>`;
+            }
+        }
+
+        // Approve Request
+        async function approveLeave(id, asUnpaid) {
+            try {
+                await API.post(`/leave/requests/${id}/approve`, { asUnpaid });
+                alert(asUnpaid ? 'Leave request approved as UNPAID (Loss of Pay).' : 'Leave request approved successfully!');
+                await loadPendingLeaves();
+                await loadRecentLeaveHistory();
+            } catch (err) {
+                if (err.problem?.code === 'LEAVE_INSUFFICIENT_BALANCE') {
+                    if (confirm('Employee has insufficient balance to cover this leave. Would you like to approve it as Unpaid (loss of pay)?')) {
+                        approveLeave(id, true);
+                        return;
+                    }
+                }
+                alert('Approve failed: ' + (err.problem?.detail || err.message));
+            }
+        }
+
+        // Reject Request
+        async function rejectLeave(id) {
+            const note = prompt('Please enter a rejection note (mandatory):');
+            if (note === null) return;
+            if (!note.trim()) {
+                alert('A rejection reason is required.');
+                return;
+            }
+
+            try {
+                await API.post(`/leave/requests/${id}/reject`, { note: note.trim() });
+                alert('Leave request rejected.');
+                await loadPendingLeaves();
+                await loadRecentLeaveHistory();
+            } catch (err) {
+                alert('Reject failed: ' + (err.problem?.detail || err.message));
+            }
+        }
+
+        // Load Recent Leave History
+        async function loadRecentLeaveHistory() {
+            const container = document.getElementById('recentLeaveHistoryList');
+            try {
+                const res = await API.get('/leave/requests?size=5&sort=createdAt,desc');
+                const list = (res && res.items) ? res.items : [];
+                container.innerHTML = '';
+
+                if (list.length === 0) {
+                    container.innerHTML = '<div class="text-muted small p-2">No recent leave activity.</div>';
+                    return;
+                }
+
+                list.forEach(item => {
+                    const div = document.createElement('div');
+                    div.className = 'employee-list-item mb-2';
+
+                    let tagClass = 'tag-status';
+                    if (item.approvalStatus === 'REJECTED') tagClass = 'tag-reject';
+                    if (item.approvalStatus === 'PENDING') tagClass = 'tag-pending';
+                    if (item.approvalStatus === 'CANCELLED') tagClass = 'tag-cancel';
+
+                    div.innerHTML = `
+                        <img src="https://ui-avatars.com/api/?name=${encodeURIComponent(item.userName || 'User')}&background=random"
+                            style="width:30px; height:30px; border-radius:50%; object-fit:cover;">
+                        <div class="emp-info flex-grow-1 ms-2">
+                            <h4 style="font-size:13px; font-weight:600;">${escapeHtml(item.userName || item.userCode)} <span class="${tagClass}">${escapeHtml(item.approvalStatus)}</span></h4>
+                            <p style="font-size:11px; margin:0;"><strong>${escapeHtml(item.leaveType)}</strong> • ${formatDate(item.startDate)} to ${formatDate(item.endDate)} (${item.workingDays}d)</p>
+                            <p style="font-size:11px; margin:0;" class="text-muted text-truncate" style="max-width:200px;"><em>Reason: ${escapeHtml(item.reason)}</em></p>
+                        </div>
+                    `;
+                    container.appendChild(div);
+                });
+            } catch (err) {
+                container.innerHTML = `<div class="text-danger small p-2">Failed: ${escapeHtml(err.message)}</div>`;
+            }
         }
     </script>
 
     <!-- Bootstrap Bundle JS -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL" crossorigin="anonymous"></script>
 
     <script>
-        // Logic for Actioning Leaves
-        function handleLeaveAction(btn, action) {
-            const card = btn.closest('.task-card');
-            alert(`Leave request ${action} successfully! Ledger updated.`);
-            // Animate out
-            card.style.opacity = '0';
-            card.style.transform = 'scale(0.95)';
-            setTimeout(() => {
-                card.remove();
-                checkEmptyList();
-            }, 300);
-        }
-
-        function checkEmptyList() {
-            const container = document.querySelector('.tasks-container');
-            if (container.children.length === 0) {
-                container.innerHTML = `
-                <div class="glass" style="padding: 40px; text-align: center; border-radius: 20px;">
-                    <h4 style="color: var(--text-muted); font-weight: 500;">All Clear!</h4>
-                    <p style="font-size: 12px; color: var(--text-muted); margin-top: 10px;">No pending leave requests to review.</p>
-                </div>
-            `;
-            }
-        }
-
         // Theme Selector functionality (Synced across views)
         const themeSelectors = document.querySelectorAll('.theme-selector-input');
 

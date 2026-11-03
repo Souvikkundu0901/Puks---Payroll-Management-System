@@ -51,7 +51,11 @@ const Auth = (function () {
             return null;
         }
 
-        if (user.role !== expectedRole) {
+        const isAllowed = Array.isArray(expectedRole)
+            ? expectedRole.includes(user.role)
+            : user.role === expectedRole;
+
+        if (!isAllowed) {
             window.location.href = getDashboardUrl(user.role);
             return null;
         }
@@ -129,6 +133,7 @@ const Auth = (function () {
         changePassword,
         getUser,
         getDashboardUrl,
-        initUser
+        initUser,
+        getToken: () => (window.API ? API.getToken() : null)
     };
 })();

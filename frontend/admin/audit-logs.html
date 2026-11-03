@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Audit Logs - Admin</title>
+
+    <!-- Fonts & Icons -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;900&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet" integrity="sha384-4LISF5TTJX/fLmGSxO53rV4miRxdg84mZsxmO8Rx5jGtp/LbrixFETvWa5a6sESd" crossorigin="anonymous">
+
+    <style>
+        body, html { height: 100%; font-family: 'Inter', sans-serif; background-color: #f8f9fa; overflow-x: hidden; }
+        .app-container { height: 100vh; width: 100vw; overflow: hidden; }
+        .sidebar { width: 80px; background-color: #111111; flex-direction: column; align-items: center; justify-content: space-between; padding: 1.5rem 0; z-index: 1040; transition: all 0.4s ease; }
+        .sidebar-brand { width: 45px; height: 45px; background: #ffffff; color: #111; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; text-decoration: none; margin-bottom: 2rem; }
+        .sidebar-nav { display: flex; flex-direction: column; gap: 1.25rem; align-items: center; width: 100%; }
+        .sidebar-nav a { color: #a0aec0; font-size: 1.25rem; padding: 0.75rem; border-radius: 12px; transition: all 0.2s ease; text-decoration: none; }
+        .sidebar-nav a:hover, .sidebar-nav a.active { background-color: rgba(255, 255, 255, 0.1); color: #ffffff; }
+        .main-content { flex: 1; display: flex; flex-direction: column; height: 100vh; overflow-y: auto; }
+        .top-navbar { background-color: #ffffff; border-bottom: 1px solid #eaeaea; padding: 1rem 2rem; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 1030; }
+        .page-body { padding: 2rem; max-width: 1400px; margin: 0 auto; width: 100%; }
+        .card-custom { background: #ffffff; border: 1px solid #eaeaea; border-radius: 1rem; padding: 1.5rem; box-shadow: 0 2px 6px rgba(0,0,0,0.02); }
+        .table-custom th { color: #6c757d; font-size: 0.8rem; text-transform: uppercase; font-weight: 600; border-top: none; }
+        .table-custom td { vertical-align: middle; font-size: 0.875rem; }
+        .icon-btn { background: none; border: none; font-size: 1.25rem; color: #4a5568; position: relative; cursor: pointer; }
+        .notification-badge { position: absolute; top: -2px; right: -4px; font-size: 0.6rem; padding: 0.25em 0.4em; }
+        pre.code-diff { background-color: #f8f9fa; border: 1px solid #e9ecef; border-radius: 0.5rem; padding: 0.75rem; font-size: 0.8rem; max-height: 250px; overflow-y: auto; white-space: pre-wrap; word-break: break-all; }
+    </style>
+    <script src="../js/api.js"></script>
+    <script src="../js/auth.js"></script>
+    <script>Auth.require("ADMIN");</script>
+</head>
+<body class="theme-default">
+    <div class="app-container d-flex">
+        <!-- Sidebar -->
+        <aside class="sidebar d-flex">
+            <div>
+                <a href="dashboard.html" class="sidebar-brand"><i class="bi bi-layers-fill"></i></a>
+                <nav class="sidebar-nav">
+                    <a href="dashboard.html" title="Dashboard"><i class="bi bi-grid-1x2-fill"></i></a>
+                    <a href="employees.html" title="Employees"><i class="bi bi-people-fill"></i></a>
+                    <a href="managers.html" title="Managers"><i class="bi bi-shield-shaded"></i></a>
+                    <a href="payroll.html" title="Payroll"><i class="bi bi-wallet2"></i></a>
+                    <a href="attendance.html" title="Attendance"><i class="bi bi-clock-history"></i></a>
+                    <a href="tasks.html" title="Tasks"><i class="bi bi-kanban-fill"></i></a>
+                </nav>
+            </div>
+            <div class="sidebar-nav">
+                <a href="reports.html" title="Reports"><i class="bi bi-file-earmark-bar-graph"></i></a>
+                <a href="audit-logs.html" class="active" title="Audit Logs"><i class="bi bi-journal-text"></i></a>
+                <a href="settings.html" title="Settings"><i class="bi bi-gear-fill"></i></a>
+                <a href="../index.html" title="Logout"><i class="bi bi-box-arrow-right text-danger"></i></a>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <header class="top-navbar">
+                <h4 class="mb-0 fw-bold">System Audit Logs</h4>
+                <div class="d-flex align-items-center gap-3">
+                    <div class="dropdown">
+                        <button class="icon-btn" type="button" data-bs-toggle="dropdown">
+                            <i class="bi bi-bell"></i>
+                            <span class="position-absolute translate-middle badge rounded-pill bg-danger notification-badge" id="notif-count">0</span>
+                        </button>
+                        <ul class="dropdown-menu dropdown-menu-end shadow" style="width: 300px;">
+                            <li><h6 class="dropdown-header">Notifications</h6></li>
+                            <li><span class="dropdown-item small text-muted">No notifications</span></li>
+                        </ul>
+                    </div>
+                    <span class="fw-semibold user-name">Admin</span>
+                </div>
+            </header>
+
+            <div class="page-body">
+                <div class="card-custom mb-4">
+                    <form id="filterForm" class="row g-3 align-items-end">
+                        <div class="col-md-3">
+                            <label class="form-label small fw-semibold">Action</label>
+                            <input type="text" class="form-control form-control-sm" id="actionFilter" placeholder="e.g. USER_LOGIN">
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label small fw-semibold">Entity Type</label>
+                            <input type="text" class="form-control form-control-sm" id="entityFilter" placeholder="e.g. payroll_records">
+                        </div>
+                        <div class="col-md-2">
+                            <label class="form-label small fw-semibold">From Date</label>
+                            <input type="date" class="form-control form-control-sm" id="fromFilter">
+                        </div>
+                        <div class="col-md-2">
+                            <label class="form-label small fw-semibold">To Date</label>
+                            <input type="date" class="form-control form-control-sm" id="toFilter">
+                        </div>
+                        <div class="col-md-2 d-flex gap-2">
+                            <button type="submit" class="btn btn-sm btn-primary w-100"><i class="bi bi-funnel me-1"></i>Filter</button>
+                            <button type="button" class="btn btn-sm btn-outline-secondary" id="resetBtn">Reset</button>
+                        </div>
+                    </form>
+                </div>
+
+                <div class="card-custom">
+                    <div class="table-responsive">
+                        <table class="table table-hover table-custom">
+                            <thead>
+                                <tr>
+                                    <th>Timestamp</th>
+                                    <th>Actor</th>
+                                    <th>Action</th>
+                                    <th>Entity</th>
+                                    <th>IP Address</th>
+                                    <th>Details</th>
+                                </tr>
+                            </thead>
+                            <tbody id="logsTableBody">
+                                <tr><td colspan="6" class="text-center py-4 text-muted">Loading audit entries...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div class="d-flex justify-content-between align-items-center mt-3 pt-3 border-top">
+                        <span class="small text-muted" id="pageInfo">Showing page 0</span>
+                        <div class="d-flex gap-2">
+                            <button class="btn btn-sm btn-outline-secondary" id="prevPageBtn" disabled>Previous</button>
+                            <button class="btn btn-sm btn-outline-secondary" id="nextPageBtn" disabled>Next</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Modal for Diff Viewer -->
+    <div class="modal fade" id="diffModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title fw-bold" id="diffModalTitle">Audit Log Diff</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <h6 class="fw-semibold text-danger">Before State</h6>
+                            <pre class="code-diff" id="beforeStateText"></pre>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <h6 class="fw-semibold text-success">After State</h6>
+                            <pre class="code-diff" id="afterStateText"></pre>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL" crossorigin="anonymous"></script>
+    <script>
+        let currentPage = 0;
+        let totalPages = 1;
+        const diffModal = new bootstrap.Modal(document.getElementById('diffModal'));
+
+        async function loadAuditLogs(page = 0) {
+            currentPage = page;
+            const tbody = document.getElementById('logsTableBody');
+            tbody.innerHTML = '<tr><td colspan="6" class="text-center py-4 text-muted">Loading...</td></tr>';
+
+            const params = new URLSearchParams();
+            params.append('page', page);
+            params.append('size', '20');
+
+            const action = document.getElementById('actionFilter').value.trim();
+            const entity = document.getElementById('entityFilter').value.trim();
+            const from = document.getElementById('fromFilter').value;
+            const to = document.getElementById('toFilter').value;
+
+            if (action) params.append('action', action);
+            if (entity) params.append('entity', entity);
+            if (from) params.append('from', from);
+            if (to) params.append('to', to);
+
+            try {
+                const res = await API.get(`/audit-logs?${params.toString()}`);
+                const items = res.items || [];
+                totalPages = res.totalPages || 1;
+
+                document.getElementById('pageInfo').textContent = `Page ${res.page + 1} of ${Math.max(1, totalPages)} (Total: ${res.totalItems})`;
+                document.getElementById('prevPageBtn').disabled = res.page <= 0;
+                document.getElementById('nextPageBtn').disabled = res.page >= totalPages - 1;
+
+                tbody.replaceChildren();
+
+                if (items.length === 0) {
+                    const tr = document.createElement('tr');
+                    const td = document.createElement('td');
+                    td.colSpan = 6;
+                    td.className = 'text-center py-4 text-muted';
+                    td.textContent = 'No audit log entries found matching criteria.';
+                    tr.appendChild(td);
+                    tbody.appendChild(tr);
+                    return;
+                }
+
+                items.forEach(log => {
+                    const tr = document.createElement('tr');
+
+                    // Timestamp
+                    const tdTime = document.createElement('td');
+                    tdTime.textContent = log.at ? new Date(log.at).toLocaleString() : '-';
+                    tr.appendChild(tdTime);
+
+                    // Actor
+                    const tdActor = document.createElement('td');
+                    tdActor.className = 'fw-medium';
+                    tdActor.textContent = log.actorName || log.actorCode || (log.actorId ? log.actorId.substring(0, 8) : 'System');
+                    tr.appendChild(tdActor);
+
+                    // Action
+                    const tdAction = document.createElement('td');
+                    const badge = document.createElement('span');
+                    badge.className = 'badge bg-light text-dark border';
+                    badge.textContent = log.action;
+                    tdAction.appendChild(badge);
+                    tr.appendChild(tdAction);
+
+                    // Entity
+                    const tdEntity = document.createElement('td');
+                    tdEntity.textContent = (log.entity || '-') + (log.entityId ? ` (${log.entityId.substring(0, 8)})` : '');
+                    tr.appendChild(tdEntity);
+
+                    // IP
+                    const tdIp = document.createElement('td');
+                    tdIp.className = 'text-muted small';
+                    tdIp.textContent = log.ipAddress || '-';
+                    tr.appendChild(tdIp);
+
+                    // Details button
+                    const tdDetails = document.createElement('td');
+                    const btn = document.createElement('button');
+                    btn.className = 'btn btn-xs btn-outline-primary py-0 px-2 small';
+                    btn.textContent = 'View Diff';
+                    btn.addEventListener('click', () => {
+                        document.getElementById('diffModalTitle').textContent = `Diff: ${log.action} (${log.entity || 'Record'})`;
+                        document.getElementById('beforeStateText').textContent = log.beforeValue ? JSON.stringify(log.beforeValue, null, 2) : 'None';
+                        document.getElementById('afterStateText').textContent = log.afterValue ? JSON.stringify(log.afterValue, null, 2) : 'None';
+                        diffModal.show();
+                    });
+                    tdDetails.appendChild(btn);
+                    tr.appendChild(tdDetails);
+
+                    tbody.appendChild(tr);
+                });
+            } catch (err) {
+                tbody.innerHTML = `<tr><td colspan="6" class="text-center py-4 text-danger">${err.message || 'Error loading audit logs'}</td></tr>`;
+            }
+        }
+
+        document.getElementById('filterForm').addEventListener('submit', (e) => {
+            e.preventDefault();
+            loadAuditLogs(0);
+        });
+
+        document.getElementById('resetBtn').addEventListener('click', () => {
+            document.getElementById('actionFilter').value = '';
+            document.getElementById('entityFilter').value = '';
+            document.getElementById('fromFilter').value = '';
+            document.getElementById('toFilter').value = '';
+            loadAuditLogs(0);
+        });
+
+        document.getElementById('prevPageBtn').addEventListener('click', () => {
+            if (currentPage > 0) loadAuditLogs(currentPage - 1);
+        });
+
+        document.getElementById('nextPageBtn').addEventListener('click', () => {
+            if (currentPage < totalPages - 1) loadAuditLogs(currentPage + 1);
+        });
+
+        loadAuditLogs(0);
+    </script>
+</body>
+</html>

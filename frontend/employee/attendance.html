@@ -3,16 +3,16 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Attendance - Octopyder</title>
+    <title>Attendance - Puk's</title>
     
     <!-- Google Fonts: Inter -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;900&display=swap" rel="stylesheet">
     
     <!-- Bootstrap 5 CSS -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
     
     <!-- Bootstrap Icons -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet" integrity="sha384-4LISF5TTJX/fLmGSxO53rV4miRxdg84mZsxmO8Rx5jGtp/LbrixFETvWa5a6sESd" crossorigin="anonymous">
     
     <style>
         /* =========================================
@@ -500,7 +500,7 @@
 
     <!-- Mobile Header -->
     <div class="mobile-header sticky-top">
-        <h4 class="mb-0 fw-bold"><i class="bi bi-layers-fill text-white me-2"></i>Octopyder</h4>
+        <h4 class="mb-0 fw-bold"><i class="bi bi-layers-fill text-white me-2"></i>Puk's</h4>
         <button class="btn btn-outline-light border-0" data-bs-toggle="modal" data-bs-target="#logoutModal" title="Logout">
             <i class="bi bi-box-arrow-right fs-3"></i>
         </button>
@@ -511,7 +511,7 @@
 
         <div class="sidebar-brand d-flex align-items-center">
             <i class="bi bi-layers-fill me-2"></i>
-            <span>Octopyder</span>
+            <span>Puk's</span>
         </div>
         
         <div class="p-3">
@@ -616,9 +616,9 @@
                 <div class="card dashboard-card h-100">
                     <div class="card-body p-4">
                         <div class="d-flex justify-content-between align-items-center mb-4">
-                            <h5 class="fw-bold text-dark mb-0">Monthly Statistics (July)</h5>
+                            <h5 class="fw-bold text-dark mb-0" id="stat-month-title">Monthly Statistics</h5>
                             <div class="text-end">
-                                <h3 class="fw-bold text-danger mb-0">95%</h3>
+                                <h3 class="fw-bold text-danger mb-0" id="stat-attendance-pct">0%</h3>
                                 <span class="text-muted small">Attendance Percentage</span>
                             </div>
                         </div>
@@ -626,37 +626,37 @@
                         <div class="row g-3 text-center">
                             <div class="col-4 col-sm-2">
                                 <div class="p-2 bg-light rounded border border-secondary-subtle">
-                                    <h4 class="fw-bold mb-0 text-dark">22</h4>
+                                    <h4 class="fw-bold mb-0 text-dark" id="stat-working-days">0</h4>
                                     <span class="small text-muted" style="font-size: 0.75rem;">Working Days</span>
                                 </div>
                             </div>
                             <div class="col-4 col-sm-2">
                                 <div class="p-2 bg-success bg-opacity-10 border border-success-subtle rounded">
-                                    <h4 class="fw-bold mb-0 text-success">20</h4>
+                                    <h4 class="fw-bold mb-0 text-success" id="stat-present-days">0</h4>
                                     <span class="small text-muted" style="font-size: 0.75rem;">Present</span>
                                 </div>
                             </div>
                             <div class="col-4 col-sm-2">
                                 <div class="p-2 bg-danger bg-opacity-10 border border-danger-subtle rounded">
-                                    <h4 class="fw-bold mb-0 text-danger">1</h4>
+                                    <h4 class="fw-bold mb-0 text-danger" id="stat-absent-days">0</h4>
                                     <span class="small text-muted" style="font-size: 0.75rem;">Absent</span>
                                 </div>
                             </div>
                             <div class="col-4 col-sm-2">
                                 <div class="p-2 bg-warning bg-opacity-10 border border-warning-subtle rounded">
-                                    <h4 class="fw-bold mb-0 text-warning-emphasis">2</h4>
+                                    <h4 class="fw-bold mb-0 text-warning-emphasis" id="stat-late-days">0</h4>
                                     <span class="small text-muted" style="font-size: 0.75rem;">Late</span>
                                 </div>
                             </div>
                             <div class="col-4 col-sm-2">
                                 <div class="p-2 bg-info bg-opacity-10 border border-info-subtle rounded">
-                                    <h4 class="fw-bold mb-0 text-info-emphasis">0</h4>
+                                    <h4 class="fw-bold mb-0 text-info-emphasis" id="stat-half-days">0</h4>
                                     <span class="small text-muted" style="font-size: 0.75rem;">Half Day</span>
                                 </div>
                             </div>
                             <div class="col-4 col-sm-2">
                                 <div class="p-2 bg-secondary bg-opacity-10 border border-secondary-subtle rounded">
-                                    <h4 class="fw-bold mb-0 text-secondary">1</h4>
+                                    <h4 class="fw-bold mb-0 text-secondary" id="stat-leave-days">0</h4>
                                     <span class="small text-muted" style="font-size: 0.75rem;">Leaves</span>
                                 </div>
                             </div>
@@ -688,20 +688,11 @@
 
                         <!-- Calendar Grid -->
                         <div class="calendar-grid mb-2">
-                            <div class="calendar-day-header">Su</div><div class="calendar-day-header">Mo</div><div class="calendar-day-header">Tu</div><div class="calendar-day-header">We</div><div class="calendar-day-header">Th</div><div class="calendar-day-header">Fr</div><div class="calendar-day-header">Sa</div>
+                            <div class="calendar-day-header">Mo</div><div class="calendar-day-header">Tu</div><div class="calendar-day-header">We</div><div class="calendar-day-header">Th</div><div class="calendar-day-header">Fr</div><div class="calendar-day-header">Sa</div><div class="calendar-day-header">Su</div>
                         </div>
                         
                         <div class="calendar-grid" id="attendance-calendar">
-                            <!-- Pre-filled for July 2026 -->
-                            <div class="calendar-day cal-empty">28</div><div class="calendar-day cal-empty">29</div><div class="calendar-day cal-empty">30</div>
-                            <div class="calendar-day cal-present">1</div><div class="calendar-day cal-present">2</div><div class="calendar-day cal-present">3</div><div class="calendar-day cal-holiday" title="Independence Day">4</div>
-                            <div class="calendar-day cal-weekend">5</div><div class="calendar-day cal-present">6</div><div class="calendar-day cal-present">7</div><div class="calendar-day cal-present">8</div>
-                            <div class="calendar-day cal-absent">9</div><div class="calendar-day cal-present">10</div><div class="calendar-day cal-weekend">11</div><div class="calendar-day cal-weekend">12</div>
-                            <div class="calendar-day cal-present">13</div><div class="calendar-day cal-leave">14</div><div class="calendar-day cal-present">15</div><div class="calendar-day cal-present">16</div>
-                            <div class="calendar-day cal-present">17</div><div class="calendar-day cal-weekend">18</div><div class="calendar-day cal-weekend">19</div><div class="calendar-day cal-present">20</div>
-                            <div class="calendar-day cal-present">21</div><div class="calendar-day cal-empty border border-danger shadow-sm">22</div><div class="calendar-day cal-empty">23</div><div class="calendar-day cal-empty">24</div>
-                            <div class="calendar-day cal-empty">25</div><div class="calendar-day cal-empty">26</div><div class="calendar-day cal-empty">27</div><div class="calendar-day cal-empty">28</div>
-                            <div class="calendar-day cal-empty">29</div><div class="calendar-day cal-empty">30</div><div class="calendar-day cal-empty">31</div>
+                            <!-- Populated dynamically via API -->
                         </div>
                     </div>
                 </div>
@@ -712,7 +703,7 @@
                 <div class="card dashboard-card bg-white h-100">
                     <div class="card-header bg-transparent border-0 pt-4 pb-2 d-flex justify-content-between align-items-center">
                         <h5 class="fw-bold text-dark mb-0">Attendance History</h5>
-                        <button class="btn btn-sm btn-light border"><i class="bi bi-download me-1"></i> Export</button>
+                        <button class="btn btn-sm btn-light border" id="exportBtn"><i class="bi bi-download me-1"></i> Export</button>
                     </div>
                     <div class="card-body p-0">
                         <div class="table-responsive">
@@ -728,46 +719,8 @@
                                         <th class="pe-4">Manager Approval</th>
                                     </tr>
                                 </thead>
-                                <tbody>
-                                    <tr id="today-row" class="d-none">
-                                        <!-- Javascript will populate this when checked in -->
-                                    </tr>
-                                    <tr>
-                                        <td class="ps-4 fw-medium text-dark">21 Jul 2026</td>
-                                        <td>08:55 AM</td>
-                                        <td>06:00 PM</td>
-                                        <td>9h 05m</td>
-                                        <td><span class="badge bg-light text-dark border"><i class="bi bi-building me-1"></i> Office</span></td>
-                                        <td><span class="text-success fw-semibold"><i class="bi bi-circle-fill small me-1"></i> Present</span></td>
-                                        <td class="pe-4"><span class="badge bg-success bg-opacity-25 text-success border border-success">Approved</span></td>
-                                    </tr>
-                                    <tr>
-                                        <td class="ps-4 fw-medium text-dark">20 Jul 2026</td>
-                                        <td>09:15 AM</td>
-                                        <td>06:15 PM</td>
-                                        <td>9h 00m</td>
-                                        <td><span class="badge bg-light text-dark border"><i class="bi bi-house me-1"></i> Remote</span></td>
-                                        <td><span class="text-warning-emphasis fw-semibold"><i class="bi bi-circle-fill small text-warning me-1"></i> Late</span></td>
-                                        <td class="pe-4"><span class="badge bg-success bg-opacity-25 text-success border border-success">Approved</span></td>
-                                    </tr>
-                                    <tr>
-                                        <td class="ps-4 fw-medium text-dark">17 Jul 2026</td>
-                                        <td>09:00 AM</td>
-                                        <td>06:30 PM</td>
-                                        <td>9h 30m</td>
-                                        <td><span class="badge bg-light text-dark border"><i class="bi bi-diagram-2 me-1"></i> Hybrid</span></td>
-                                        <td><span class="text-success fw-semibold"><i class="bi bi-circle-fill small me-1"></i> Present</span></td>
-                                        <td class="pe-4"><span class="badge bg-success bg-opacity-25 text-success border border-success">Approved</span></td>
-                                    </tr>
-                                    <tr>
-                                        <td class="ps-4 fw-medium text-dark">14 Jul 2026</td>
-                                        <td>--:--</td>
-                                        <td>--:--</td>
-                                        <td>0h 00m</td>
-                                        <td><span class="badge bg-light text-muted border">-</span></td>
-                                        <td><span class="text-secondary fw-semibold"><i class="bi bi-circle-fill small me-1"></i> Leave</span></td>
-                                        <td class="pe-4"><span class="badge bg-success bg-opacity-25 text-success border border-success">Approved</span></td>
-                                    </tr>
+                                <tbody id="attendance-history-body">
+                                    <!-- Populated dynamically via API -->
                                 </tbody>
                             </table>
                         </div>
@@ -831,7 +784,9 @@
     </div>
 
     <!-- Bootstrap JS Bundle -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL" crossorigin="anonymous"></script>
+    <script src="../js/api.js"></script>
+    <script src="../js/auth.js"></script>
     
     <!-- Page Logic -->
     <script>
@@ -853,103 +808,324 @@
             document.getElementById('sidebar').classList.remove('show');
         });
 
-        // Global variable to store active check-in time Object
-        let activeCheckInDateObj = null;
+        // Safe DOM helper
+        function escapeHtml(str) {
+            if (str == null) return '';
+            const div = document.createElement('div');
+            div.textContent = String(str);
+            return div.innerHTML;
+        }
 
-        // --- Check IN Logic ---
-        function executeMarkAttendance() {
-            // Swap UI views inside modal
-            document.getElementById('attendance-pre').classList.add('d-none');
-            document.getElementById('attendance-post').classList.remove('d-none');
-            
-            // 1. Capture Timestamp
-            const now = new Date();
-            activeCheckInDateObj = now; 
-            
-            const timeString = now.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
-            document.getElementById('modal-timestamp').innerText = now.toLocaleString();
-            
-            // Update the main top card displays
-            document.getElementById('check-in-display').innerText = timeString;
-            document.getElementById('working-hours-display').innerText = "In Progress...";
-            
-            const statusBadge = document.getElementById('today-status-badge');
-            statusBadge.innerText = "Present (Pending)";
-            statusBadge.className = "badge bg-warning bg-opacity-25 text-warning-emphasis border border-warning px-3 py-2";
+        function formatTime(isoString) {
+            if (!isoString) return '--:--';
+            try {
+                const d = new Date(isoString);
+                return d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+            } catch (e) {
+                return '--:--';
+            }
+        }
 
-            // Enable Check-out Button & Disable Check-in Button
-            document.getElementById('checkInBtn').disabled = true;
-            document.getElementById('checkOutBtn').disabled = false;
-            document.getElementById('checkOutBtn').classList.replace('btn-outline-secondary', 'btn-outline-danger');
+        function formatDate(dateStr) {
+            if (!dateStr) return '';
+            try {
+                const parts = dateStr.split('-');
+                if (parts.length === 3) {
+                    const d = new Date(parts[0], parts[1] - 1, parts[2]);
+                    return d.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
+                }
+                return dateStr;
+            } catch (e) {
+                return dateStr;
+            }
+        }
 
-            // 2. Capture Device Data
-            document.getElementById('modal-device').innerText = navigator.platform + " / " + navigator.userAgent.split(' ')[0];
+        let currentUser = null;
 
-            // 3. Capture Precise Geolocation and Render Table Row
+        // Initialize page
+        document.addEventListener('DOMContentLoaded', async () => {
+            currentUser = await Auth.require('EMPLOYEE');
+            if (!currentUser) return;
+
+            await loadTodayAttendance();
+            await loadMonthAttendance();
+        });
+
+        async function loadTodayAttendance() {
+            try {
+                const today = await API.get('/attendance/me/today');
+                const checkInDisplay = document.getElementById('check-in-display');
+                const checkOutDisplay = document.getElementById('check-out-display');
+                const workingHoursDisplay = document.getElementById('working-hours-display');
+                const statusBadge = document.getElementById('today-status-badge');
+                const checkInBtn = document.getElementById('checkInBtn');
+                const checkOutBtn = document.getElementById('checkOutBtn');
+
+                const rec = today ? (today.todayRecord || today.record) : null;
+                if (today && today.checkedIn && rec) {
+                    checkInDisplay.textContent = formatTime(rec.checkInAt);
+                    checkInBtn.disabled = true;
+
+                    if (today.checkedOut) {
+                        checkOutDisplay.textContent = formatTime(rec.checkOutAt);
+                        const hrs = Math.floor(today.workedMinutes / 60);
+                        const mins = today.workedMinutes % 60;
+                        workingHoursDisplay.textContent = `${hrs}h ${mins}m`;
+
+                        statusBadge.textContent = rec.approvalStatus === 'APPROVED' ? 'Present (Approved)' : `Present (${rec.approvalStatus})`;
+                        statusBadge.className = rec.approvalStatus === 'APPROVED' ? 
+                            "badge bg-success bg-opacity-25 text-success border border-success px-3 py-2" :
+                            "badge bg-warning bg-opacity-25 text-warning-emphasis border border-warning px-3 py-2";
+
+                        checkOutBtn.disabled = true;
+                        checkOutBtn.classList.replace('btn-outline-secondary', 'btn-success');
+                        checkOutBtn.classList.replace('btn-outline-danger', 'btn-success');
+                        checkOutBtn.innerHTML = '<i class="bi bi-check-circle me-2"></i> Checked Out';
+                    } else {
+                        checkOutDisplay.textContent = '--:--';
+                        workingHoursDisplay.textContent = 'In Progress...';
+                        statusBadge.textContent = `Checked In (${rec.approvalStatus})`;
+                        statusBadge.className = "badge bg-warning bg-opacity-25 text-warning-emphasis border border-warning px-3 py-2";
+
+                        checkOutBtn.disabled = false;
+                        checkOutBtn.classList.replace('btn-outline-secondary', 'btn-outline-danger');
+                    }
+                } else {
+                    checkInDisplay.textContent = '--:--';
+                    checkOutDisplay.textContent = '--:--';
+                    workingHoursDisplay.textContent = '--h --m';
+                    statusBadge.textContent = 'Not Marked';
+                    statusBadge.className = "badge bg-secondary bg-opacity-25 text-secondary border border-secondary px-3 py-2";
+
+                    checkInBtn.disabled = false;
+                    checkOutBtn.disabled = true;
+                }
+            } catch (err) {
+                console.error('Failed to load today status:', err);
+            }
+        }
+
+        async function loadMonthAttendance(monthStr) {
+            try {
+                const endpoint = monthStr ? `/attendance/me?month=${encodeURIComponent(monthStr)}` : '/attendance/me';
+                const data = await API.get(endpoint);
+
+                // Update summary stats
+                document.getElementById('stat-attendance-pct').textContent = `${data.attendancePercentage}%`;
+                document.getElementById('stat-working-days').textContent = data.totalWorkingDays;
+                document.getElementById('stat-present-days').textContent = data.presentDays;
+                document.getElementById('stat-absent-days').textContent = data.absentDays;
+                document.getElementById('stat-late-days').textContent = data.lateDays;
+                document.getElementById('stat-half-days').textContent = data.halfDays;
+                document.getElementById('stat-leave-days').textContent = data.approvedLeaveDays;
+
+                // Render Calendar
+                const calendarGrid = document.getElementById('attendance-calendar');
+                calendarGrid.innerHTML = '';
+
+                // Calculate leading empty days based on the day of week of the 1st
+                if (data.calendarDays && data.calendarDays.length > 0) {
+                    const firstDate = new Date(data.calendarDays[0].date);
+                    // getDay: 0 is Sun, 1 is Mon... align so 0 is Mon (1) through 6 is Sun (0)
+                    let dayOfWeekIndex = (firstDate.getDay() + 6) % 7;
+                    for (let i = 0; i < dayOfWeekIndex; i++) {
+                        const emptyCell = document.createElement('div');
+                        emptyCell.className = 'calendar-day cal-empty';
+                        calendarGrid.appendChild(emptyCell);
+                    }
+
+                    data.calendarDays.forEach(day => {
+                        const cell = document.createElement('div');
+                        const dayNum = parseInt(day.date.split('-')[2], 10);
+                        cell.textContent = dayNum;
+
+                        let statusClass = 'cal-empty';
+                        switch (day.status) {
+                            case 'PRESENT': statusClass = 'cal-present'; break;
+                            case 'HALF_DAY': statusClass = 'cal-present'; break;
+                            case 'ABSENT': statusClass = 'cal-absent'; break;
+                            case 'LEAVE': statusClass = 'cal-leave'; break;
+                            case 'HOLIDAY': statusClass = 'cal-holiday'; break;
+                            case 'WEEKEND': statusClass = 'cal-weekend'; break;
+                            case 'PENDING': statusClass = 'cal-present border border-warning'; break;
+                            case 'FUTURE': statusClass = 'cal-empty opacity-50'; break;
+                        }
+                        cell.className = `calendar-day ${statusClass}`;
+                        if (day.statusTitle) {
+                            cell.title = day.statusTitle + (day.isLate ? ' (Late)' : '');
+                        }
+                        calendarGrid.appendChild(cell);
+                    });
+                }
+
+                // Render History Table
+                const tbody = document.getElementById('attendance-history-body');
+                tbody.innerHTML = '';
+
+                if (!data.records || data.records.length === 0) {
+                    const row = document.createElement('tr');
+                    row.innerHTML = '<td colspan="7" class="text-center text-muted py-4">No attendance records found for this period.</td>';
+                    tbody.appendChild(row);
+                } else {
+                    data.records.forEach(r => {
+                        const row = document.createElement('tr');
+
+                        const hrs = Math.floor(r.workedMinutes / 60);
+                        const mins = r.workedMinutes % 60;
+                        const durationStr = r.checkOutAt ? `${hrs}h ${mins}m` : (r.checkInAt ? 'In Progress...' : '--');
+
+                        const locBadge = r.workMode === 'OFFICE' ?
+                            `<span class="badge bg-light text-dark border"><i class="bi bi-building me-1"></i> ${escapeHtml(r.officeLocationName || 'Office')}</span>` :
+                            `<span class="badge bg-light text-dark border"><i class="bi bi-house me-1"></i> Remote</span>`;
+
+                        let statusText = r.dayType === 'HALF_DAY' ? 'Half Day' : 'Present';
+                        let statusColor = 'text-success';
+                        if (r.isLate) {
+                            statusText += ' (Late)';
+                            statusColor = 'text-warning-emphasis';
+                        }
+                        if (r.approvalStatus === 'REJECTED') {
+                            statusText = 'Rejected';
+                            statusColor = 'text-danger';
+                        }
+
+                        let approvalBadge = '<span class="badge bg-warning bg-opacity-25 text-warning-emphasis border border-warning">Pending</span>';
+                        if (r.approvalStatus === 'APPROVED') {
+                            approvalBadge = '<span class="badge bg-success bg-opacity-25 text-success border border-success">Approved</span>';
+                        } else if (r.approvalStatus === 'REJECTED') {
+                            approvalBadge = '<span class="badge bg-danger bg-opacity-25 text-danger border border-danger">Rejected</span>';
+                        }
+
+                        row.innerHTML = `
+                            <td class="ps-4 fw-medium text-dark">${formatDate(r.workDate)}</td>
+                            <td>${formatTime(r.checkInAt)}</td>
+                            <td>${formatTime(r.checkOutAt)}</td>
+                            <td>${durationStr}</td>
+                            <td>${locBadge}</td>
+                            <td><span class="${statusColor} fw-semibold"><i class="bi bi-circle-fill small me-1"></i> ${escapeHtml(statusText)}</span></td>
+                            <td class="pe-4">${approvalBadge}</td>
+                        `;
+                        tbody.appendChild(row);
+                    });
+                }
+            } catch (err) {
+                console.error('Failed to load month attendance:', err);
+            }
+        }
+
+        // --- Check IN Execution ---
+        async function executeMarkAttendance() {
+            const preEl = document.getElementById('attendance-pre');
+            const postEl = document.getElementById('attendance-post');
             const geoSpan = document.getElementById('modal-geo-coords');
+            const timeSpan = document.getElementById('modal-timestamp');
+            const deviceSpan = document.getElementById('modal-device');
+
+            deviceSpan.textContent = `${navigator.platform || 'WEB'} / ${navigator.userAgent.slice(0, 30)}`;
+
+            const performCheckIn = async (coords) => {
+                try {
+                    const payload = {
+                        latitude: coords ? coords.latitude : null,
+                        longitude: coords ? coords.longitude : null,
+                        accuracyM: coords ? coords.accuracy : null,
+                        devicePlatform: 'WEB'
+                    };
+
+                    const resp = await API.post('/attendance/check-in', payload);
+
+                    preEl.classList.add('d-none');
+                    postEl.classList.remove('d-none');
+
+                    if (coords) {
+                        geoSpan.textContent = `${coords.latitude.toFixed(6)}, ${coords.longitude.toFixed(6)} (${resp.workMode})`;
+                    } else {
+                        geoSpan.textContent = `Remote / Unknown (${resp.workMode})`;
+                    }
+                    timeSpan.textContent = formatTime(resp.checkInAt);
+
+                    await loadTodayAttendance();
+                    await loadMonthAttendance();
+
+                    setTimeout(() => {
+                        const modalEl = document.getElementById('attendanceModal');
+                        const modal = bootstrap.Modal.getInstance(modalEl);
+                        if (modal) modal.hide();
+                        preEl.classList.remove('d-none');
+                        postEl.classList.add('d-none');
+                    }, 1500);
+
+                } catch (err) {
+                    alert(err.message || 'Check-in failed');
+                }
+            };
+
             if (navigator.geolocation) {
                 navigator.geolocation.getCurrentPosition(
                     function(position) {
-                        geoSpan.innerText = `${position.coords.latitude.toFixed(6)}, ${position.coords.longitude.toFixed(6)}`;
-                        
-                        // Reveal and build the active Today row in the table
-                        const todayRow = document.getElementById('today-row');
-                        todayRow.classList.remove('d-none');
-                        todayRow.innerHTML = `
-                            <td class="ps-4 fw-medium text-dark">${now.toLocaleDateString('en-GB', {day: 'numeric', month: 'short', year: 'numeric'})}</td>
-                            <td id="table-check-in">${timeString}</td>
-                            <td id="table-check-out">--:--</td>
-                            <td id="table-working-hours">In Progress...</td>
-                            <td><span class="badge bg-light text-dark border"><i class="bi bi-house me-1"></i> Remote</span></td>
-                            <td><span class="text-success fw-semibold"><i class="bi bi-circle-fill small me-1"></i> Present</span></td>
-                            <td class="pe-4"><span class="badge bg-warning bg-opacity-25 text-warning-emphasis border border-warning">Pending</span></td>
-                        `;
-                    }, 
-                    function(error) {
-                        geoSpan.innerText = "Location permission denied.";
+                        performCheckIn(position.coords);
                     },
-                    { enableHighAccuracy: true }
+                    function(err) {
+                        // Attempt check-in without GPS (server will enforce gpsVerification rule if required)
+                        performCheckIn(null);
+                    },
+                    { enableHighAccuracy: true, timeout: 8000 }
                 );
             } else {
-                geoSpan.innerText = "Geolocation not supported.";
+                performCheckIn(null);
             }
         }
 
-        // --- Check OUT Logic (Dynamic Time capture) ---
-        function executeCheckOut() {
-            if(!activeCheckInDateObj) {
-                alert("You need to check in first.");
-                return;
+        // --- Check OUT Execution ---
+        async function executeCheckOut() {
+            const performCheckOut = async (coords) => {
+                try {
+                    const payload = {
+                        latitude: coords ? coords.latitude : null,
+                        longitude: coords ? coords.longitude : null,
+                        accuracyM: coords ? coords.accuracy : null,
+                        devicePlatform: 'WEB'
+                    };
+
+                    const resp = await API.post('/attendance/check-out', payload);
+
+                    await loadTodayAttendance();
+                    await loadMonthAttendance();
+
+                    const hrs = Math.floor(resp.workedMinutes / 60);
+                    const mins = resp.workedMinutes % 60;
+                    alert(`Checked out successfully! Total worked time: ${hrs}h ${mins}m`);
+                } catch (err) {
+                    alert(err.message || 'Check-out failed');
+                }
+            };
+
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(
+                    pos => performCheckOut(pos.coords),
+                    err => performCheckOut(null),
+                    { enableHighAccuracy: true, timeout: 5000 }
+                );
+            } else {
+                performCheckOut(null);
             }
-
-            const now = new Date();
-            const timeString = now.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
-
-            // Calculate Difference
-            const diffMs = now - activeCheckInDateObj;
-            const diffHrs = Math.floor(diffMs / (1000 * 60 * 60));
-            const diffMins = Math.floor((diffMs % (1000 * 60 * 60)) / (1000 * 60));
-            const durationStr = `${diffHrs}h ${diffMins}m`;
-
-            // Update Main Card Displays
-            document.getElementById('check-out-display').innerText = timeString;
-            document.getElementById('working-hours-display').innerText = durationStr;
-
-            // Update Table Row Displays
-            const tableCheckOut = document.getElementById('table-check-out');
-            const tableWorkHours = document.getElementById('table-working-hours');
-            
-            if(tableCheckOut) tableCheckOut.innerText = timeString;
-            if(tableWorkHours) tableWorkHours.innerText = durationStr;
-
-            // Update Button State to prevent multiple checkouts
-            const checkoutBtn = document.getElementById('checkOutBtn');
-            checkoutBtn.disabled = true;
-            checkoutBtn.classList.replace('btn-outline-danger', 'btn-success');
-            checkoutBtn.innerHTML = `<i class="bi bi-check-circle me-2"></i> Checked Out`;
-            
-            alert(`Checked out successfully at ${timeString}. Total logged time: ${durationStr}.`);
         }
+
+        // Export Attendance
+        document.getElementById('exportBtn')?.addEventListener('click', async () => {
+            try {
+                const now = new Date();
+                const year = now.getFullYear();
+                const month = String(now.getMonth() + 1).padStart(2, '0');
+                const from = `${year}-${month}-01`;
+                const lastDay = new Date(year, now.getMonth() + 1, 0).getDate();
+                const to = `${year}-${month}-${String(lastDay).padStart(2, '0')}`;
+
+                await API.download(`/attendance/export?from=${from}&to=${to}`, `attendance_${from}_to_${to}.csv`);
+            } catch (err) {
+                alert('Export failed: ' + err.message);
+            }
+        });
     </script>
 </body>
 </html>

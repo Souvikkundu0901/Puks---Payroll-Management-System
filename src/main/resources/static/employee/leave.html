@@ -4,17 +4,17 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Leave Management - Octopyder</title>
+    <title>Leave Management - Puk's</title>
 
     <!-- Google Fonts: Inter -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;900&display=swap"
         rel="stylesheet">
 
     <!-- Bootstrap 5 CSS -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
 
     <!-- Bootstrap Icons -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet" integrity="sha384-4LISF5TTJX/fLmGSxO53rV4miRxdg84mZsxmO8Rx5jGtp/LbrixFETvWa5a6sESd" crossorigin="anonymous">
 
     <style>
         /* =========================================
@@ -543,7 +543,7 @@
 
     <!-- Mobile Header -->
     <div class="mobile-header sticky-top">
-        <h4 class="mb-0 fw-bold"><i class="bi bi-layers-fill text-white me-2"></i>Octopyder</h4>
+        <h4 class="mb-0 fw-bold"><i class="bi bi-layers-fill text-white me-2"></i>Puk's</h4>
         <button class="btn btn-outline-light border-0" data-bs-toggle="modal" data-bs-target="#logoutModal" title="Logout">
             <i class="bi bi-box-arrow-right fs-3"></i>
         </button>
@@ -554,7 +554,7 @@
 
         <div class="sidebar-brand d-flex align-items-center">
             <i class="bi bi-layers-fill me-2"></i>
-            <span>Octopyder</span>
+            <span>Puk's</span>
         </div>
         
         <div class="p-3">
@@ -622,7 +622,7 @@
                                 class="bi bi-calendar3"></i></div>
                         <div>
                             <h6 class="text-muted mb-1 small fw-semibold">Annual Allowance</h6>
-                            <h4 class="fw-bold text-dark mb-0">12 Days</h4>
+                            <h4 class="fw-bold text-dark mb-0" id="annualAllowanceVal">12 Days</h4>
                         </div>
                     </div>
                 </div>
@@ -634,7 +634,7 @@
                         </div>
                         <div>
                             <h6 class="text-muted mb-1 small fw-semibold">Earned Leaves</h6>
-                            <h4 class="fw-bold text-dark mb-0">4 Days</h4>
+                            <h4 class="fw-bold text-dark mb-0" id="earnedLeavesVal">0 Days</h4>
                         </div>
                     </div>
                 </div>
@@ -646,7 +646,7 @@
                                 class="bi bi-calendar-minus"></i></div>
                         <div>
                             <h6 class="text-muted mb-1 small fw-semibold">Used Leaves</h6>
-                            <h4 class="fw-bold text-dark mb-0">2 Days</h4>
+                            <h4 class="fw-bold text-dark mb-0" id="usedLeavesVal">0 Days</h4>
                         </div>
                     </div>
                 </div>
@@ -658,7 +658,7 @@
                                 class="bi bi-calendar2-check-fill"></i></div>
                         <div>
                             <h6 class="text-muted mb-1 small fw-semibold">Available Balance</h6>
-                            <h4 class="fw-bold text-dark mb-0">2 Days</h4>
+                            <h4 class="fw-bold text-dark mb-0" id="availableBalanceVal">0 Days</h4>
                         </div>
                     </div>
                 </div>
@@ -692,10 +692,11 @@
                                     <label class="form-label fw-medium small">Leave Type</label>
                                     <select class="form-select" id="leaveType" required>
                                         <option value="" disabled selected>Select category...</option>
-                                        <option value="Casual">Casual</option>
-                                        <option value="Sick">Sick</option>
-                                        <option value="Emergency">Emergency</option>
-                                        <option value="Paid">Paid</option>
+                                        <option value="PAID">Paid Leave</option>
+                                        <option value="CASUAL">Casual Leave</option>
+                                        <option value="SICK">Sick Leave</option>
+                                        <option value="EMERGENCY">Emergency Leave</option>
+                                        <option value="UNPAID">Unpaid (Loss of Pay)</option>
                                     </select>
                                 </div>
                                 <div class="col-md-6">
@@ -796,61 +797,18 @@
                     <table class="table table-hover table-custom mb-0 text-start">
                         <thead>
                             <tr>
-                                <th class="ps-4">Date</th>
+                                <th class="ps-4">Dates</th>
                                 <th>Type</th>
+                                <th>Days</th>
                                 <th style="min-width: 200px;">Reason</th>
                                 <th>Status</th>
-                                <th>Manager</th>
-                                <th class="pe-4">Approved On</th>
+                                <th>Decision By</th>
+                                <th class="pe-4 text-end">Action</th>
                             </tr>
                         </thead>
                         <tbody id="leaveHistoryBody">
                             <tr>
-                                <td class="ps-4 fw-medium text-dark">14 Jul 2026</td>
-                                <td><span
-                                        class="badge bg-info bg-opacity-10 text-info border border-info-subtle">Casual</span>
-                                </td>
-                                <td>Attending family function</td>
-                                <td><span class="badge bg-success"><i class="bi bi-check-circle me-1"></i>
-                                        Approved</span></td>
-                                <td><img src="https://ui-avatars.com/api/?name=Priyanshu+Kumar&background=random"
-                                        class="rounded-circle me-2" width="24">Priyanshu Kumar</td>
-                                <td class="pe-4 text-muted">12 Jul 2026</td>
-                            </tr>
-                            <tr>
-                                <td class="ps-4 fw-medium text-dark">04 Jul 2026</td>
-                                <td><span
-                                        class="badge bg-dark bg-opacity-10 text-dark border border-dark-subtle">Paid</span>
-                                </td>
-                                <td>Public Holiday bridging</td>
-                                <td><span class="badge bg-success"><i class="bi bi-check-circle me-1"></i>
-                                        Approved</span></td>
-                                <td><img src="https://ui-avatars.com/api/?name=Priyanshu+Kumar&background=random"
-                                        class="rounded-circle me-2" width="24">Priyanshu Kumar</td>
-                                <td class="pe-4 text-muted">01 Jul 2026</td>
-                            </tr>
-                            <tr>
-                                <td class="ps-4 fw-medium text-dark">10 May 2026</td>
-                                <td><span
-                                        class="badge bg-warning bg-opacity-10 text-warning-emphasis border border-warning-subtle">Sick</span>
-                                </td>
-                                <td>Dental appointment</td>
-                                <td><span class="badge bg-danger"><i class="bi bi-x-circle me-1"></i> Rejected</span>
-                                </td>
-                                <td><img src="https://ui-avatars.com/api/?name=Priyanshu+Kumar&background=random"
-                                        class="rounded-circle me-2" width="24">Priyanshu Kumar</td>
-                                <td class="pe-4 text-muted">09 May 2026</td>
-                            </tr>
-                            <tr>
-                                <td class="ps-4 fw-medium text-dark">02 Apr 2026 - 03 Apr 2026</td>
-                                <td><span
-                                        class="badge bg-danger bg-opacity-10 text-danger border border-danger-subtle">Emergency</span>
-                                </td>
-                                <td>Family medical emergency</td>
-                                <td><span class="badge bg-secondary"><i class="bi bi-slash-circle me-1"></i>
-                                        Cancelled</span></td>
-                                <td class="text-muted">--</td>
-                                <td class="pe-4 text-muted">--</td>
+                                <td colspan="7" class="text-center text-muted py-4">Loading leave history...</td>
                             </tr>
                         </tbody>
                     </table>
@@ -876,16 +834,44 @@
     </div>
 
     <!-- Bootstrap JS Bundle -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL" crossorigin="anonymous"></script>
 
     <!-- Page Logic -->
     <script>
-        // --- 0. Theme Initializer ---
-        document.addEventListener('DOMContentLoaded', () => {
+        function escapeHtml(str) {
+            if (str == null) return '';
+            const div = document.createElement('div');
+            div.textContent = String(str);
+            return div.innerHTML;
+        }
+
+        function formatDate(dateStr) {
+            if (!dateStr) return '';
+            try {
+                const parts = dateStr.split('-');
+                if (parts.length === 3) {
+                    const d = new Date(parts[0], parts[1] - 1, parts[2]);
+                    return d.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' });
+                }
+                return dateStr;
+            } catch (e) {
+                return dateStr;
+            }
+        }
+
+        // --- 0. Theme Initializer & Sidebar ---
+        document.addEventListener('DOMContentLoaded', async () => {
             const savedTheme = localStorage.getItem('payrollTheme');
             if (savedTheme && savedTheme !== 'default') {
                 document.body.classList.add(savedTheme);
             }
+
+            const user = await Auth.require('EMPLOYEE');
+            if (!user) return;
+
+            await loadLeaveBalance();
+            await loadLeaveHistory();
+            await loadCalendarData();
         });
 
         // Sidebar Toggle Logic
@@ -893,65 +879,152 @@
             document.getElementById('sidebar').classList.add('show');
         });
 
-        // Mobile Sidebar Close Logic
         document.getElementById('sidebarClose')?.addEventListener('click', function() {
             document.getElementById('sidebar').classList.remove('show');
         });
 
-        // --- 1. Form Submission & Dynamic Table Update ---
-        function submitLeave(e) {
+        // --- 1. Leave Balance ---
+        async function loadLeaveBalance() {
+            try {
+                const bal = await API.get('/leave/me/balance');
+                if (bal) {
+                    document.getElementById('earnedLeavesVal').textContent = `${bal.earnedLeaves} Days`;
+                    document.getElementById('usedLeavesVal').textContent = `${bal.usedLeaves} Days`;
+                    document.getElementById('availableBalanceVal').textContent = `${bal.availableBalance} Days`;
+                }
+            } catch (err) {
+                console.error('Failed to load leave balance:', err);
+            }
+        }
+
+        // --- 2. Leave History & Cancellation ---
+        let myLeaveRequests = [];
+
+        async function loadLeaveHistory() {
+            const tbody = document.getElementById('leaveHistoryBody');
+            try {
+                const res = await API.get('/leave/me/requests');
+                myLeaveRequests = Array.isArray(res) ? res : ((res && res.items) ? res.items : []);
+                tbody.innerHTML = '';
+
+                if (myLeaveRequests.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="7" class="text-center text-muted py-4">No leave requests found.</td></tr>';
+                    return;
+                }
+
+                const todayStr = new Date().toISOString().slice(0, 10);
+
+                myLeaveRequests.forEach(req => {
+                    const tr = document.createElement('tr');
+
+                    // Date range
+                    let dateDisplay = formatDate(req.startDate);
+                    if (req.startDate !== req.endDate) {
+                        dateDisplay += ` - ${formatDate(req.endDate)}`;
+                    }
+
+                    // Leave type badge
+                    let typeBadgeClass = 'bg-primary bg-opacity-10 text-primary border-primary-subtle';
+                    if (req.leaveType === 'CASUAL') typeBadgeClass = 'bg-info bg-opacity-10 text-info border-info-subtle';
+                    if (req.leaveType === 'SICK') typeBadgeClass = 'bg-warning bg-opacity-10 text-warning-emphasis border-warning-subtle';
+                    if (req.leaveType === 'EMERGENCY') typeBadgeClass = 'bg-danger bg-opacity-10 text-danger border-danger-subtle';
+                    if (req.leaveType === 'PAID') typeBadgeClass = 'bg-dark bg-opacity-10 text-dark border-dark-subtle';
+                    if (req.leaveType === 'UNPAID') typeBadgeClass = 'bg-secondary bg-opacity-10 text-secondary border-secondary-subtle';
+
+                    // Status badge
+                    let statusBadge = '<span class="badge bg-warning text-dark"><i class="bi bi-hourglass-split me-1"></i>Pending</span>';
+                    if (req.approvalStatus === 'APPROVED') {
+                        statusBadge = '<span class="badge bg-success"><i class="bi bi-check-circle me-1"></i>Approved</span>';
+                    } else if (req.approvalStatus === 'REJECTED') {
+                        statusBadge = '<span class="badge bg-danger"><i class="bi bi-x-circle me-1"></i>Rejected</span>';
+                    } else if (req.approvalStatus === 'CANCELLED') {
+                        statusBadge = '<span class="badge bg-secondary"><i class="bi bi-slash-circle me-1"></i>Cancelled</span>';
+                    }
+
+                    // Cancel button if eligible (PENDING or APPROVED for future/today)
+                    let actionHtml = '';
+                    const canCancel = (req.approvalStatus === 'PENDING') || 
+                                      (req.approvalStatus === 'APPROVED' && req.startDate >= todayStr);
+                    if (canCancel) {
+                        actionHtml += `<button class="btn btn-sm btn-outline-danger" onclick="cancelLeave('${req.id}')" title="Cancel Leave Request"><i class="bi bi-x-circle me-1"></i>Cancel</button>`;
+                    }
+                    if (req.hasAttachment) {
+                        actionHtml += `<button type="button" onclick="API.download('/leave/requests/${req.id}/attachment', 'certificate')" class="btn btn-sm btn-light border ms-1" title="Download Medical Certificate"><i class="bi bi-paperclip"></i></button>`;
+                    }
+                    if (!actionHtml) {
+                        actionHtml = '<span class="text-muted small">--</span>';
+                    }
+
+                    const approverText = req.decidedByName ? escapeHtml(req.decidedByName) : (req.approvalStatus === 'PENDING' ? 'Awaiting Review' : '--');
+
+                    tr.innerHTML = `
+                        <td class="ps-4 fw-medium text-dark">${escapeHtml(dateDisplay)}</td>
+                        <td><span class="badge ${typeBadgeClass} border">${escapeHtml(req.leaveType)}</span></td>
+                        <td>${req.workingDays} Day${req.workingDays === 1 ? '' : 's'}</td>
+                        <td class="text-truncate" style="max-width: 200px;" title="${escapeHtml(req.reason)}">${escapeHtml(req.reason)}</td>
+                        <td>${statusBadge}</td>
+                        <td class="text-muted">${approverText}</td>
+                        <td class="pe-4 text-end">${actionHtml}</td>
+                    `;
+                    tbody.appendChild(tr);
+                });
+            } catch (err) {
+                tbody.innerHTML = `<tr><td colspan="7" class="text-center text-danger py-4">Failed to load history: ${escapeHtml(err.message)}</td></tr>`;
+            }
+        }
+
+        // Cancel Leave
+        async function cancelLeave(id) {
+            if (!confirm('Are you sure you want to cancel this leave request?')) return;
+            try {
+                await API.post(`/leave/requests/${id}/cancel`);
+                alert('Leave request cancelled successfully.');
+                await loadLeaveBalance();
+                await loadLeaveHistory();
+                await loadCalendarData();
+            } catch (err) {
+                alert('Failed to cancel leave: ' + (err.problem?.detail || err.message));
+            }
+        }
+
+        // --- 3. Form Submission ---
+        async function submitLeave(e) {
             e.preventDefault();
 
-            // Get Form Values
             const type = document.getElementById('leaveType').value;
             const start = document.getElementById('startDate').value;
             const end = document.getElementById('endDate').value;
             const reason = document.getElementById('leaveReason').value;
+            const fileInput = document.getElementById('leaveAttachment');
 
-            // Format Date String
-            const startDateObj = new Date(start);
-            const endDateObj = new Date(end);
-
-            const options = { day: '2-digit', month: 'short', year: 'numeric' };
-            let dateDisplay = startDateObj.toLocaleDateString('en-GB', options);
-
-            if (start !== end && endDateObj > startDateObj) {
-                dateDisplay += ` - ${endDateObj.toLocaleDateString('en-GB', options)}`;
+            if (!type || !start || !end || !reason) {
+                alert('Please fill in all required fields.');
+                return;
             }
 
-            // Determine Type Badge Color
-            let typeBadgeClass = 'bg-primary bg-opacity-10 text-primary border-primary-subtle';
-            if (type === 'Casual') typeBadgeClass = 'bg-info bg-opacity-10 text-info border-info-subtle';
-            if (type === 'Sick') typeBadgeClass = 'bg-warning bg-opacity-10 text-warning-emphasis border-warning-subtle';
-            if (type === 'Emergency') typeBadgeClass = 'bg-danger bg-opacity-10 text-danger border-danger-subtle';
-            if (type === 'Paid') typeBadgeClass = 'bg-dark bg-opacity-10 text-dark border-dark-subtle';
+            const formData = new FormData();
+            formData.append('type', type);
+            formData.append('leaveType', type);
+            formData.append('startDate', start);
+            formData.append('endDate', end);
+            formData.append('reason', reason);
+            if (fileInput.files && fileInput.files[0]) {
+                formData.append('attachment', fileInput.files[0]);
+            }
 
-            // Create New Row
-            const newRow = document.createElement('tr');
-            newRow.classList.add('bg-light');
-            newRow.innerHTML = `
-                <td class="ps-4 fw-medium text-dark">${dateDisplay}</td>
-                <td><span class="badge ${typeBadgeClass} border">${type}</span></td>
-                <td>${reason}</td>
-                <td><span class="badge bg-warning text-dark"><i class="bi bi-hourglass-split me-1"></i> Pending</span></td>
-                <td class="text-muted">Awaiting Review</td>
-                <td class="pe-4 text-muted">--</td>
-            `;
-
-            // Prepend to Table
-            const tbody = document.getElementById('leaveHistoryBody');
-            tbody.insertBefore(newRow, tbody.firstChild);
-
-            // Reset & Alert
-            document.getElementById('leaveApplicationForm').reset();
-            alert('Leave request submitted successfully. It has been marked as Pending and sent to your Manager for approval.');
-
-            // Remove highlight after 3 seconds
-            setTimeout(() => { newRow.classList.remove('bg-light'); }, 3000);
+            try {
+                await API.post('/leave/requests', formData);
+                alert('Leave request submitted successfully. It has been sent to your Manager for review.');
+                document.getElementById('leaveApplicationForm').reset();
+                await loadLeaveBalance();
+                await loadLeaveHistory();
+                await loadCalendarData();
+            } catch (err) {
+                alert('Application failed: ' + (err.problem?.detail || err.message));
+            }
         }
 
-        // --- 2. Dynamic Calendar Logic ---
-
+        // --- 4. Dynamic Calendar Logic ---
         let currentDate = new Date();
         let navMonth = currentDate.getMonth();
         let navYear = currentDate.getFullYear();
@@ -961,18 +1034,52 @@
 
         const monthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
 
-        // Mock Data: Approved Leaves & Holidays (Format: YYYY-MM-DD)
-        const mockApprovedLeaves = ["2026-07-14", "2026-07-04"];
-        const mockHolidays = ["2026-01-01", "2026-08-15", "2026-10-02", "2026-12-25"];
+        let approvedLeavesSet = new Set();
+        let holidaysMap = new Map();
+
+        async function loadCalendarData() {
+            try {
+                // Collect approved dates from my requests
+                approvedLeavesSet.clear();
+                myLeaveRequests.forEach(req => {
+                    if (req.approvalStatus === 'APPROVED') {
+                        let cur = new Date(req.startDate);
+                        const last = new Date(req.endDate);
+                        while (cur <= last) {
+                            approvedLeavesSet.add(cur.toISOString().slice(0, 10));
+                            cur.setDate(cur.getDate() + 1);
+                        }
+                    }
+                });
+
+                // Fetch holidays
+                try {
+                    const holidays = await API.get('/holidays');
+                    holidaysMap.clear();
+                    if (Array.isArray(holidays)) {
+                        holidays.forEach(h => {
+                            holidaysMap.set(h.holidayDate, h.name);
+                        });
+                    }
+                } catch (e) {
+                    console.log('Holidays endpoint note:', e);
+                }
+            } catch (err) {
+                console.error('Error loading calendar data:', err);
+            }
+            renderCalendar(navMonth, navYear);
+        }
 
         function renderCalendar(month, year) {
-            document.getElementById('calendar-month-year').innerText = `${monthNames[month]} ${year}`;
+            const titleEl = document.getElementById('calendar-month-year');
+            if (titleEl) titleEl.innerText = `${monthNames[month]} ${year}`;
 
             const firstDay = new Date(year, month, 1).getDay();
             const daysInMonth = new Date(year, month + 1, 0).getDate();
             const daysInPrevMonth = new Date(year, month, 0).getDate();
 
             const calendarGrid = document.getElementById('calendar-grid-days');
+            if (!calendarGrid) return;
             calendarGrid.innerHTML = '';
 
             // Previous Month Padding
@@ -986,28 +1093,27 @@
                 let classes = "calendar-day";
                 let title = "";
 
-                // Format date for comparison
                 const formattedMonth = String(month + 1).padStart(2, '0');
                 const formattedDay = String(day).padStart(2, '0');
                 const dateString = `${year}-${formattedMonth}-${formattedDay}`;
 
-                // Check for Weekend
+                // Check Weekend (Sunday=0, Saturday=6)
                 const dayOfWeek = new Date(year, month, day).getDay();
                 if (dayOfWeek === 0 || dayOfWeek === 6) {
                     classes += " cal-weekend";
                     title = "Weekend";
                 }
 
-                // Check for Approved Leaves
-                if (mockApprovedLeaves.includes(dateString)) {
-                    classes += " cal-approved";
-                    title = "Approved Leave";
+                // Check Holidays
+                if (holidaysMap.has(dateString)) {
+                    classes += " cal-holiday";
+                    title = holidaysMap.get(dateString) || "Public Holiday";
                 }
 
-                // Check for Holidays
-                if (mockHolidays.includes(dateString)) {
-                    classes += " cal-holiday";
-                    title = "Public Holiday";
+                // Check Approved Leaves
+                if (approvedLeavesSet.has(dateString)) {
+                    classes += " cal-approved";
+                    title = "Approved Leave";
                 }
 
                 // Check Today
@@ -1032,10 +1138,6 @@
             }
             renderCalendar(navMonth, navYear);
         }
-
-        // Init
-        renderCalendar(navMonth, navYear);
-
     </script>
 </body>
 

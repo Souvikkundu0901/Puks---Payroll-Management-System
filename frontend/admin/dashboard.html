@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 
 <head>
@@ -8,8 +8,8 @@
 
     <!-- Fonts & Icons -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;900&display=swap" rel="stylesheet">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet" integrity="sha384-4LISF5TTJX/fLmGSxO53rV4miRxdg84mZsxmO8Rx5jGtp/LbrixFETvWa5a6sESd" crossorigin="anonymous">
 
     <style>
         body, html { height: 100%; font-family: 'Inter', sans-serif; background-color: #f8f9fa; transition: background-color 0.4s ease, color 0.4s ease; overflow-x: hidden; }
@@ -209,6 +209,8 @@
                 </nav>
             </div>
             <div class="sidebar-nav">
+                <a href="reports.html" title="Reports"><i class="bi bi-file-earmark-bar-graph"></i></a>
+                <a href="audit-logs.html" title="Audit Logs"><i class="bi bi-journal-text"></i></a>
                 <a href="settings.html" title="Settings"><i class="bi bi-gear-fill"></i></a>
                 <a href="../index.html" title="Logout"><i class="bi bi-box-arrow-right text-danger"></i></a>
             </div>
@@ -580,7 +582,7 @@
         <!-- Offcanvas Mobile Menu (Sidebar alternative) -->
         <div class="offcanvas offcanvas-start" tabindex="-1" id="mobileMenu" style="width: 280px; background: #111;">
             <div class="offcanvas-header border-bottom border-secondary">
-                <h5 class="offcanvas-title text-white fw-bold"><i class="bi bi-layers-fill me-2"></i>Octopyder</h5>
+                <h5 class="offcanvas-title text-white fw-bold"><i class="bi bi-layers-fill me-2"></i>Puk's</h5>
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="offcanvas"></button>
             </div>
             <div class="offcanvas-body d-flex flex-column justify-content-between">
@@ -616,7 +618,7 @@
     </div>
 
     <!-- Bootstrap JS Bundle -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL" crossorigin="anonymous"></script>
 
     <!-- UI Logic & Data Simulation Script -->
     <script>
@@ -711,114 +713,98 @@
         // ----------------------------------------------------
         // 4. Backend Data Simulation (Dual DOM Update)
         // ----------------------------------------------------
-        function loadDashboardData() {
-            const mockData = {
-                kpi: {
-                    totalEmployees: 125, empGrowth: "+3 This Month",
-                    totalManagers: 12,
-                    attendance: { present: 110, absent: 10, pending: 5 },
-                    pendingLeaves: 8,
-                    tasks: { active: 95, completed: 30, pending: 5 },
-                    payroll: { status: "Generated", amount: "₹12,45,000" }
-                },
-                charts: {
-                    attendanceData: [
-                        { day: 'Mon', percent: 85, color: 'bg-primary' },
-                        { day: 'Tue', percent: 95, color: 'bg-primary' },
-                        { day: 'Wed', percent: 80, color: 'bg-primary' },
-                        { day: 'Thu', percent: 90, color: 'bg-primary' },
-                        { day: 'Fri', percent: 75, color: 'bg-primary' }
-                    ],
-                    salaryDistribution: { released: 75, retained: 15, pending: 10 },
-                    deptTasksData: [
-                        { dept: 'IT', percent: 90, color: 'bg-success' },
-                        { dept: 'HR', percent: 80, color: 'bg-info' },
-                        { dept: 'Finance', percent: 65, color: 'bg-warning' }
-                    ],
-                    leaveStats: { paid: 45, casual: 20, medical: 12 }
-                },
-                recentActivities: [
-                    { time: "2 min ago", user: "Rahul", desc: "approved attendance" },
-                    { time: "10 min ago", user: "Amit", desc: "submitted leave" },
-                    { time: "25 min ago", user: "System", desc: "Salary generated" }
-                ]
-            };
+        async function loadDashboardData() {
+            try {
+                const data = await API.get('/dashboard/admin');
 
-            // Inject Desktop KPIs
-            updateText('emp-total', mockData.kpi.totalEmployees);
-            updateText('emp-growth', mockData.kpi.empGrowth);
-            updateText('mgr-total', `${mockData.kpi.totalManagers} Managers`);
-            updateText('att-present', `Present : ${mockData.kpi.attendance.present}`);
-            updateText('att-absent', `Absent : ${mockData.kpi.attendance.absent}`);
-            updateText('att-pending', `Pending : ${mockData.kpi.attendance.pending}`);
-            updateText('leave-pending', `${mockData.kpi.pendingLeaves} Requests`);
-            updateText('task-active', `${mockData.kpi.tasks.active} Active`);
-            updateText('task-completed', `Completed: ${mockData.kpi.tasks.completed}`);
-            updateText('task-pending', `Pending: ${mockData.kpi.tasks.pending}`);
-            updateText('payroll-status', mockData.kpi.payroll.status);
-            updateText('payroll-amount', mockData.kpi.payroll.amount);
+                // Inject Desktop KPIs
+                updateText('emp-total', data.totalEmployees);
+                updateText('emp-growth', data.employeeGrowth || '+0%');
+                updateText('mgr-total', `${data.totalManagers} Managers`);
+                updateText('att-present', `Present : ${data.attendancePresent}`);
+                updateText('att-absent', `Absent : ${data.attendanceAbsent}`);
+                updateText('att-pending', `Pending : ${data.attendancePending}`);
+                updateText('leave-pending', `${data.pendingLeaves} Requests`);
+                updateText('task-active', `${data.activeTasks} Active`);
+                updateText('task-completed', `Completed: ${data.completedTasks}`);
+                updateText('task-pending', `Pending: ${data.pendingTasks}`);
+                updateText('payroll-status', data.payrollStatus || 'NONE');
+                updateText('payroll-amount', `₹${Number(data.payrollAmount || 0).toLocaleString('en-IN')}`);
 
-            // Inject Mobile KPIs
-            updateText('mob-emp-total', mockData.kpi.totalEmployees);
-            updateText('mob-mgr-total', mockData.kpi.totalManagers);
-            updateText('mob-att-present', mockData.kpi.attendance.present);
-            updateText('mob-leave-pending', mockData.kpi.pendingLeaves);
-            updateText('mob-task-active', mockData.kpi.tasks.active);
-            updateText('mob-payroll-amount', "₹12.4L");
-            updateText('mob-sum-present', `Present: ${mockData.kpi.attendance.present}`);
-            updateText('mob-sum-absent', `Absent: ${mockData.kpi.attendance.absent}`);
-            updateText('mob-sum-pending', `Pending: ${mockData.kpi.attendance.pending}`);
+                // Inject Mobile KPIs
+                updateText('mob-emp-total', data.totalEmployees);
+                updateText('mob-mgr-total', data.totalManagers);
+                updateText('mob-att-present', data.attendancePresent);
+                updateText('mob-leave-pending', data.pendingLeaves);
+                updateText('mob-task-active', data.activeTasks);
+                updateText('mob-payroll-amount', `₹${Number(data.payrollAmount || 0).toLocaleString('en-IN')}`);
+                updateText('mob-sum-present', `Present: ${data.attendancePresent}`);
+                updateText('mob-sum-absent', `Absent: ${data.attendanceAbsent}`);
+                updateText('mob-sum-pending', `Pending: ${data.attendancePending}`);
 
-            // Render Charts (Desktop + Mobile Carousel)
-            let attHtml = '';
-            mockData.charts.attendanceData.forEach(item => {
-                attHtml += `<div>${item.day}: <div class="progress mt-1" style="height: 8px;"><div class="progress-bar ${item.color}" style="width: ${item.percent}%;"></div></div></div>`;
-            });
-            updateText('attendance-chart-container', attHtml, true);
-            updateText('mob-attendance-chart', attHtml, true);
+                // Render Charts (Desktop + Mobile Carousel)
+                let attHtml = '';
+                if (data.weeklyAttendance && data.weeklyAttendance.length > 0) {
+                    data.weeklyAttendance.forEach(item => {
+                        const pct = item.totalCount > 0 ? Math.round((item.presentCount / item.totalCount) * 100) : 0;
+                        attHtml += `<div>${item.dayName}: <div class="progress mt-1" style="height: 8px;"><div class="progress-bar bg-primary" style="width: ${pct}%;"></div></div></div>`;
+                    });
+                }
+                updateText('attendance-chart-container', attHtml, true);
+                updateText('mob-attendance-chart', attHtml, true);
 
-            // Salary Donut (Desktop + Mobile)
-            const sd = mockData.charts.salaryDistribution;
-            const relEnd = sd.released;
-            const retEnd = sd.released + sd.retained;
-            const pieGrad = `conic-gradient(#198754 0% ${relEnd}%, #ffc107 ${relEnd}% ${retEnd}%, #dc3545 ${retEnd}% 100%)`;
-            
-            const deskDonut = document.getElementById('salary-donut-chart');
-            if(deskDonut) deskDonut.style.background = pieGrad;
-            const mobDonut = document.getElementById('mob-salary-donut');
-            if(mobDonut) mobDonut.style.background = pieGrad;
-            
-            const legHtml = `
-                <div class="donut-legend-item"><span><span class="legend-dot bg-success"></span>Released</span><strong class="text-dark">${sd.released}%</strong></div>
-                <div class="donut-legend-item"><span><span class="legend-dot bg-warning"></span>Retained</span><strong class="text-dark">${sd.retained}%</strong></div>
-                <div class="donut-legend-item"><span><span class="legend-dot bg-danger"></span>Pending</span><strong class="text-dark">${sd.pending}%</strong></div>`;
-            updateText('salary-legend-container', legHtml, true);
-            updateText('mob-salary-legend', legHtml, true);
+                // Salary Donut (Desktop + Mobile)
+                const sd = data.salaryDonut || { releasedPct: 0, retainedPct: 0, pendingPct: 0 };
+                const relEnd = sd.releasedPct || 0;
+                const retEnd = relEnd + (sd.retainedPct || 0);
+                const pieGrad = `conic-gradient(#198754 0% ${relEnd}%, #ffc107 ${relEnd}% ${retEnd}%, #dc3545 ${retEnd}% 100%)`;
+                
+                const deskDonut = document.getElementById('salary-donut-chart');
+                if (deskDonut) deskDonut.style.background = pieGrad;
+                const mobDonut = document.getElementById('mob-salary-donut');
+                if (mobDonut) mobDonut.style.background = pieGrad;
+                
+                const legHtml = `
+                    <div class="donut-legend-item"><span><span class="legend-dot bg-success"></span>Released</span><strong class="text-dark">${sd.releasedPct}%</strong></div>
+                    <div class="donut-legend-item"><span><span class="legend-dot bg-warning"></span>Retained</span><strong class="text-dark">${sd.retainedPct}%</strong></div>
+                    <div class="donut-legend-item"><span><span class="legend-dot bg-danger"></span>Pending</span><strong class="text-dark">${sd.pendingPct}%</strong></div>`;
+                updateText('salary-legend-container', legHtml, true);
+                updateText('mob-salary-legend', legHtml, true);
 
-            // Dept Tasks (Desktop + Mobile)
-            let deptHtml = '';
-            mockData.charts.deptTasksData.forEach(item => {
-                deptHtml += `<div><span>${item.dept}</span><div class="progress mt-1" style="height: 6px;"><div class="progress-bar ${item.color}" style="width: ${item.percent}%;"></div></div></div>`;
-            });
-            updateText('dept-task-container', deptHtml, true);
-            updateText('mob-dept-task', deptHtml, true);
+                // Dept Tasks (Desktop + Mobile)
+                let deptHtml = '';
+                if (data.departmentTasks && data.departmentTasks.length > 0) {
+                    data.departmentTasks.forEach(item => {
+                        deptHtml += `<div><span>${item.departmentName}</span><div class="progress mt-1" style="height: 6px;"><div class="progress-bar bg-info" style="width: ${item.completionPct}%;"></div></div></div>`;
+                    });
+                }
+                updateText('dept-task-container', deptHtml, true);
+                updateText('mob-dept-task', deptHtml, true);
 
-            // Leave Stats (Desktop only per prompt layout)
-            const ls = mockData.charts.leaveStats;
-            const leaveHtml = `
-                <li class="d-flex justify-content-between align-items-center pb-2 border-bottom"><span><i class="bi bi-wallet2 text-primary me-2"></i>Paid Leave</span><strong class="text-dark bg-primary bg-opacity-10 px-2 py-1 rounded">${ls.paid} Used</strong></li>
-                <li class="d-flex justify-content-between align-items-center pb-2 border-bottom"><span><i class="bi bi-cup-hot text-info me-2"></i>Casual Leave</span><strong class="text-dark bg-info bg-opacity-10 px-2 py-1 rounded">${ls.casual} Used</strong></li>
-                <li class="d-flex justify-content-between align-items-center"><span><i class="bi bi-heart-pulse text-danger me-2"></i>Medical Leave</span><strong class="text-dark bg-danger bg-opacity-10 px-2 py-1 rounded">${ls.medical} Used</strong></li>`;
-            updateText('leave-stats-container', leaveHtml, true);
+                // Leave Stats (Desktop only per prompt layout)
+                const ls = data.leaveStatsByType || {};
+                const leaveHtml = `
+                    <li class="d-flex justify-content-between align-items-center pb-2 border-bottom"><span><i class="bi bi-wallet2 text-primary me-2"></i>Paid Leave</span><strong class="text-dark bg-primary bg-opacity-10 px-2 py-1 rounded">${ls.PAID || 0} Used</strong></li>
+                    <li class="d-flex justify-content-between align-items-center pb-2 border-bottom"><span><i class="bi bi-cup-hot text-info me-2"></i>Casual Leave</span><strong class="text-dark bg-info bg-opacity-10 px-2 py-1 rounded">${ls.CASUAL || 0} Used</strong></li>
+                    <li class="d-flex justify-content-between align-items-center"><span><i class="bi bi-heart-pulse text-danger me-2"></i>Medical Leave</span><strong class="text-dark bg-danger bg-opacity-10 px-2 py-1 rounded">${ls.SICK || 0} Used</strong></li>`;
+                updateText('leave-stats-container', leaveHtml, true);
 
-            // Activities (Desktop + Mobile)
-            let deskAct = ''; let mobAct = '';
-            mockData.recentActivities.forEach(log => {
-                deskAct += `<div class="d-flex align-items-start gap-2 border-bottom pb-2"><span class="text-muted fw-bold" style="min-width: 45px;">${log.time.split(' ')[0]}m</span><div class="text-dark">${log.user} ${log.desc}</div></div>`;
-                mobAct += `<div><span class="text-dark">&bull; ${log.user} ${log.desc}</span><br><small class="text-muted ms-3">${log.time}</small></div><hr class="my-1 border-light">`;
-            });
-            updateText('activity-log-container', deskAct, true);
-            updateText('mob-activity-log', mobAct, true);
+                // Activities (Desktop + Mobile)
+                let deskAct = ''; let mobAct = '';
+                if (data.recentActivities && data.recentActivities.length > 0) {
+                    data.recentActivities.forEach(act => {
+                        deskAct += `<div class="d-flex align-items-start gap-2 border-bottom pb-2"><span class="text-muted fw-bold" style="min-width: 60px;">${act.timeAgo}</span><div class="text-dark">${act.title}</div></div>`;
+                        mobAct += `<div><span class="text-dark">&bull; ${act.title}</span><br><small class="text-muted ms-3">${act.timeAgo}</small></div><hr class="my-1 border-light">`;
+                    });
+                } else {
+                    deskAct = '<div class="text-muted small py-2">No recent activities</div>';
+                    mobAct = '<div class="text-muted small py-2">No recent activities</div>';
+                }
+                updateText('activity-log-container', deskAct, true);
+                updateText('mob-activity-log', mobAct, true);
+            } catch (err) {
+                console.error('Failed to load admin dashboard data', err);
+            }
         }
 
         setTimeout(loadDashboardData, 300);

@@ -4,10 +4,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Approve Attendance - Octopyder</title>
+    <title>Approve Attendance - Puk's</title>
 
     <!-- Bootstrap 5 CSS -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
 
     <style>
         /* Typography & Core Variables */
@@ -1023,7 +1023,7 @@
     <div class="dashboard">
         <!-- Top Navigation -->
         <div class="top-nav">
-            <div class="logo">Octopyder</div>
+            <div class="logo">Puk's</div>
             <div class="nav-links">
                 <a href="dashboard.html">Dashboard</a>
                 <a href="assign-task.html">Assign Task</a>
@@ -1173,88 +1173,10 @@
                 </div>
 
                 <!-- Pipeline is scrollable -->
-                <div class="tasks-container">
-
-                    <!-- Attendance Item 1 -->
-                    <div class="task-card glass">
-                        <div class="task-header">
-                            <div class="task-title-group">
-                                <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRh5nGOiKvXUTinKVcl9GyxToN5WhMnqb1C2ozzqLT-gw&s"
-                                    style="width:40px; height:40px; border-radius:12px; object-fit:cover;">
-                                <div>
-                                    <div class="d-flex align-items-center">
-                                        <span class="task-title">Aman Singh</span>
-                                        <span class="priority-badge">Remote Check-In</span>
-                                    </div>
-                                    <div class="task-tags">
-                                        <span class="task-tag">Check-in: 09:02 AM</span>
-                                        <span class="task-tag text-danger">Pending</span>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <p class="task-desc">
-                            <strong>Device Info:</strong> iPhone 13 Pro (iOS 16.5) • IP: 192.168.1.45<br>
-                            Employees can mark attendance remotely from any location. Precise geographic
-                            coordinates recorded below:
-                        </p>
-
-                        <div class="gps-map">
-                            <span class="gps-pin">📍</span>
-                            <span style="position:absolute; bottom:5px; right:10px;">Lat: 25.5941° N, Lng: 85.1376° E
-                                (Patna)</span>
-                        </div>
-
-                        <div class="task-controls">
-                            <div class="control-group">
-                                <button class="btn-action btn-delete"
-                                    onclick="handleAttendance(this, 'Rejected')">Reject</button>
-                                <button class="btn-action btn-approve"
-                                    onclick="handleAttendance(this, 'Approved')">Approve</button>
-                            </div>
-                        </div>
+                <div class="tasks-container" id="pendingAttendanceContainer">
+                    <div class="glass" style="padding: 40px; text-align: center; border-radius: 20px;">
+                        <p style="font-size: 13px; color: var(--text-muted);">Loading pending attendance...</p>
                     </div>
-
-                    <!-- Attendance Item 2 -->
-                    <div class="task-card glass">
-                        <div class="task-header">
-                            <div class="task-title-group">
-                                <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRh5nGOiKvXUTinKVcl9GyxToN5WhMnqb1C2ozzqLT-gw&s"
-                                    style="width:40px; height:40px; border-radius:12px; object-fit:cover;">
-                                <div>
-                                    <div class="d-flex align-items-center">
-                                        <span class="task-title">Priya Roy</span>
-                                        <span class="priority-badge" style="background:#4dabf7;">Office Wifi</span>
-                                    </div>
-                                    <div class="task-tags">
-                                        <span class="task-tag">Check-in: 09:45 AM (Late)</span>
-                                        <span class="task-tag text-danger">Pending</span>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <p class="task-desc">
-                            <strong>Device Info:</strong> MacBook Pro (macOS 14.1) • IP: 10.0.0.12 (Corp_Network)<br>
-                            Geo-location, timestamp, and device data stored successfully.
-                        </p>
-
-                        <div class="gps-map">
-                            <span class="gps-pin" style="color: #4dabf7;">📍</span>
-                            <span style="position:absolute; bottom:5px; right:10px;">Matched: HQ Office Polygon</span>
-                        </div>
-
-                        <div class="task-controls">
-                            <div class="control-group">
-                                <button class="btn-action btn-delete"
-                                    onclick="handleAttendance(this, 'Rejected')">Reject</button>
-                                <button class="btn-action btn-approve"
-                                    onclick="handleAttendance(this, 'Approved')">Approve</button>
-                            </div>
-                        </div>
-                    </div>
-
                 </div>
             </div>
         </div>
@@ -1403,7 +1325,7 @@
                     <h4 style="font-size: 18px; font-weight: 600; color: var(--text-main); margin-bottom: 10px;">End
                         Session?</h4>
                     <p style="font-size: 12px; color: var(--text-muted); margin-bottom: 20px;">Are you sure you want to
-                        log out of Octopyder?</p>
+                        log out of Puk's?</p>
 
                     <div style="display: flex; gap: 10px; justify-content: center;">
                         <button type="button" class="btn-action btn-delete" style="flex: 1; padding: 10px;"
@@ -1416,8 +1338,39 @@
         </div>
     </div>
 
+    <!-- Reject Attendance Modal -->
+    <div class="modal fade" id="rejectAttendanceModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-sm">
+            <div class="modal-content glass border-0 text-start">
+                <div class="modal-header border-0 pb-0">
+                    <h5 class="modal-title fs-6 fw-semibold">Reject Attendance</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body p-3">
+                    <p class="small text-muted mb-2">Optional rejection reason / note:</p>
+                    <textarea class="form-control mb-3" id="rejectNoteInput" rows="3" placeholder="e.g. Invalid location or late arrival"></textarea>
+                    <div class="d-flex gap-2">
+                        <button type="button" class="btn-action btn-delete flex-grow-1" data-bs-dismiss="modal">Cancel</button>
+                        <button type="button" class="btn-action btn-approve flex-grow-1" id="confirmRejectBtn">Reject</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- Global Functions Script -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL" crossorigin="anonymous"></script>
+    <script src="../js/api.js"></script>
+    <script src="../js/auth.js"></script>
+
     <script>
+        async function executeLogout() {
+            try {
+                await API.post('/auth/logout');
+            } catch (e) {}
+            Auth.logout();
+        }
+
         function updateDateTime() {
             const now = new Date();
             const dateOptions = { month: 'long', day: 'numeric', year: 'numeric' };
@@ -1432,59 +1385,198 @@
         updateDateTime();
         setInterval(updateDateTime, 1000);
 
-        function handlePasswordChange(e) {
-            e.preventDefault();
-            alert('Password updated successfully! Please use your new password next time you log in.');
-
-            // Hide the modal using Bootstrap's JS API
-            const profileModalEl = document.getElementById('profileModal');
-            const modal = bootstrap.Modal.getInstance(profileModalEl);
-            modal.hide();
-
-            // Reset the form
-            e.target.reset();
+        function escapeHtml(str) {
+            if (str == null) return '';
+            const div = document.createElement('div');
+            div.textContent = String(str);
+            return div.innerHTML;
         }
 
-        function executeLogout() {
-            // Here you would clear session storage, cookies, or auth tokens
-            sessionStorage.clear();
-            alert('Session securely ended. Redirecting to login page...');
-
-            // Redirect to your login page 
-            window.location.href = '../index.html';
-        }
-    </script>
-
-    <!-- Bootstrap Bundle JS -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-
-    <script>
-        // Logic for Actioning Attendance
-        function handleAttendance(btn, action) {
-            const card = btn.closest('.task-card');
-            alert(`Attendance ${action} successfully!`);
-            // Animate out
-            card.style.opacity = '0';
-            card.style.transform = 'scale(0.95)';
-            setTimeout(() => {
-                card.remove();
-                checkEmptyList();
-            }, 300);
-        }
-
-        function checkEmptyList() {
-            const container = document.querySelector('.tasks-container');
-            if (container.children.length === 0) {
-                container.innerHTML = `
-                <div class="glass" style="padding: 40px; text-align: center; border-radius: 20px;">
-                    <h4 style="color: var(--text-muted); font-weight: 500;">All Caught Up!</h4>
-                    <p style="font-size: 12px; color: var(--text-muted); margin-top: 10px;">No pending attendance validations.</p>
-                </div>
-            `;
+        function formatTime(isoString) {
+            if (!isoString) return '--:--';
+            try {
+                const d = new Date(isoString);
+                return d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+            } catch (e) {
+                return '--:--';
             }
         }
 
-        // Theme Selector functionality (Synced across views)
+        let pendingAttendance = [];
+        let rejectingRecordId = null;
+        let rejectModalInstance = null;
+
+        document.addEventListener('DOMContentLoaded', async () => {
+            const user = await Auth.require('MANAGER');
+            if (!user) return;
+
+            const modalEl = document.getElementById('rejectAttendanceModal');
+            if (modalEl) rejectModalInstance = new bootstrap.Modal(modalEl);
+
+            await loadPendingAttendance();
+            await loadRecentHistory();
+        });
+
+        async function loadPendingAttendance() {
+            const container = document.getElementById('pendingAttendanceContainer');
+            try {
+                pendingAttendance = await API.get('/attendance/pending');
+                container.innerHTML = '';
+
+                if (!pendingAttendance || pendingAttendance.length === 0) {
+                    container.innerHTML = `
+                        <div class="glass" style="padding: 40px; text-align: center; border-radius: 20px;">
+                            <h4 style="color: var(--text-muted); font-weight: 500;">All Caught Up!</h4>
+                            <p style="font-size: 12px; color: var(--text-muted); margin-top: 10px;">No pending attendance validations.</p>
+                        </div>
+                    `;
+                    return;
+                }
+
+                pendingAttendance.forEach(rec => {
+                    const card = document.createElement('div');
+                    card.className = 'task-card glass';
+                    card.id = `att-card-${rec.id}`;
+
+                    const modeColor = rec.workMode === 'OFFICE' ? '#4dabf7' : '#ff922b';
+                    const modeLabel = rec.workMode === 'OFFICE' ? (rec.officeLocationName || 'Office') : 'Remote Check-In';
+                    const lateTag = rec.isLate ? '<span class="task-tag text-warning">Late</span>' : '<span class="task-tag text-success">On-Time</span>';
+
+                    let locText = `Lat: ${rec.latitude != null ? rec.latitude.toFixed(4) : '--'}, Lng: ${rec.longitude != null ? rec.longitude.toFixed(4) : '--'}`;
+                    if (rec.distanceM != null) {
+                        locText += ` • ${Math.round(rec.distanceM)}m from office`;
+                    }
+
+                    card.innerHTML = `
+                        <div class="task-header">
+                            <div class="task-title-group">
+                                <div style="width:40px; height:40px; border-radius:12px; background: rgba(0,0,0,0.06); display:flex; align-items:center; justify-content:center; font-weight:bold; color:var(--text-main);">
+                                    ${escapeHtml(rec.userCode ? rec.userCode.slice(-3) : 'EMP')}
+                                </div>
+                                <div>
+                                    <div class="d-flex align-items-center">
+                                        <span class="task-title">${escapeHtml(rec.userName || rec.userCode)}</span>
+                                        <span class="priority-badge" style="background:${modeColor}; color:#fff; font-size:10px; margin-left:8px; padding:2px 8px; border-radius:10px;">${escapeHtml(modeLabel)}</span>
+                                    </div>
+                                    <div class="task-tags">
+                                        <span class="task-tag">Check-in: ${formatTime(rec.checkInAt)}</span>
+                                        ${lateTag}
+                                        <span class="task-tag text-danger">Pending</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <p class="task-desc" style="font-size:12px; margin-top:8px; margin-bottom:8px;">
+                            <strong>Platform:</strong> ${escapeHtml(rec.devicePlatform || 'WEB')} • <strong>IP:</strong> ${escapeHtml(rec.ipAddress || '--')}<br>
+                            ${escapeHtml(rec.userAgent ? rec.userAgent.slice(0, 80) : '')}
+                        </p>
+
+                        <div class="gps-map" style="padding:10px; background:rgba(0,0,0,0.04); border-radius:10px; font-size:11px; margin-bottom:10px;">
+                            <span class="gps-pin" style="color:${modeColor};">📍</span>
+                            <span>${escapeHtml(locText)}</span>
+                        </div>
+
+                        <div class="task-controls">
+                            <div class="control-group">
+                                <button class="btn-action btn-delete" onclick="openRejectModal('${rec.id}')">Reject</button>
+                                <button class="btn-action btn-approve" onclick="approveAttendance('${rec.id}')">Approve</button>
+                            </div>
+                        </div>
+                    `;
+                    container.appendChild(card);
+                });
+
+            } catch (err) {
+                container.innerHTML = `<div class="p-3 text-danger small">Failed to load pending attendance: ${escapeHtml(err.message)}</div>`;
+            }
+        }
+
+        async function approveAttendance(id) {
+            try {
+                await API.post(`/attendance/${id}/approve`);
+                animateOutCard(id);
+                await loadRecentHistory();
+            } catch (err) {
+                alert('Approval failed: ' + (err.message || 'Error'));
+            }
+        }
+
+        function openRejectModal(id) {
+            rejectingRecordId = id;
+            document.getElementById('rejectNoteInput').value = '';
+            if (rejectModalInstance) rejectModalInstance.show();
+        }
+
+        document.getElementById('confirmRejectBtn')?.addEventListener('click', async () => {
+            if (!rejectingRecordId) return;
+            const note = document.getElementById('rejectNoteInput').value;
+            try {
+                await API.post(`/attendance/${rejectingRecordId}/reject`, { note });
+                if (rejectModalInstance) rejectModalInstance.hide();
+                animateOutCard(rejectingRecordId);
+                rejectingRecordId = null;
+                await loadRecentHistory();
+            } catch (err) {
+                alert('Rejection failed: ' + (err.message || 'Error'));
+            }
+        });
+
+        function animateOutCard(id) {
+            const card = document.getElementById(`att-card-${id}`);
+            if (card) {
+                card.style.opacity = '0';
+                card.style.transform = 'scale(0.95)';
+                setTimeout(() => {
+                    card.remove();
+                    const container = document.getElementById('pendingAttendanceContainer');
+                    if (container && container.children.length === 0) {
+                        container.innerHTML = `
+                            <div class="glass" style="padding: 40px; text-align: center; border-radius: 20px;">
+                                <h4 style="color: var(--text-muted); font-weight: 500;">All Caught Up!</h4>
+                                <p style="font-size: 12px; color: var(--text-muted); margin-top: 10px;">No pending attendance validations.</p>
+                            </div>
+                        `;
+                    }
+                }, 300);
+            }
+        }
+
+        async function loadRecentHistory() {
+            const historyContainer = document.querySelector('.bottom-left-grid .employees-card');
+            if (!historyContainer) return;
+            try {
+                const res = await API.get('/attendance?size=4&sort=workDate,desc');
+                let html = `
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <span class="section-title">Recent Team Attendance</span>
+                    </div>
+                `;
+                if (!res.items || res.items.length === 0) {
+                    html += '<p class="small text-muted">No attendance logs yet.</p>';
+                } else {
+                    res.items.forEach(item => {
+                        const tagClass = item.approvalStatus === 'APPROVED' ? 'tag-status' : (item.approvalStatus === 'REJECTED' ? 'tag-reject' : 'tag-mid');
+                        html += `
+                            <div class="employee-list-item">
+                                <div style="width:30px; height:30px; border-radius:50%; background:rgba(0,0,0,0.06); display:flex; align-items:center; justify-content:center; font-size:11px; font-weight:bold;">
+                                    ${escapeHtml(item.userCode ? item.userCode.slice(-3) : 'EMP')}
+                                </div>
+                                <div class="emp-info flex-grow-1">
+                                    <h4>${escapeHtml(item.userName || item.userCode)} <span class="${tagClass}">${escapeHtml(item.approvalStatus)}</span></h4>
+                                    <p>${escapeHtml(item.workDate)} • ${formatTime(item.checkInAt)} • ${escapeHtml(item.workMode)}</p>
+                                </div>
+                            </div>
+                        `;
+                    });
+                }
+                historyContainer.innerHTML = html;
+            } catch (err) {
+                console.error('Failed to load recent history:', err);
+            }
+        }
+
+        // Theme Selector functionality
         const themeSelectors = document.querySelectorAll('.theme-selector-input');
 
         document.addEventListener('DOMContentLoaded', () => {

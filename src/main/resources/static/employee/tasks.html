@@ -1,18 +1,18 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>My Tasks - Octopyder</title>
+    <title>My Tasks - Puk's</title>
     
     <!-- Google Fonts: Inter -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;900&display=swap" rel="stylesheet">
     
     <!-- Bootstrap 5 CSS -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
     
     <!-- Bootstrap Icons -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet" integrity="sha384-4LISF5TTJX/fLmGSxO53rV4miRxdg84mZsxmO8Rx5jGtp/LbrixFETvWa5a6sESd" crossorigin="anonymous">
     
     <style>
         /* =========================================
@@ -512,7 +512,7 @@
 
     <!-- Mobile Header -->
     <div class="mobile-header sticky-top">
-        <h4 class="mb-0 fw-bold"><i class="bi bi-layers-fill text-white me-2"></i>Octopyder</h4>
+        <h4 class="mb-0 fw-bold"><i class="bi bi-layers-fill text-white me-2"></i>Puk's</h4>
         <button class="btn btn-outline-light border-0" data-bs-toggle="modal" data-bs-target="#logoutModal" title="Logout">
             <i class="bi bi-box-arrow-right fs-3"></i>
         </button>
@@ -523,7 +523,7 @@
 
         <div class="sidebar-brand d-flex align-items-center">
             <i class="bi bi-layers-fill me-2"></i>
-            <span>Octopyder</span>
+            <span>Puk's</span>
         </div>
         
         <div class="p-3">
@@ -635,150 +635,12 @@
         <div class="row g-4">
             <!-- Left Column: Task Cards Container -->
             <div class="col-xl-8" id="task-list">
-                
-                <!-- Task 1 -->
-                <div class="card dashboard-card mb-4 border-start border-4 border-danger task-item" 
-                     data-status="in-progress" data-priority="high" data-due="future" data-deadline-date="2026-07-22">
-                    <div class="card-body p-4">
-                        <div class="d-flex justify-content-between align-items-start mb-2">
-                            <h5 class="fw-bold mb-0 text-dark task-title">Develop Login Page</h5>
-                            <span class="badge bg-danger rounded-pill px-3 ms-2">High Priority</span>
-                        </div>
-                        <p class="text-muted small mb-3 task-desc">Implement a fully responsive login page with role-based routing (Admin, Manager, Employee) utilizing HTML, CSS, JS, and Bootstrap. Ensure styling matches the red SaaS brand theme.</p>
-                        
-                        <div class="row g-3 mb-4 bg-light p-3 rounded-3">
-                            <div class="col-6 col-md-3">
-                                <span class="d-block text-muted small fw-semibold mb-1">Assigned By</span>
-                                <span class="fw-medium text-dark"><i class="bi bi-person-badge text-primary me-1"></i> Project Manager</span>
-                            </div>
-                            <div class="col-6 col-md-3">
-                                <span class="d-block text-muted small fw-semibold mb-1">Deadline</span>
-                                <span class="fw-bold text-danger"><i class="bi bi-calendar-event me-1"></i> 22 Jul 2026</span>
-                            </div>
-                            <div class="col-6 col-md-3">
-                                <span class="d-block text-muted small fw-semibold mb-1">Est. Time</span>
-                                <span class="fw-medium text-dark"><i class="bi bi-stopwatch me-1 text-secondary"></i> 16 Hours</span>
-                            </div>
-                            <div class="col-6 col-md-3">
-                                <span class="d-block text-muted small fw-semibold mb-1">Status</span>
-                                <span class="badge bg-info text-dark bg-opacity-25 border border-info status-badge">In Progress</span>
-                            </div>
-                        </div>
-
-                        <div class="mb-4">
-                            <div class="d-flex justify-content-between align-items-center mb-1">
-                                <span class="small fw-bold text-dark">Progress</span>
-                                <span class="small fw-bold text-danger progress-text">70% Completed</span>
-                            </div>
-                            <div class="progress"><div class="progress-bar bg-danger progress-fill" role="progressbar" style="width: 70%"></div></div>
-                        </div>
-
-                        <div class="d-flex flex-wrap gap-2 pt-2 border-top action-buttons">
-                            <button class="btn btn-outline-danger btn-sm px-3 fw-medium btn-continue"><i class="bi bi-play-circle me-1"></i> Continue</button>
-                            <button class="btn btn-success btn-sm px-3 fw-medium btn-submit"><i class="bi bi-check2-all me-1"></i> Submit Task</button>
-                            <button class="btn btn-light btn-sm border px-3 fw-medium ms-auto btn-details"><i class="bi bi-eye me-1"></i> View Details</button>
-                            <button class="btn btn-light btn-sm border px-3 fw-medium btn-upload"><i class="bi bi-cloud-arrow-up"></i> Upload</button>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Task 2 -->
-                <div class="card dashboard-card mb-4 border-start border-4 border-warning task-item" 
-                     data-status="pending" data-priority="medium" data-due="future" data-deadline-date="2026-07-26">
-                    <div class="card-body p-4">
-                        <div class="d-flex justify-content-between align-items-start mb-2">
-                            <h5 class="fw-bold mb-0 text-dark task-title">Java Hierarchy & Database Setup</h5>
-                            <span class="badge bg-warning text-dark rounded-pill px-3 ms-2">Medium Priority</span>
-                        </div>
-                        <p class="text-muted small mb-3 task-desc">Establish the core Java development environment utilizing the requested com.function package structure. Following setup, configure the local MariaDB instance and execute database user creation scripts.</p>
-                        
-                        <div class="row g-3 mb-4 bg-light p-3 rounded-3">
-                            <div class="col-6 col-md-3">
-                                <span class="d-block text-muted small fw-semibold mb-1">Assigned By</span>
-                                <span class="fw-medium text-dark"><i class="bi bi-person-badge text-primary me-1"></i> Tech Lead</span>
-                            </div>
-                            <div class="col-6 col-md-3">
-                                <span class="d-block text-muted small fw-semibold mb-1">Deadline</span>
-                                <span class="fw-bold text-dark"><i class="bi bi-calendar-event me-1 text-warning"></i> 26 Jul 2026</span>
-                            </div>
-                            <div class="col-6 col-md-3">
-                                <span class="d-block text-muted small fw-semibold mb-1">Est. Time</span>
-                                <span class="fw-medium text-dark"><i class="bi bi-stopwatch me-1 text-secondary"></i> 24 Hours</span>
-                            </div>
-                            <div class="col-6 col-md-3">
-                                <span class="d-block text-muted small fw-semibold mb-1">Status</span>
-                                <span class="badge bg-secondary bg-opacity-25 text-secondary border border-secondary status-badge">Pending</span>
-                            </div>
-                        </div>
-
-                        <div class="mb-4">
-                            <div class="d-flex justify-content-between align-items-center mb-1">
-                                <span class="small fw-bold text-dark">Progress</span>
-                                <span class="small fw-bold text-secondary progress-text">0% Completed</span>
-                            </div>
-                            <div class="progress"><div class="progress-bar bg-warning progress-fill" style="width: 0%"></div></div>
-                        </div>
-
-                        <div class="d-flex flex-wrap gap-2 pt-2 border-top action-buttons">
-                            <button class="btn btn-danger btn-sm px-3 fw-medium btn-start"><i class="bi bi-play-fill me-1"></i> Start Task</button>
-                            <button class="btn btn-outline-secondary btn-sm px-3 fw-medium btn-submit" disabled><i class="bi bi-check2-all me-1"></i> Submit Task</button>
-                            <button class="btn btn-light btn-sm border px-3 fw-medium ms-auto btn-details"><i class="bi bi-eye me-1"></i> View Details</button>
-                            <button class="btn btn-light btn-sm border px-3 fw-medium btn-upload"><i class="bi bi-cloud-arrow-up"></i> Upload</button>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Task 3 -->
-                <div class="card dashboard-card mb-4 border-start border-4 border-success task-item" 
-                     data-status="completed" data-priority="high" data-due="today" data-deadline-date="2026-07-21">
-                    <div class="card-body p-4">
-                        <div class="d-flex justify-content-between align-items-start mb-2">
-                            <h5 class="fw-bold mb-0 text-dark task-title">Cloud Storage & Assets</h5>
-                            <span class="badge bg-danger rounded-pill px-3 ms-2">High Priority</span>
-                        </div>
-                        <p class="text-muted small mb-3 task-desc">Integrate AWS S3 for secure document storage and map CloudFront for optimized asset delivery across the frontend portal.</p>
-                        
-                        <div class="row g-3 mb-4 bg-light p-3 rounded-3">
-                            <div class="col-6 col-md-3">
-                                <span class="d-block text-muted small fw-semibold mb-1">Assigned By</span>
-                                <span class="fw-medium text-dark"><i class="bi bi-person-badge text-primary me-1"></i> Cloud Architect</span>
-                            </div>
-                            <div class="col-6 col-md-3">
-                                <span class="d-block text-muted small fw-semibold mb-1">Deadline</span>
-                                <span class="fw-bold text-danger"><i class="bi bi-calendar-event me-1"></i> 21 Jul 2026 (Today)</span>
-                            </div>
-                            <div class="col-6 col-md-3">
-                                <span class="d-block text-muted small fw-semibold mb-1">Est. Time</span>
-                                <span class="fw-medium text-dark"><i class="bi bi-stopwatch me-1 text-secondary"></i> 8 Hours</span>
-                            </div>
-                            <div class="col-6 col-md-3">
-                                <span class="d-block text-muted small fw-semibold mb-1">Status</span>
-                                <span class="badge bg-success bg-opacity-25 text-success border border-success status-badge">Manager Approved</span>
-                            </div>
-                        </div>
-
-                        <div class="mb-4">
-                            <div class="d-flex justify-content-between align-items-center mb-1">
-                                <span class="small fw-bold text-dark">Progress</span>
-                                <span class="small fw-bold text-success progress-text">100% Completed</span>
-                            </div>
-                            <div class="progress"><div class="progress-bar bg-success progress-fill" style="width: 100%"></div></div>
-                        </div>
-
-                        <div class="d-flex flex-wrap gap-2 pt-2 border-top action-buttons">
-                            <button class="btn btn-outline-secondary btn-sm px-3 fw-medium" disabled><i class="bi bi-check2-all me-1"></i> Submitted</button>
-                            <button class="btn btn-light btn-sm border px-3 fw-medium ms-auto btn-details"><i class="bi bi-eye me-1"></i> View Details</button>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Empty State -->
+                <!-- Dynamic tasks populated by JS -->
                 <div id="no-tasks-msg" class="text-center py-5 d-none">
                     <i class="bi bi-clipboard-x text-muted opacity-50" style="font-size: 3rem;"></i>
                     <h5 class="fw-bold mt-3 text-muted">No Tasks Found</h5>
                     <p class="text-muted small">No tasks match your current filter criteria.</p>
                 </div>
-
             </div>
 
             <!-- Right Column: Interactive Dynamic Calendar -->
@@ -827,7 +689,7 @@
                     <h5 class="mb-4 fw-bold">Are you sure you want to logout?</h5>
                     <div class="d-flex justify-content-center gap-3">
                         <button type="button" class="btn btn-light fw-semibold px-4" data-bs-dismiss="modal">Cancel</button>
-                        <a href="../index.html" class="btn btn-danger fw-semibold px-4">Logout</a>
+                        <button type="button" class="btn btn-danger fw-semibold px-4" id="confirmLogoutBtn">Logout</button>
                     </div>
                 </div>
             </div>
@@ -836,19 +698,33 @@
 
     <!-- View Details Modal -->
     <div class="modal fade" id="taskDetailsModal" tabindex="-1" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-dialog modal-dialog-centered modal-lg">
             <div class="modal-content border-0 shadow">
                 <div class="modal-header bg-danger text-white">
                     <h5 class="modal-title fw-bold"><i class="bi bi-file-text me-2"></i> Task Details</h5>
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body p-4">
-                    <h5 id="modal-task-title" class="fw-bold mb-3 text-dark">Title</h5>
-                    <p id="modal-task-desc" class="text-muted small">Description goes here...</p>
-                    <hr>
-                    <div class="alert alert-secondary bg-light border small text-muted mb-0">
-                        <i class="bi bi-info-circle me-1 text-dark"></i> As per company policy, task details are limited to title and textual description without nested subtasks. All activities are logged with a timestamp.
+                    <div class="d-flex justify-content-between align-items-start mb-2">
+                        <h5 id="modal-task-title" class="fw-bold mb-0 text-dark">Title</h5>
+                        <span id="modal-task-badge" class="badge bg-secondary">Status</span>
                     </div>
+                    <p id="modal-task-desc" class="text-muted small">Description goes here...</p>
+                    <div class="row g-2 small text-muted mb-3 bg-light p-3 rounded" id="modal-task-meta">
+                        <div class="col-6 col-md-3"><strong>Task ID:</strong> <span id="modal-meta-code">-</span></div>
+                        <div class="col-6 col-md-3"><strong>Manager:</strong> <span id="modal-meta-manager">-</span></div>
+                        <div class="col-6 col-md-3"><strong>Deadline:</strong> <span id="modal-meta-deadline">-</span></div>
+                        <div class="col-6 col-md-3"><strong>Priority:</strong> <span id="modal-meta-priority">-</span></div>
+                    </div>
+                    <hr>
+                    <h6 class="fw-bold mb-3"><i class="bi bi-chat-left-dots me-1 text-danger"></i> Comments</h6>
+                    <div id="modal-comments-list" class="d-flex flex-column gap-2 mb-3" style="max-height: 220px; overflow-y: auto;">
+                        <span class="text-muted small">Loading comments...</span>
+                    </div>
+                    <form id="modal-comment-form" class="d-flex gap-2">
+                        <input type="text" id="modal-comment-input" class="form-control form-control-sm" placeholder="Write a comment..." required>
+                        <button type="submit" class="btn btn-sm btn-danger px-3">Send</button>
+                    </form>
                 </div>
             </div>
         </div>
@@ -864,53 +740,272 @@
                 </div>
                 <div class="modal-body p-4 text-center">
                     <i class="bi bi-folder-plus text-muted opacity-50 mb-3" style="font-size: 3rem; display:block;"></i>
-                    <p class="small text-muted mb-4">Select project files or assets to attach to this task before submission.</p>
-                    <input class="form-control mb-3" type="file" id="formFileMultiple" multiple>
-                    <button class="btn btn-danger w-100 fw-bold" onclick="simulateUpload()">Upload Files</button>
+                    <p class="small text-muted mb-4">Select project file to attach to this task (max 5 MB; PDF, PNG, JPG).</p>
+                    <input class="form-control mb-3" type="file" id="formFileUpload" accept=".pdf,.png,.jpg,.jpeg">
+                    <div id="uploadFeedback" class="small mb-2 d-none"></div>
+                    <button class="btn btn-danger w-100 fw-bold" id="btnSubmitUpload">Upload File</button>
                 </div>
             </div>
         </div>
     </div>
 
     <!-- Bootstrap JS Bundle -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL" crossorigin="anonymous"></script>
     
     <!-- JavaScript Logic -->
     <script>
+        // State
+        let allTasks = [];
+        let activeTaskId = null;
+
+        function escapeHtml(str) {
+            if (!str) return '';
+            return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+        }
+
+        function formatDate(isoStr) {
+            if (!isoStr) return 'N/A';
+            try {
+                const d = new Date(isoStr);
+                return d.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' });
+            } catch (e) {
+                return isoStr;
+            }
+        }
+
         // --- 0. Theme Initializer ---
         document.addEventListener('DOMContentLoaded', () => {
             const savedTheme = localStorage.getItem('payrollTheme');
             if (savedTheme && savedTheme !== 'default') {
                 document.body.classList.add(savedTheme);
             }
+            initApp();
         });
 
-        // --- 1. Sidebar Toggle ---
-        document.getElementById('sidebarToggle')?.addEventListener('click', function() {
-            document.getElementById('sidebar').classList.add('show');
-        });
-        
-        // Mobile Sidebar Close
-        document.getElementById('sidebarClose')?.addEventListener('click', function() {
-            document.getElementById('sidebar').classList.remove('show');
-        });
-        
-        // --- 2. Filter System ---
+        async function initApp() {
+            try {
+                await Promise.all([loadTaskSummary(), loadTasks()]);
+            } catch (err) {
+                console.error("Initialization error:", err);
+            }
+        }
+
+        // --- 1. Load Summary ---
+        async function loadTaskSummary() {
+            try {
+                const summary = await API.get('/tasks/summary');
+                if (summary) {
+                    const totalEl = document.getElementById('stat-total');
+                    const pendingEl = document.getElementById('stat-pending');
+                    const completedEl = document.getElementById('stat-completed');
+                    if (totalEl) totalEl.textContent = summary.total ?? 0;
+                    if (pendingEl) pendingEl.textContent = summary.pending ?? 0;
+                    if (completedEl) completedEl.textContent = summary.completed ?? 0;
+                }
+            } catch (err) {
+                console.error("Failed to load task summary:", err);
+            }
+        }
+
+        // --- 2. Load Tasks ---
+        async function loadTasks() {
+            try {
+                const res = await API.get('/tasks?page=0&size=100&sort=createdAt,desc');
+                allTasks = (res && res.items) ? res.items : [];
+                renderTasks();
+                renderCalendar(navMonth, navYear);
+            } catch (err) {
+                console.error("Failed to load tasks:", err);
+            }
+        }
+
+        // Map status to filter / UI keys
+        function mapStatusKey(status) {
+            switch (status) {
+                case 'ASSIGNED': return 'pending';
+                case 'IN_PROGRESS': return 'in-progress';
+                case 'PENDING_APPROVAL': return 'pending';
+                case 'APPROVED': return 'completed';
+                case 'REJECTED': return 'in-progress';
+                default: return 'all';
+            }
+        }
+
+        function getPriorityBadge(priority) {
+            switch (priority) {
+                case 'HIGH':
+                    return '<span class="badge bg-danger rounded-pill px-3 ms-2">High Priority</span>';
+                case 'MEDIUM':
+                    return '<span class="badge bg-warning text-dark rounded-pill px-3 ms-2">Medium Priority</span>';
+                case 'LOW':
+                default:
+                    return '<span class="badge bg-info text-dark rounded-pill px-3 ms-2">Low Priority</span>';
+            }
+        }
+
+        function getStatusBadge(status) {
+            switch (status) {
+                case 'ASSIGNED':
+                    return '<span class="badge bg-secondary bg-opacity-25 text-secondary border border-secondary status-badge">Assigned</span>';
+                case 'IN_PROGRESS':
+                    return '<span class="badge bg-info text-dark bg-opacity-25 border border-info status-badge">In Progress</span>';
+                case 'PENDING_APPROVAL':
+                    return '<span class="badge bg-warning text-dark bg-opacity-25 border border-warning status-badge">Pending Mgr Approval</span>';
+                case 'APPROVED':
+                    return '<span class="badge bg-success bg-opacity-25 text-success border border-success status-badge">Approved</span>';
+                case 'REJECTED':
+                    return '<span class="badge bg-danger bg-opacity-25 text-danger border border-danger status-badge">Rejected</span>';
+                case 'CANCELLED':
+                    return '<span class="badge bg-dark bg-opacity-25 text-muted border border-dark status-badge">Cancelled</span>';
+                default:
+                    return `<span class="badge bg-secondary status-badge">${status}</span>`;
+            }
+        }
+
+        function renderTasks() {
+            const container = document.getElementById('task-list');
+            const noMsg = document.getElementById('no-tasks-msg');
+            
+            // Remove previous task items
+            const oldItems = container.querySelectorAll('.task-item');
+            oldItems.forEach(el => el.remove());
+
+            if (!allTasks || allTasks.length === 0) {
+                noMsg.classList.remove('d-none');
+                return;
+            }
+            noMsg.classList.add('d-none');
+
+            const now = new Date();
+            const todayStr = now.toISOString().slice(0, 10);
+
+            allTasks.forEach(task => {
+                const deadlineDateStr = task.deadlineAt ? task.deadlineAt.slice(0, 10) : '';
+                let dueVal = 'future';
+                if (deadlineDateStr) {
+                    if (deadlineDateStr === todayStr) dueVal = 'today';
+                    else if (deadlineDateStr < todayStr) dueVal = 'overdue';
+                }
+
+                const statusKey = mapStatusKey(task.status);
+                const priorityKey = (task.priority || 'MEDIUM').toLowerCase();
+                const progressVal = task.progress || 0;
+
+                const borderClass = priorityKey === 'high' ? 'border-danger' : (priorityKey === 'medium' ? 'border-warning' : 'border-info');
+
+                let actionHtml = '';
+                if (task.status === 'ASSIGNED') {
+                    actionHtml = `
+                        <button class="btn btn-danger btn-sm px-3 fw-medium btn-start" data-id="${task.id}"><i class="bi bi-play-fill me-1"></i> Start Task</button>
+                        <button class="btn btn-light btn-sm border px-3 fw-medium ms-auto btn-details" data-id="${task.id}"><i class="bi bi-eye me-1"></i> View Details</button>
+                        <button class="btn btn-light btn-sm border px-3 fw-medium btn-upload" data-id="${task.id}"><i class="bi bi-cloud-arrow-up"></i> Upload</button>
+                    `;
+                } else if (task.status === 'IN_PROGRESS' || task.status === 'REJECTED') {
+                    // Step progress options in 10s
+                    let opts = '';
+                    for (let p = 0; p <= 100; p += 10) {
+                        opts += `<option value="${p}" ${p === progressVal ? 'selected' : ''}>${p}%</option>`;
+                    }
+                    actionHtml = `
+                        <div class="d-flex align-items-center gap-1">
+                            <span class="small text-muted">Update:</span>
+                            <select class="form-select form-select-sm task-progress-select" data-id="${task.id}" style="width: 85px;">
+                                ${opts}
+                            </select>
+                        </div>
+                        <button class="btn btn-success btn-sm px-3 fw-medium btn-submit" data-id="${task.id}"><i class="bi bi-check2-all me-1"></i> Submit Task</button>
+                        <button class="btn btn-light btn-sm border px-3 fw-medium ms-auto btn-details" data-id="${task.id}"><i class="bi bi-eye me-1"></i> View Details</button>
+                        <button class="btn btn-light btn-sm border px-3 fw-medium btn-upload" data-id="${task.id}"><i class="bi bi-cloud-arrow-up"></i> Upload</button>
+                    `;
+                } else if (task.status === 'PENDING_APPROVAL') {
+                    actionHtml = `
+                        <button class="btn btn-outline-secondary btn-sm px-3 fw-medium" disabled><i class="bi bi-hourglass-split me-1"></i> Pending Approval</button>
+                        <button class="btn btn-light btn-sm border px-3 fw-medium ms-auto btn-details" data-id="${task.id}"><i class="bi bi-eye me-1"></i> View Details</button>
+                        <button class="btn btn-light btn-sm border px-3 fw-medium btn-upload" data-id="${task.id}"><i class="bi bi-cloud-arrow-up"></i> Upload</button>
+                    `;
+                } else if (task.status === 'APPROVED') {
+                    actionHtml = `
+                        <button class="btn btn-outline-success btn-sm px-3 fw-medium" disabled><i class="bi bi-check-circle me-1"></i> Approved</button>
+                        <button class="btn btn-light btn-sm border px-3 fw-medium ms-auto btn-details" data-id="${task.id}"><i class="bi bi-eye me-1"></i> View Details</button>
+                    `;
+                } else {
+                    actionHtml = `
+                        <span class="badge bg-secondary">${escapeHtml(task.status)}</span>
+                        <button class="btn btn-light btn-sm border px-3 fw-medium ms-auto btn-details" data-id="${task.id}"><i class="bi bi-eye me-1"></i> View Details</button>
+                    `;
+                }
+
+                const card = document.createElement('div');
+                card.className = `card dashboard-card mb-4 border-start border-4 ${borderClass} task-item`;
+                card.setAttribute('data-id', task.id);
+                card.setAttribute('data-status', statusKey);
+                card.setAttribute('data-priority', priorityKey);
+                card.setAttribute('data-due', dueVal);
+                card.setAttribute('data-deadline-date', deadlineDateStr);
+
+                card.innerHTML = `
+                    <div class="card-body p-4">
+                        <div class="d-flex justify-content-between align-items-start mb-2">
+                            <h5 class="fw-bold mb-0 text-dark task-title">${escapeHtml(task.title)}</h5>
+                            ${getPriorityBadge(task.priority)}
+                        </div>
+                        <p class="text-muted small mb-3 task-desc">${escapeHtml(task.description || 'No description provided.')}</p>
+                        
+                        <div class="row g-3 mb-4 bg-light p-3 rounded-3">
+                            <div class="col-6 col-md-3">
+                                <span class="d-block text-muted small fw-semibold mb-1">Assigned By</span>
+                                <span class="fw-medium text-dark"><i class="bi bi-person-badge text-primary me-1"></i> ${escapeHtml(task.managerName || 'Manager')}</span>
+                            </div>
+                            <div class="col-6 col-md-3">
+                                <span class="d-block text-muted small fw-semibold mb-1">Deadline</span>
+                                <span class="fw-bold ${dueVal === 'overdue' || dueVal === 'today' ? 'text-danger' : 'text-dark'}"><i class="bi bi-calendar-event me-1"></i> ${formatDate(task.deadlineAt)} ${dueVal === 'today' ? '(Today)' : ''}</span>
+                            </div>
+                            <div class="col-6 col-md-3">
+                                <span class="d-block text-muted small fw-semibold mb-1">Task Code</span>
+                                <span class="fw-medium text-dark"><i class="bi bi-tag me-1 text-secondary"></i> ${escapeHtml(task.code)}</span>
+                            </div>
+                            <div class="col-6 col-md-3">
+                                <span class="d-block text-muted small fw-semibold mb-1">Status</span>
+                                ${getStatusBadge(task.status)}
+                            </div>
+                        </div>
+
+                        <div class="mb-4">
+                            <div class="d-flex justify-content-between align-items-center mb-1">
+                                <span class="small fw-bold text-dark">Progress</span>
+                                <span class="small fw-bold ${progressVal === 100 ? 'text-success' : 'text-danger'} progress-text">${progressVal}% Completed</span>
+                            </div>
+                            <div class="progress"><div class="progress-bar ${progressVal === 100 ? 'bg-success' : 'bg-danger'} progress-fill" role="progressbar" style="width: ${progressVal}%"></div></div>
+                        </div>
+
+                        <div class="d-flex flex-wrap gap-2 pt-2 border-top action-buttons align-items-center">
+                            ${actionHtml}
+                        </div>
+                    </div>
+                `;
+
+                container.insertBefore(card, noMsg);
+            });
+
+            filterTasks();
+        }
+
+        // --- 3. Filter System ---
         const filterPills = document.querySelectorAll('.filter-pill');
-        const taskItems = document.querySelectorAll('.task-item');
-        const noTasksMsg = document.getElementById('no-tasks-msg');
         const searchInput = document.getElementById('taskSearch');
 
         function filterTasks() {
-            const activeFilter = document.querySelector('.filter-pill.active').getAttribute('data-filter');
-            const searchQuery = searchInput.value.toLowerCase();
+            const activeFilter = document.querySelector('.filter-pill.active')?.getAttribute('data-filter') || 'all';
+            const searchQuery = searchInput ? searchInput.value.toLowerCase() : '';
+            const taskItems = document.querySelectorAll('.task-item');
+            const noTasksMsg = document.getElementById('no-tasks-msg');
             let visibleCount = 0;
 
             taskItems.forEach(task => {
                 const status = task.getAttribute('data-status');
                 const priority = task.getAttribute('data-priority');
                 const due = task.getAttribute('data-due');
-                const title = task.querySelector('.task-title').innerText.toLowerCase();
+                const title = (task.querySelector('.task-title')?.innerText || '').toLowerCase();
                 
                 let matchesFilter = false;
                 if (activeFilter === 'all') matchesFilter = true;
@@ -922,12 +1017,11 @@
 
                 if (matchesFilter && matchesSearch) {
                     task.style.display = 'flex';
-                    // Minor timeout to allow display:flex to apply before opacity for smooth theme animations
                     setTimeout(() => task.style.opacity = '1', 50);
                     visibleCount++;
                 } else {
                     task.style.opacity = '0';
-                    setTimeout(() => task.style.display = 'none', 300);
+                    setTimeout(() => task.style.display = 'none', 200);
                 }
             });
 
@@ -942,89 +1036,186 @@
                 filterTasks();
             });
         });
-        searchInput.addEventListener('input', filterTasks);
+        if (searchInput) searchInput.addEventListener('input', filterTasks);
 
-        // --- 3. Task Button Actions ---
+        // --- 4. Task Event Handlers ---
         const detailsModal = new bootstrap.Modal(document.getElementById('taskDetailsModal'));
         const uploadModal = new bootstrap.Modal(document.getElementById('uploadModal'));
 
-        document.getElementById('task-list').addEventListener('click', function(e) {
+        document.getElementById('task-list').addEventListener('click', async function(e) {
             const btn = e.target.closest('button');
             if (!btn) return;
-            const taskCard = btn.closest('.task-item');
+            const taskId = btn.getAttribute('data-id');
+            if (!taskId) return;
 
-            if (btn.classList.contains('btn-details')) {
-                const title = taskCard.querySelector('.task-title').innerText;
-                const desc = taskCard.querySelector('.task-desc').innerText;
-                document.getElementById('modal-task-title').innerText = title;
-                document.getElementById('modal-task-desc').innerText = desc;
-                detailsModal.show();
-            }
-
-            if (btn.classList.contains('btn-upload')) uploadModal.show();
-
+            // Start Task
             if (btn.classList.contains('btn-start')) {
-                taskCard.setAttribute('data-status', 'in-progress');
-                taskCard.querySelector('.status-badge').className = "badge bg-info text-dark bg-opacity-25 border border-info status-badge";
-                taskCard.querySelector('.status-badge').innerText = "In Progress";
-                taskCard.querySelector('.progress-text').innerText = "Working...";
-                taskCard.querySelector('.progress-text').className = "small fw-bold text-info progress-text";
-                taskCard.querySelector('.progress-fill').className = "progress-bar progress-bar-striped progress-bar-animated bg-info progress-fill";
-                taskCard.querySelector('.progress-fill').style.width = "20%";
-
-                const actions = taskCard.querySelector('.action-buttons');
-                actions.innerHTML = `
-                    <button class="btn btn-outline-info btn-sm px-3 fw-medium btn-continue"><i class="bi bi-play-circle me-1"></i> Continue</button>
-                    <button class="btn btn-success btn-sm px-3 fw-medium btn-submit"><i class="bi bi-check2-all me-1"></i> Submit Task</button>
-                    <button class="btn btn-light btn-sm border px-3 fw-medium ms-auto btn-details"><i class="bi bi-eye me-1"></i> View Details</button>
-                    <button class="btn btn-light btn-sm border px-3 fw-medium btn-upload"><i class="bi bi-cloud-arrow-up"></i> Upload</button>
-                `;
-                updateCounters();
+                btn.disabled = true;
+                try {
+                    await API.post(`/tasks/${taskId}/start`, {});
+                    await initApp();
+                } catch (err) {
+                    alert(err.message || "Failed to start task");
+                    btn.disabled = false;
+                }
             }
 
+            // Submit Task
             if (btn.classList.contains('btn-submit')) {
-                taskCard.setAttribute('data-status', 'completed');
-                taskCard.querySelector('.status-badge').className = "badge bg-success bg-opacity-25 text-success border border-success status-badge";
-                taskCard.querySelector('.status-badge').innerText = "Pending Mgr Approval";
-                taskCard.querySelector('.progress-text').innerText = "Awaiting Verification";
-                taskCard.querySelector('.progress-text').className = "small fw-bold text-success progress-text";
-                taskCard.querySelector('.progress-fill').className = "progress-bar bg-success progress-fill";
-                taskCard.querySelector('.progress-fill').style.width = "100%";
-
-                const actions = taskCard.querySelector('.action-buttons');
-                actions.innerHTML = `
-                    <button class="btn btn-outline-secondary btn-sm px-3 fw-medium" disabled><i class="bi bi-check2-all me-1"></i> Submitted</button>
-                    <button class="btn btn-light btn-sm border px-3 fw-medium ms-auto btn-details"><i class="bi bi-eye me-1"></i> View Details</button>
-                `;
-                updateCounters();
-                setTimeout(filterTasks, 1500); 
+                btn.disabled = true;
+                try {
+                    await API.post(`/tasks/${taskId}/submit`, {});
+                    await initApp();
+                } catch (err) {
+                    alert(err.message || "Failed to submit task");
+                    btn.disabled = false;
+                }
             }
-            
-            if (btn.classList.contains('btn-continue')) {
-                alert("Resuming time tracker for: " + taskCard.querySelector('.task-title').innerText);
+
+            // Upload Modal Open
+            if (btn.classList.contains('btn-upload')) {
+                activeTaskId = taskId;
+                document.getElementById('formFileUpload').value = '';
+                const fb = document.getElementById('uploadFeedback');
+                fb.className = 'small mb-2 d-none';
+                uploadModal.show();
+            }
+
+            // View Details Modal Open
+            if (btn.classList.contains('btn-details')) {
+                activeTaskId = taskId;
+                openDetailsModal(taskId);
             }
         });
 
-        function simulateUpload() {
-            alert('Files securely attached to the task record.');
-            uploadModal.hide();
+        // Progress Select Change (in steps of 10)
+        document.getElementById('task-list').addEventListener('change', async function(e) {
+            const select = e.target.closest('.task-progress-select');
+            if (!select) return;
+            const taskId = select.getAttribute('data-id');
+            const progress = parseInt(select.value, 10);
+            select.disabled = true;
+            try {
+                await API.patch(`/tasks/${taskId}/progress`, { progress });
+                await initApp();
+            } catch (err) {
+                alert(err.message || "Failed to update progress");
+                select.disabled = false;
+            }
+        });
+
+        // Open details modal & load comments
+        async function openDetailsModal(taskId) {
+            const task = allTasks.find(t => t.id === taskId);
+            if (!task) return;
+
+            document.getElementById('modal-task-title').textContent = task.title || 'Untitled';
+            document.getElementById('modal-task-desc').textContent = task.description || 'No description';
+            document.getElementById('modal-meta-code').textContent = task.code || '-';
+            document.getElementById('modal-meta-manager').textContent = task.managerName || 'Manager';
+            document.getElementById('modal-meta-deadline').textContent = formatDate(task.deadlineAt);
+            document.getElementById('modal-meta-priority').textContent = task.priority || '-';
+            
+            const badgeEl = document.getElementById('modal-task-badge');
+            badgeEl.textContent = task.status;
+            badgeEl.className = 'badge ' + (task.status === 'APPROVED' ? 'bg-success' : (task.status === 'IN_PROGRESS' ? 'bg-info text-dark' : 'bg-secondary'));
+
+            detailsModal.show();
+            await loadComments(taskId);
         }
 
-        function updateCounters() {
-            let pending = 0, completed = 0, inProg = 0;
-            document.querySelectorAll('.task-item').forEach(task => {
-                const s = task.getAttribute('data-status');
-                if(s === 'pending') pending++;
-                if(s === 'completed') completed++;
-                if(s === 'in-progress') inProg++;
-            });
-            document.getElementById('stat-pending').innerText = pending + inProg;
-            document.getElementById('stat-completed').innerText = completed;
+        async function loadComments(taskId) {
+            const listEl = document.getElementById('modal-comments-list');
+            listEl.innerHTML = '<span class="text-muted small">Loading comments...</span>';
+            try {
+                const comments = await API.get(`/tasks/${taskId}/comments`);
+                if (!comments || comments.length === 0) {
+                    listEl.innerHTML = '<span class="text-muted small">No comments yet.</span>';
+                    return;
+                }
+                listEl.innerHTML = '';
+                comments.forEach(c => {
+                    const row = document.createElement('div');
+                    row.className = 'bg-light p-2 px-3 rounded border small';
+                    row.innerHTML = `
+                        <div class="d-flex justify-content-between mb-1">
+                            <strong class="text-dark">${escapeHtml(c.authorName || 'User')}</strong>
+                            <span class="text-muted" style="font-size: 0.75rem;">${formatDate(c.createdAt)}</span>
+                        </div>
+                        <p class="mb-0 text-muted">${escapeHtml(c.comment)}</p>
+                    `;
+                    listEl.appendChild(row);
+                });
+            } catch (err) {
+                listEl.innerHTML = '<span class="text-danger small">Failed to load comments.</span>';
+            }
         }
 
+        // Post Comment
+        document.getElementById('modal-comment-form').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            const input = document.getElementById('modal-comment-input');
+            const comment = input.value.trim();
+            if (!comment || !activeTaskId) return;
 
-        // --- 4. Dynamic Calendar Logic ---
-        
+            try {
+                await API.post(`/tasks/${activeTaskId}/comments`, { comment });
+                input.value = '';
+                await loadComments(activeTaskId);
+            } catch (err) {
+                alert(err.message || "Failed to post comment");
+            }
+        });
+
+        // Submit Upload
+        document.getElementById('btnSubmitUpload').addEventListener('click', async function() {
+            const fileInput = document.getElementById('formFileUpload');
+            const feedback = document.getElementById('uploadFeedback');
+            if (!fileInput.files || fileInput.files.length === 0) {
+                feedback.className = 'small mb-2 text-danger';
+                feedback.textContent = 'Please choose a file to upload.';
+                feedback.classList.remove('d-none');
+                return;
+            }
+
+            const file = fileInput.files[0];
+            if (file.size > 5 * 1024 * 1024) {
+                feedback.className = 'small mb-2 text-danger';
+                feedback.textContent = 'File exceeds maximum limit of 5 MB.';
+                feedback.classList.remove('d-none');
+                return;
+            }
+
+            const formData = new FormData();
+            formData.append('file', file);
+
+            this.disabled = true;
+            this.textContent = 'Uploading...';
+
+            try {
+                await API.post(`/tasks/${activeTaskId}/attachments`, formData);
+                feedback.className = 'small mb-2 text-success';
+                feedback.textContent = 'File attached successfully!';
+                feedback.classList.remove('d-none');
+                setTimeout(() => {
+                    uploadModal.hide();
+                }, 1000);
+            } catch (err) {
+                feedback.className = 'small mb-2 text-danger';
+                feedback.textContent = err.message || 'Upload failed.';
+                feedback.classList.remove('d-none');
+            } finally {
+                this.disabled = false;
+                this.textContent = 'Upload File';
+            }
+        });
+
+        // Logout
+        document.getElementById('confirmLogoutBtn')?.addEventListener('click', () => {
+            Auth.logout();
+        });
+
+        // --- 5. Calendar Logic ---
         let currentDate = new Date();
         let navMonth = currentDate.getMonth(); 
         let navYear = currentDate.getFullYear();
@@ -1034,60 +1225,52 @@
 
         const monthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
 
-        // Scrape deadlines from task items in the DOM
         function getTaskDeadlines() {
-            const dates = [];
-            document.querySelectorAll('.task-item').forEach(task => {
-                const dateStr = task.getAttribute('data-deadline-date'); // Expected Format: YYYY-MM-DD
-                if (dateStr) dates.push(dateStr);
-            });
-            return dates;
+            return allTasks
+                .filter(t => t.deadlineAt)
+                .map(t => t.deadlineAt.slice(0, 10));
         }
 
         function renderCalendar(month, year) {
-            document.getElementById('calendar-month-year').innerText = `${monthNames[month]} ${year}`;
+            const monthYearEl = document.getElementById('calendar-month-year');
+            if (monthYearEl) monthYearEl.innerText = `${monthNames[month]} ${year}`;
             
-            const firstDay = new Date(year, month, 1).getDay(); // Day of week (0-6)
-            const daysInMonth = new Date(year, month + 1, 0).getDate(); // Total days in month
-            const daysInPrevMonth = new Date(year, month, 0).getDate(); // For padding
+            const firstDay = new Date(year, month, 1).getDay();
+            const daysInMonth = new Date(year, month + 1, 0).getDate();
+            const daysInPrevMonth = new Date(year, month, 0).getDate();
             
             const calendarGrid = document.getElementById('calendar-grid-days');
+            if (!calendarGrid) return;
             calendarGrid.innerHTML = ''; 
 
             const taskDates = getTaskDeadlines();
 
-            // Render Previous Month Padding
             for (let i = 0; i < firstDay; i++) {
                 const padDay = daysInPrevMonth - firstDay + i + 1;
                 calendarGrid.innerHTML += `<div class="calendar-day text-muted opacity-50">${padDay}</div>`;
             }
 
-            // Render Current Month Days
             for (let day = 1; day <= daysInMonth; day++) {
                 let classes = "calendar-day";
                 let title = "";
 
-                // Highlight exact today
                 if (day === actualCurrentDay && month === actualCurrentMonth && year === actualCurrentYear) {
                     classes += " active shadow-sm";
                     title = "Today";
                 }
 
-                // Check for Task Deadlines
                 const formattedMonth = String(month + 1).padStart(2, '0');
                 const formattedDay = String(day).padStart(2, '0');
                 const dateString = `${year}-${formattedMonth}-${formattedDay}`;
 
                 if (taskDates.includes(dateString)) {
                     classes += " has-task";
-                    
-                    // Style font based on if it's overdue, due today, or future
                     const deadlineDateObj = new Date(year, month, day);
                     const todayObj = new Date(actualCurrentYear, actualCurrentMonth, actualCurrentDay);
                     
-                    if (deadlineDateObj < todayObj) classes += " fw-bold text-danger"; // Overdue
-                    else if (deadlineDateObj.getTime() === todayObj.getTime()) classes += " fw-bold"; // Due Today
-                    else classes += " fw-bold text-dark"; // Future Deadline
+                    if (deadlineDateObj < todayObj) classes += " fw-bold text-danger";
+                    else if (deadlineDateObj.getTime() === todayObj.getTime()) classes += " fw-bold";
+                    else classes += " fw-bold text-dark";
 
                     title = title ? `${title} (Task Deadline)` : "Task Deadline";
                 }
@@ -1096,7 +1279,6 @@
             }
         }
 
-        // Arrow controls function
         function changeMonth(direction) {
             navMonth += direction;
             if (navMonth > 11) {
@@ -1108,9 +1290,9 @@
             }
             renderCalendar(navMonth, navYear);
         }
-
-        // Initialize calendar on page load
-        renderCalendar(navMonth, navYear);
+    </script>
+</body>
+</html>
 
     </script>
 </body>

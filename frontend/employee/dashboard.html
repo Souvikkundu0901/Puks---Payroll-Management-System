@@ -1,18 +1,18 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Employee Dashboard - Octopyder</title>
+    <title>Employee Dashboard - Puk's</title>
     
     <!-- Google Fonts: Inter -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;900&display=swap" rel="stylesheet">
     
     <!-- Bootstrap 5 CSS -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
     
     <!-- Bootstrap Icons -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet" integrity="sha384-4LISF5TTJX/fLmGSxO53rV4miRxdg84mZsxmO8Rx5jGtp/LbrixFETvWa5a6sESd" crossorigin="anonymous">
     
     <style>
         /* =========================================
@@ -477,7 +477,7 @@
 
     <!-- Mobile Header -->
     <div class="mobile-header sticky-top">
-        <h4 class="mb-0 fw-bold"><i class="bi bi-layers-fill text-white me-2"></i>Octopyder</h4>
+        <h4 class="mb-0 fw-bold"><i class="bi bi-layers-fill text-white me-2"></i>Puk's</h4>
         <button class="btn btn-outline-light border-0" data-bs-toggle="modal" data-bs-target="#logoutModal" title="Logout">
             <i class="bi bi-box-arrow-right fs-3"></i>
         </button>
@@ -486,7 +486,7 @@
     <!-- Sidebar -->
     <nav class="sidebar d-flex flex-column" id="sidebar">
         
-        <div class="sidebar-brand d-flex align-items-center"><i class="bi bi-layers-fill text-white me-2"></i><span>Octopyder</span></div>
+        <div class="sidebar-brand d-flex align-items-center"><i class="bi bi-layers-fill text-white me-2"></i><span>Puk's</span></div>
         <div class="p-3"><small class="text-uppercase fw-bold" style="letter-spacing: 1px; font-size: 0.75rem; color: rgba(255,255,255,0.7);">Employee Portal</small></div>
         
         <ul class="nav flex-column mb-auto">
@@ -535,11 +535,11 @@
         <div class="card dashboard-card p-4 mb-4 border-start border-4 border-danger" id="dashboard-welcome">
             <div class="row align-items-center">
                 <div class="col-lg-7 mb-3 mb-lg-0">
-                    <h2 class="fw-bold mb-1 text-dark">Welcome, Naitik</h2>
+                    <h2 class="fw-bold mb-1 text-dark" id="emp-welcome-name">Welcome, Employee</h2>
                     <div class="d-flex flex-wrap gap-3 text-muted small mt-2">
-                        <span><i class="bi bi-person-badge text-danger me-1"></i> ID: <strong>EMP-2026-042</strong></span>
-                        <span><i class="bi bi-building text-danger me-1"></i> Dept: <strong>Engineering</strong></span>
-                        <span><i class="bi bi-briefcase text-danger me-1"></i> Role: <strong>Frontend Developer</strong></span>
+                        <span><i class="bi bi-person-badge text-danger me-1"></i> ID: <strong id="emp-welcome-code">EMP-001</strong></span>
+                        <span><i class="bi bi-building text-danger me-1"></i> Dept: <strong id="emp-welcome-dept">General</strong></span>
+                        <span><i class="bi bi-briefcase text-danger me-1"></i> Role: <strong id="emp-welcome-role">Employee</strong></span>
                     </div>
                 </div>
                 <div class="col-lg-5 text-lg-end border-lg-start ps-lg-4">
@@ -585,7 +585,7 @@
                 <div class="card dashboard-card card-body bg-white">
                     <div class="d-flex align-items-center">
                         <div class="card-icon bg-success bg-opacity-15 text-success me-3"><i class="bi bi-check-circle-fill"></i></div>
-                        <div><h6 class="text-muted mb-1 small fw-semibold">Today's Attendance</h6><h5 class="fw-bold mb-0 text-dark">Present</h5></div>
+                        <div><h6 class="text-muted mb-1 small fw-semibold">Today's Attendance</h6><h5 class="fw-bold mb-0 text-dark" id="kpi-attendance-today">--</h5></div>
                     </div>
                 </div>
             </div>
@@ -593,7 +593,7 @@
                 <div class="card dashboard-card card-body bg-white">
                     <div class="d-flex align-items-center">
                         <div class="card-icon bg-primary bg-opacity-15 text-primary me-3"><i class="bi bi-list-task"></i></div>
-                        <div><h6 class="text-muted mb-1 small fw-semibold">Assigned Tasks</h6><h5 class="fw-bold mb-0 text-dark">12 Tasks</h5></div>
+                        <div><h6 class="text-muted mb-1 small fw-semibold">Assigned Tasks</h6><h5 class="fw-bold mb-0 text-dark" id="kpi-assigned-tasks">0 Tasks</h5></div>
                     </div>
                 </div>
             </div>
@@ -601,7 +601,7 @@
                 <div class="card dashboard-card card-body bg-white">
                     <div class="d-flex align-items-center">
                         <div class="card-icon bg-warning bg-opacity-15 text-warning-emphasis me-3"><i class="bi bi-hourglass-split"></i></div>
-                        <div><h6 class="text-muted mb-1 small fw-semibold">Pending Tasks</h6><h5 class="fw-bold mb-0 text-dark">3 Tasks</h5></div>
+                        <div><h6 class="text-muted mb-1 small fw-semibold">Pending Tasks</h6><h5 class="fw-bold mb-0 text-dark" id="kpi-pending-tasks">0 Tasks</h5></div>
                     </div>
                 </div>
             </div>
@@ -609,7 +609,7 @@
                 <div class="card dashboard-card card-body bg-white">
                     <div class="d-flex align-items-center">
                         <div class="card-icon bg-info bg-opacity-15 text-info me-3"><i class="bi bi-patch-check-fill"></i></div>
-                        <div><h6 class="text-muted mb-1 small fw-semibold">Completed Tasks</h6><h5 class="fw-bold mb-0 text-dark">9 Tasks</h5></div>
+                        <div><h6 class="text-muted mb-1 small fw-semibold">Completed Tasks</h6><h5 class="fw-bold mb-0 text-dark" id="kpi-completed-tasks">0 Tasks</h5></div>
                     </div>
                 </div>
             </div>
@@ -623,7 +623,7 @@
                     <h5 class="fw-bold mb-3 text-dark">Attendance Percentage</h5>
                     <div class="d-flex align-items-center justify-content-center bg-light rounded p-4 h-100 text-center border border-secondary-subtle">
                         <div>
-                            <h1 class="display-4 fw-bold text-success mb-1">96%</h1>
+                            <h1 class="display-4 fw-bold text-success mb-1" id="kpi-attendance-pct">0%</h1>
                             <p class="text-muted small mb-0">Based on present vs working days this cycle</p>
                         </div>
                     </div>
@@ -636,7 +636,7 @@
                     <h5 class="fw-bold mb-3 text-dark">Leave Usage</h5>
                     <div class="d-flex align-items-center justify-content-center bg-light rounded p-4 h-100 text-center border border-secondary-subtle">
                         <div>
-                            <h1 class="display-4 fw-bold text-warning-emphasis mb-1">2 / 12 Days</h1>
+                            <h1 class="display-4 fw-bold text-warning-emphasis mb-1" id="kpi-leave-usage">0 / 0 Days</h1>
                             <p class="text-muted small mb-0">Paid leaves utilized this fiscal year</p>
                         </div>
                     </div>
@@ -741,7 +741,7 @@
     </div>
 
     <!-- Bootstrap JS Bundle -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL" crossorigin="anonymous"></script>
     <script>
         document.addEventListener('DOMContentLoaded', () => {
             const savedTheme = localStorage.getItem('payrollTheme');
@@ -759,12 +759,43 @@
         setInterval(updateDateTime, 1000);
         updateDateTime();
 
-        function executeMarkAttendance() {
-            document.getElementById('attendance-pre').classList.add('d-none');
-            document.getElementById('attendance-post').classList.remove('d-none');
-            document.getElementById('modal-timestamp').innerText = new Date().toLocaleString();
-            document.getElementById('modal-geo-coords').innerText = "22.5726° N, 88.3639° E"; // Simulated GPS
+        async function loadEmployeeDashboard() {
+            try {
+                const data = await API.get('/dashboard/employee');
+                
+                const setEl = (id, val) => {
+                    const el = document.getElementById(id);
+                    if (el) el.textContent = val;
+                };
+
+                setEl('emp-welcome-name', `Welcome, ${data.employeeName || 'Employee'}`);
+                setEl('emp-welcome-code', data.employeeCode || '-');
+                setEl('emp-welcome-dept', data.department || '-');
+                setEl('emp-welcome-role', data.designation || 'Employee');
+                setEl('kpi-attendance-today', (data.todayAttendanceStatus || 'Not Marked').replace(/_/g, ' '));
+                setEl('kpi-assigned-tasks', `${data.assignedTasksCount || 0} Tasks`);
+                setEl('kpi-pending-tasks', `${data.pendingTasksCount || 0} Tasks`);
+                setEl('kpi-completed-tasks', `${data.completedTasksCount || 0} Tasks`);
+                setEl('kpi-attendance-pct', `${Math.round(data.attendancePercentage || 0)}%`);
+                setEl('kpi-leave-usage', data.leaveUsage || `${data.leaveBalanceAvailable || 0} Days`);
+
+                // Salary modal update if salary present
+                if (data.latestSalary) {
+                    const sal = data.latestSalary;
+                    const rows = document.querySelectorAll('#salaryModal table tbody tr');
+                    if (rows.length >= 4) {
+                        rows[0].children[1].textContent = `₹${sal.gross}`;
+                        rows[1].children[1].textContent = `₹${sal.defaultRelease}`;
+                        rows[2].children[1].textContent = `- ₹${sal.retained}`;
+                        rows[3].children[1].textContent = `₹${sal.net}`;
+                    }
+                }
+            } catch (err) {
+                console.error('Failed to load employee dashboard', err);
+            }
         }
+
+        setTimeout(loadEmployeeDashboard, 300);
     </script>
 </body>
 </html>

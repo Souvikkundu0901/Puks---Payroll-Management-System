@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reports & Exports - Admin</title>
+
+    <!-- Fonts & Icons -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;900&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet" integrity="sha384-4LISF5TTJX/fLmGSxO53rV4miRxdg84mZsxmO8Rx5jGtp/LbrixFETvWa5a6sESd" crossorigin="anonymous">
+
+    <style>
+        body, html { height: 100%; font-family: 'Inter', sans-serif; background-color: #f8f9fa; overflow-x: hidden; }
+        .app-container { height: 100vh; width: 100vw; overflow: hidden; }
+        .sidebar { width: 80px; background-color: #111111; flex-direction: column; align-items: center; justify-content: space-between; padding: 1.5rem 0; z-index: 1040; transition: all 0.4s ease; }
+        .sidebar-brand { width: 45px; height: 45px; background: #ffffff; color: #111; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; text-decoration: none; margin-bottom: 2rem; }
+        .sidebar-nav { display: flex; flex-direction: column; gap: 1.25rem; align-items: center; width: 100%; }
+        .sidebar-nav a { color: #a0aec0; font-size: 1.25rem; padding: 0.75rem; border-radius: 12px; transition: all 0.2s ease; text-decoration: none; }
+        .sidebar-nav a:hover, .sidebar-nav a.active { background-color: rgba(255, 255, 255, 0.1); color: #ffffff; }
+        .main-content { flex: 1; display: flex; flex-direction: column; height: 100vh; overflow-y: auto; }
+        .top-navbar { background-color: #ffffff; border-bottom: 1px solid #eaeaea; padding: 1rem 2rem; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 1030; }
+        .page-body { padding: 2rem; max-width: 1200px; margin: 0 auto; width: 100%; }
+        .card-custom { background: #ffffff; border: 1px solid #eaeaea; border-radius: 1rem; padding: 1.5rem; box-shadow: 0 2px 6px rgba(0,0,0,0.02); }
+        .icon-btn { background: none; border: none; font-size: 1.25rem; color: #4a5568; position: relative; cursor: pointer; }
+        .notification-badge { position: absolute; top: -2px; right: -4px; font-size: 0.6rem; padding: 0.25em 0.4em; }
+        .toast-container { position: fixed; top: 80px; right: 20px; z-index: 1150; }
+    </style>
+    <script src="../js/api.js"></script>
+    <script src="../js/auth.js"></script>
+    <script>Auth.require("ADMIN");</script>
+</head>
+<body class="theme-default">
+    <div class="app-container d-flex">
+        <!-- Sidebar -->
+        <aside class="sidebar d-flex">
+            <div>
+                <a href="dashboard.html" class="sidebar-brand"><i class="bi bi-layers-fill"></i></a>
+                <nav class="sidebar-nav">
+                    <a href="dashboard.html" title="Dashboard"><i class="bi bi-grid-1x2-fill"></i></a>
+                    <a href="employees.html" title="Employees"><i class="bi bi-people-fill"></i></a>
+                    <a href="managers.html" title="Managers"><i class="bi bi-shield-shaded"></i></a>
+                    <a href="payroll.html" title="Payroll"><i class="bi bi-wallet2"></i></a>
+                    <a href="attendance.html" title="Attendance"><i class="bi bi-clock-history"></i></a>
+                    <a href="tasks.html" title="Tasks"><i class="bi bi-kanban-fill"></i></a>
+                </nav>
+            </div>
+            <div class="sidebar-nav">
+                <a href="reports.html" class="active" title="Reports"><i class="bi bi-file-earmark-bar-graph"></i></a>
+                <a href="audit-logs.html" title="Audit Logs"><i class="bi bi-journal-text"></i></a>
+                <a href="settings.html" title="Settings"><i class="bi bi-gear-fill"></i></a>
+                <a href="../index.html" title="Logout"><i class="bi bi-box-arrow-right text-danger"></i></a>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <header class="top-navbar">
+                <h4 class="mb-0 fw-bold">Reports & Exports</h4>
+                <div class="d-flex align-items-center gap-3">
+                    <div class="dropdown">
+                        <button class="icon-btn" type="button" data-bs-toggle="dropdown">
+                            <i class="bi bi-bell"></i>
+                            <span class="position-absolute translate-middle badge rounded-pill bg-danger notification-badge" id="notif-count">0</span>
+                        </button>
+                        <ul class="dropdown-menu dropdown-menu-end shadow" style="width: 300px;">
+                            <li><h6 class="dropdown-header">Notifications</h6></li>
+                            <li><span class="dropdown-item small text-muted">No notifications</span></li>
+                        </ul>
+                    </div>
+                    <span class="fw-semibold user-name">Admin</span>
+                </div>
+            </header>
+
+            <div class="page-body">
+                <div class="row g-4">
+                    <div class="col-12 col-md-5">
+                        <div class="card-custom">
+                            <h5 class="fw-bold mb-3">Export Configuration</h5>
+                            <form id="reportForm">
+                                <div class="mb-3">
+                                    <label class="form-label fw-semibold">Report Type</label>
+                                    <select class="form-select" id="reportType" required>
+                                        <option value="employees">Employees Roster</option>
+                                        <option value="attendance">Attendance Records</option>
+                                        <option value="tasks">Tasks & Deliverables</option>
+                                        <option value="payroll">Payroll Runs</option>
+                                        <option value="leave">Leave Applications</option>
+                                    </select>
+                                </div>
+
+                                <div class="mb-3" id="monthFilterGroup">
+                                    <label class="form-label fw-semibold">Month (YYYY-MM)</label>
+                                    <input type="month" class="form-control" id="reportMonth" value="2026-07">
+                                </div>
+
+                                <div class="row g-2 mb-3" id="dateFilterGroup">
+                                    <div class="col-6">
+                                        <label class="form-label fw-semibold">From Date</label>
+                                        <input type="date" class="form-control" id="reportFrom">
+                                    </div>
+                                    <div class="col-6">
+                                        <label class="form-label fw-semibold">To Date</label>
+                                        <input type="date" class="form-control" id="reportTo">
+                                    </div>
+                                </div>
+
+                                <div class="mb-4">
+                                    <label class="form-label fw-semibold">Export Format</label>
+                                    <div class="d-flex gap-2">
+                                        <div class="form-check form-check-inline">
+                                            <input class="form-check-input" type="radio" name="exportFormat" id="fmtCsv" value="csv" checked>
+                                            <label class="form-check-label" for="fmtCsv">CSV</label>
+                                        </div>
+                                        <div class="form-check form-check-inline">
+                                            <input class="form-check-input" type="radio" name="exportFormat" id="fmtXlsx" value="xlsx">
+                                            <label class="form-check-label" for="fmtXlsx">Excel (.xlsx)</label>
+                                        </div>
+                                        <div class="form-check form-check-inline">
+                                            <input class="form-check-input" type="radio" name="exportFormat" id="fmtPdf" value="pdf">
+                                            <label class="form-check-label" for="fmtPdf">PDF</label>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <button type="submit" class="btn btn-primary w-100 py-2 fw-semibold" id="downloadBtn">
+                                    <i class="bi bi-download me-2"></i>Generate & Download Report
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+
+                    <div class="col-12 col-md-7">
+                        <div class="card-custom">
+                            <h5 class="fw-bold mb-3">Report Information & Rules</h5>
+                            <div class="alert alert-info small mb-3">
+                                <i class="bi bi-shield-check me-2"></i><strong>Security & Integrity Note:</strong>
+                                Formulas starting with <code>= + - @</code> are sanitized against CSV injection attacks. All exports are streamed directly and logged in the immutable audit log.
+                            </div>
+                            <ul class="list-group list-group-flush small">
+                                <li class="list-group-item d-flex justify-content-between align-items-center">
+                                    <span>Employees Roster</span>
+                                    <span class="badge bg-secondary">CSV, Excel, PDF</span>
+                                </li>
+                                <li class="list-group-item d-flex justify-content-between align-items-center">
+                                    <span>Attendance Log (max 93-day range)</span>
+                                    <span class="badge bg-secondary">CSV, Excel, PDF</span>
+                                </li>
+                                <li class="list-group-item d-flex justify-content-between align-items-center">
+                                    <span>Tasks & Status</span>
+                                    <span class="badge bg-secondary">CSV, Excel, PDF</span>
+                                </li>
+                                <li class="list-group-item d-flex justify-content-between align-items-center">
+                                    <span>Payroll Runs</span>
+                                    <span class="badge bg-secondary">CSV, Excel, PDF</span>
+                                </li>
+                                <li class="list-group-item d-flex justify-content-between align-items-center">
+                                    <span>Leave Requests</span>
+                                    <span class="badge bg-secondary">CSV, Excel, PDF</span>
+                                </li>
+                            </ul>
+                            <div class="mt-4 p-3 bg-light rounded small" id="statusMessage" style="display:none;"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL" crossorigin="anonymous"></script>
+    <script>
+        const reportTypeEl = document.getElementById('reportType');
+        const monthGroup = document.getElementById('monthFilterGroup');
+        const dateGroup = document.getElementById('dateFilterGroup');
+        const reportForm = document.getElementById('reportForm');
+        const statusMsg = document.getElementById('statusMessage');
+        const downloadBtn = document.getElementById('downloadBtn');
+
+        function toggleFilters() {
+            const type = reportTypeEl.value;
+            if (type === 'payroll') {
+                monthGroup.style.display = 'block';
+                dateGroup.style.display = 'none';
+            } else if (type === 'employees') {
+                monthGroup.style.display = 'none';
+                dateGroup.style.display = 'none';
+            } else {
+                monthGroup.style.display = 'none';
+                dateGroup.style.display = 'flex';
+            }
+        }
+        reportTypeEl.addEventListener('change', toggleFilters);
+        toggleFilters();
+
+        reportForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            downloadBtn.disabled = true;
+            statusMsg.style.display = 'block';
+            statusMsg.className = 'mt-4 p-3 bg-light text-primary rounded small';
+            statusMsg.textContent = 'Generating export file, please wait...';
+
+            const type = reportTypeEl.value;
+            const format = document.querySelector('input[name="exportFormat"]:checked').value;
+            const month = document.getElementById('reportMonth').value;
+            const from = document.getElementById('reportFrom').value;
+            const to = document.getElementById('reportTo').value;
+
+            const params = new URLSearchParams();
+            params.append('format', format);
+            if (type === 'payroll' && month) params.append('month', month);
+            if (from) params.append('from', from);
+            if (to) params.append('to', to);
+
+            const url = `/api/v1/reports/${encodeURIComponent(type)}?${params.toString()}`;
+
+            try {
+                const token = API.getToken();
+                const res = await fetch(url, {
+                    headers: token ? { 'Authorization': `Bearer ${token}` } : {},
+                    credentials: 'same-origin'
+                });
+
+                if (!res.ok) {
+                    let errDetail = 'Failed to generate report';
+                    try {
+                        const errJson = await res.json();
+                        errDetail = errJson.detail || errJson.title || errDetail;
+                    } catch (e) {}
+                    throw new Error(errDetail);
+                }
+
+                const blob = await res.blob();
+                const downloadUrl = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = downloadUrl;
+                a.download = `${type}_report_${Date.now()}.${format}`;
+                document.body.appendChild(a);
+                a.click();
+                a.remove();
+                window.URL.revokeObjectURL(downloadUrl);
+
+                statusMsg.className = 'mt-4 p-3 alert-success rounded small';
+                statusMsg.textContent = 'Report downloaded successfully.';
+            } catch (err) {
+                statusMsg.className = 'mt-4 p-3 alert-danger rounded small';
+                statusMsg.textContent = err.message;
+            } finally {
+                downloadBtn.disabled = false;
+            }
+        });
+    </script>
+</body>
+</html>

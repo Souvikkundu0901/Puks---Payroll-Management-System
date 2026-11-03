@@ -4,10 +4,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Manager Dashboard - Octopyder </title>
+    <title>Manager Dashboard - Puk's </title>
 
     <!-- Bootstrap 5 CSS -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
+    <script src="../js/api.js"></script>
+    <script src="../js/auth.js"></script>
+    <script>Auth.require("MANAGER");</script>
 
     <style>
         /* Typography & Core Variables */
@@ -1307,7 +1310,7 @@
     <div class="dashboard">
         <!-- Top Navigation -->
         <div class="top-nav">
-            <div class="logo">Octopyder</div>
+            <div class="logo">Puk's</div>
             <div class="nav-links">
                 <a href="dashboard.html" class="active">Dashboard</a>
                 <a href="assign-task.html">Assign Task</a>
@@ -1378,32 +1381,32 @@
 
         <!-- Header / Welcome -->
         <div class="header-section">
-            <h1 class="welcome-title">Welcome, Rahul Sharma</h1>
+            <h1 class="welcome-title" id="managerWelcomeTitle">Welcome, Manager</h1>
             
             <div class="stats-overview">
                 <div class="key-metrics">
                     <div class="metric-card">
-                        <span class="metric-val">18</span>
+                        <span class="metric-val" id="metric-emp-count">0</span>
                         <span class="metric-label">👥 Employees Under Me</span>
                     </div>
                     <div class="metric-card">
-                        <span class="metric-val">12</span>
+                        <span class="metric-val" id="metric-active-tasks">0</span>
                         <span class="metric-label">📝 Active Tasks</span>
                     </div>
                     <div class="metric-card">
-                        <span class="metric-val">8</span>
+                        <span class="metric-val" id="metric-pending-attendance">0</span>
                         <span class="metric-label">👤 Pending Attendance</span>
                     </div>
                     <div class="metric-card">
-                        <span class="metric-val">5</span>
+                        <span class="metric-val" id="metric-pending-leaves">0</span>
                         <span class="metric-label">📅 Leave Requests</span>
                     </div>
                     <div class="metric-card">
-                        <span class="metric-val">3</span>
+                        <span class="metric-val" id="metric-salary-approvals">0</span>
                         <span class="metric-label">💰 Salary Approvals</span>
                     </div>
                     <div class="metric-card">
-                        <span class="metric-val">9</span>
+                        <span class="metric-val" id="metric-tasks-awaiting">0</span>
                         <span class="metric-label">⏳ Tasks Awaiting</span>
                     </div>
                 </div>
@@ -1416,12 +1419,12 @@
             <!-- Left Column -->
             <div class="col-left glass">
 
-                <div class="profile-card" data-bs-toggle="modal" data-bs-target="#managerProfileModal">
+                <div class="profile-card" data-bs-toggle="modal" data-bs-target="#profileModal">
                     <div class="profile-info">
-                        <h3>Rahul Sharma</h3>
-                        <p>Project Manager<br>Engineering Department</p>
+                        <h3 id="manager-profile-name">Manager</h3>
+                        <p id="manager-profile-dept">Project Manager<br>Engineering Department</p>
                     </div>
-                    <div class="budget-tag">Manager ID</div>
+                    <div class="budget-tag" id="manager-profile-code">Manager ID</div>
                 </div>
 
                 <!-- Accordion Container -->
@@ -1749,12 +1752,12 @@
                 <div class="modal-body p-4 pt-3">
                     
                     <div class="d-flex align-items-center gap-3 mb-4">
-                        <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRh5nGOiKvXUTinKVcl9GyxToN5WhMnqb1C2ozzqLT-gw&s"
+                        <img id="modalManagerAvatar" src="https://ui-avatars.com/api/?name=Manager&background=7b5eea&color=fff"
                             style="width: 60px; height: 60px; border-radius: 50%; border: 2px solid var(--dark); object-fit: cover;">
                         <div>
-                            <h4 style="font-size: 16px; font-weight: 600; color: var(--text-main); margin-bottom: 4px;">Rahul Sharma</h4>
-                            <p style="font-size: 12px; color: var(--text-muted); margin-bottom: 2px;">🏢 Department: Engineering</p>
-                            <p style="font-size: 12px; color: var(--text-muted);">📧 rahul.sharma@gmail.com | 📞 +91 98765 43210</p>
+                            <h4 id="modal-mgr-name" style="font-size: 16px; font-weight: 600; color: var(--text-main); margin-bottom: 4px;">Manager</h4>
+                            <p id="modal-mgr-dept" style="font-size: 12px; color: var(--text-muted); margin-bottom: 2px;">🏢 Department: Engineering</p>
+                            <p id="modal-mgr-contact" style="font-size: 12px; color: var(--text-muted);">📧 manager@puks.com</p>
                         </div>
                     </div>
 
@@ -1763,9 +1766,9 @@
                     <!-- Welcome Details -->
                     <h5 style="font-size: 14px; font-weight: 600; color: var(--text-main); margin-bottom: 15px;">Welcome Details</h5>
                     <div class="welcome-details" style="display: flex; flex-direction: column; gap: 10px; font-size: 13px; color: var(--text-muted); margin-bottom: 25px;">
-                        <span><strong style="color: var(--text-main);">Manager ID:</strong> MGR-2026-007</span>
-                        <span><strong style="color: var(--text-main);">Department:</strong> Engineering</span>
-                        <span><strong style="color: var(--text-main);">Role:</strong> Project Manager</span>
+                        <span id="managerDetailId"><strong style="color: var(--text-main);">Manager ID:</strong> MGR001</span>
+                        <span id="managerDetailDept"><strong style="color: var(--text-main);">Department:</strong> Engineering</span>
+                        <span id="managerDetailRole"><strong style="color: var(--text-main);">Role:</strong> Manager</span>
                         <span><strong style="color: var(--text-main);">Date:</strong> <span id="currentDateText"></span></span>
                         <span><strong style="color: var(--text-main);">Time:</strong> <span id="currentTimeText"></span></span>
                     </div>
@@ -1872,7 +1875,7 @@
                     <h4 style="font-size: 18px; font-weight: 600; color: var(--text-main); margin-bottom: 10px;">End
                         Session?</h4>
                     <p style="font-size: 12px; color: var(--text-muted); margin-bottom: 20px;">Are you sure you want to
-                        log out of Octopyder?</p>
+                        log out of Puk's?</p>
 
                     <div style="display: flex; gap: 10px; justify-content: center;">
                         <button type="button" class="btn-action btn-delete" style="flex: 1; padding: 10px;"
@@ -1887,24 +1890,32 @@
 
     <!-- Global Functions Script -->
     <script>
-        function handlePasswordChange(e) {
+        async function handlePasswordChange(e) {
             e.preventDefault();
-            alert('Password updated successfully! Please use your new password next time you log in.');
-            const profileModalEl = document.getElementById('profileModal');
-            const modal = bootstrap.Modal.getInstance(profileModalEl);
-            modal.hide();
-            e.target.reset();
+            const currentPassword = e.target.elements[0].value;
+            const newPassword = e.target.elements[1].value;
+            try {
+                await Auth.changePassword(currentPassword, newPassword);
+                alert('Password updated successfully! Please use your new password next time you log in.');
+                const profileModalEl = document.getElementById('profileModal');
+                const modal = bootstrap.Modal.getInstance(profileModalEl);
+                if (modal) modal.hide();
+                e.target.reset();
+            } catch (err) {
+                alert('Password change failed: ' + (err.problem?.detail || err.message));
+            }
         }
 
-        function executeLogout() {
-            sessionStorage.clear();
-            alert('Session securely ended. Redirecting to login page...');
-            window.location.href = '../index.html';
+        async function executeLogout() {
+            try {
+                await API.post('/auth/logout');
+            } catch (e) {}
+            Auth.logout();
         }
     </script>
 
     <!-- Bootstrap JS -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL" crossorigin="anonymous"></script>
 
     <!-- Custom Dashboard Scripts -->
     <script>
@@ -1923,70 +1934,170 @@
         updateDateTime();
         setInterval(updateDateTime, 1000);
 
-        // --- 2. Dynamic Team Attendance ---
-        function loadDynamicAttendance() {
-            const total = 18;
-            const present = 16;
-            document.getElementById('att-present').innerText = present;
-            const percentage = (present / total) * 100;
-            document.getElementById('att-circle').style.background = `conic-gradient(var(--yellow) ${percentage}%, #eaeaea 0)`;
-        }
-        loadDynamicAttendance();
+        // --- 2. Dynamic Team Attendance & Metrics ---
+        async function loadManagerDashboard() {
+            try {
+                // Load Manager Profile
+                try {
+                    const me = await API.get('/auth/me');
+                    if (me) {
+                        const welcome = document.getElementById('managerWelcomeTitle');
+                        if (welcome) welcome.textContent = `Welcome, ${me.name || 'Manager'}`;
+                        const pName = document.getElementById('manager-profile-name');
+                        if (pName) pName.textContent = me.name || 'Manager';
+                        const pDept = document.getElementById('manager-profile-dept');
+                        if (pDept) pDept.innerHTML = `Project Manager<br>${API.escapeHtml(me.department || 'Engineering')}`;
+                        const pCode = document.getElementById('manager-profile-code');
+                        if (pCode) pCode.textContent = me.code || 'MGR';
 
-        // --- 3. Backend-Ready Task Panel ---
-        const recentActivitiesData = [
-            { title: 'Attendance approved', time: '5 mins ago' },
-            { title: 'Leave rejected', time: '20 mins ago' },
-            { title: 'Task completed', time: '1 hour ago' },
-            { title: 'Salary approved', time: 'Yesterday' }
-        ];
+                        const mName = document.getElementById('modal-mgr-name');
+                        if (mName) mName.textContent = me.name || 'Manager';
+                        const mDept = document.getElementById('modal-mgr-dept');
+                        if (mDept) mDept.textContent = `🏢 Department: ${me.department || 'Engineering'}`;
+                        const mContact = document.getElementById('modal-mgr-contact');
+                        if (mContact) mContact.textContent = `📧 ${me.email || ''}`;
 
-        const taskContainer = document.getElementById('recent-activities-container');
-        taskContainer.innerHTML = recentActivitiesData.map(act => `
-        <div class="task-item">
-            <div class="task-info">
-                <h4>${act.title}</h4>
-                <p>${act.time}</p>
-            </div>
-        </div>
-    `).join('');
+                        const detId = document.getElementById('managerDetailId');
+                        if (detId) detId.innerHTML = `<strong style="color: var(--text-main);">Manager ID:</strong> ${API.escapeHtml(me.code || '')}`;
+                        const detDept = document.getElementById('managerDetailDept');
+                        if (detDept) detDept.innerHTML = `<strong style="color: var(--text-main);">Department:</strong> ${API.escapeHtml(me.department || 'Engineering')}`;
 
-        // --- 4. Dynamic Accordion ---
-        const accordionData = [
-            { title: 'Team Members', content: '<div class="device-item"><img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRh5nGOiKvXUTinKVcl9GyxToN5WhMnqb1C2ozzqLT-gw&s" class="device-img"><div class="device-text"><h4>Aman Singh</h4><p>Frontend Developer</p></div></div><div class="device-item"><img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRh5nGOiKvXUTinKVcl9GyxToN5WhMnqb1C2ozzqLT-gw&s" class="device-img"><div class="device-text"><h4>Priya Roy</h4><p>UI/UX Designer</p></div></div>' },
-            { title: 'Pending Approvals', content: '<p style="margin-bottom:5px;">2 Attendance Requests</p><p>1 Leave Request</p>' },
-            { title: 'Today\'s Deadlines', content: '<p>Login Page API Integration - Aman</p>' },
-            { title: 'Department Performance', content: '<p>Overall velocity is up 12% this week.</p>' }
-        ];
-
-        const accContainer = document.getElementById('dynamic-accordion-container');
-        accContainer.innerHTML = accordionData.map((item, index) => `
-        <div class="accordion-item-wrapper">
-            <div class="accordion-header" id="acc-head-${index}">
-                <span>${item.title}</span>
-                <span class="acc-icon">⌄</span>
-            </div>
-            <div class="accordion-content" id="acc-content-${index}">
-                ${item.content}
-            </div>
-        </div>
-    `).join('');
-
-        document.querySelectorAll('.accordion-header').forEach(header => {
-            header.addEventListener('click', () => {
-                const content = header.nextElementSibling;
-                const icon = header.querySelector('.acc-icon');
-                const isOpen = content.style.display === 'block';
-
-                document.querySelectorAll('.accordion-content').forEach(c => c.style.display = 'none');
-                document.querySelectorAll('.acc-icon').forEach(i => i.textContent = '⌄');
-
-                if (!isOpen) {
-                    content.style.display = 'block';
-                    icon.textContent = '⌃';
+                        const avatarImg = document.getElementById('modalManagerAvatar');
+                        if (avatarImg) {
+                            const fallback = `https://ui-avatars.com/api/?name=${encodeURIComponent(me.name || 'M')}&background=7b5eea&color=fff`;
+                            API.loadAuthenticatedImage(avatarImg, '/auth/me/avatar', fallback);
+                        }
+                    }
+                } catch (err) {
+                    console.error('Failed to load profile:', err);
                 }
-            });
-        });
+
+                const data = await API.get('/dashboard/manager');
+                
+                // Update Key Metrics
+                const setEl = (id, val) => {
+                    const el = document.getElementById(id);
+                    if (el) el.textContent = val;
+                };
+                setEl('metric-emp-count', data.teamMembersCount);
+                setEl('metric-active-tasks', data.activeTasksCount);
+                setEl('metric-pending-attendance', data.pendingAttendanceCount);
+                setEl('metric-pending-leaves', data.pendingLeaveCount);
+                setEl('metric-salary-approvals', data.pendingSalaryApprovalsCount);
+                setEl('metric-tasks-awaiting', data.tasksAwaitingCount);
+
+                // Attendance circular meter
+                setEl('att-present', data.presentTodayCount);
+                const pct = data.attendancePercentage || 0;
+                const attCircle = document.getElementById('att-circle');
+                if (attCircle) {
+                    attCircle.style.background = `conic-gradient(var(--yellow) ${pct}%, #eaeaea 0)`;
+                }
+
+                // Recent Activities
+                const taskContainer = document.getElementById('recent-activities-container');
+                if (taskContainer) {
+                    taskContainer.replaceChildren();
+                    if (!data.recentActivities || data.recentActivities.length === 0) {
+                        const emptyP = document.createElement('p');
+                        emptyP.className = 'text-muted small p-2';
+                        emptyP.textContent = 'No recent activities';
+                        taskContainer.appendChild(emptyP);
+                    } else {
+                        data.recentActivities.forEach(act => {
+                            const item = document.createElement('div');
+                            item.className = 'task-item';
+                            const info = document.createElement('div');
+                            info.className = 'task-info';
+                            const h4 = document.createElement('h4');
+                            h4.textContent = act.title;
+                            const p = document.createElement('p');
+                            p.textContent = act.timeAgo;
+                            info.appendChild(h4);
+                            info.appendChild(p);
+                            item.appendChild(info);
+                            taskContainer.appendChild(item);
+                        });
+                    }
+                }
+
+                // Dynamic Accordion
+                const accContainer = document.getElementById('dynamic-accordion-container');
+                if (accContainer) {
+                    accContainer.replaceChildren();
+
+                    // Section 1: Team Members
+                    let teamHtml = '';
+                    if (data.teamPerformance && data.teamPerformance.length > 0) {
+                        teamHtml = data.teamPerformance.map(m => `
+                            <div class="device-item">
+                                <div class="device-text">
+                                    <h4>${m.name} (${m.code})</h4>
+                                    <p>${m.designation || 'Team Member'} - Task Completion: ${m.completionPct}%</p>
+                                </div>
+                            </div>
+                        `).join('');
+                    } else {
+                        teamHtml = '<p class="text-muted small">No team members assigned</p>';
+                    }
+
+                    // Section 2: Pending Approvals
+                    const pendingHtml = `
+                        <p style="margin-bottom:5px;"><strong>${data.pendingAttendanceCount}</strong> Attendance Requests</p>
+                        <p style="margin-bottom:5px;"><strong>${data.pendingLeaveCount}</strong> Leave Requests</p>
+                        <p><strong>${data.pendingSalaryApprovalsCount}</strong> Salary Approvals</p>
+                    `;
+
+                    // Section 3: Upcoming Deadlines
+                    let deadlineHtml = '';
+                    if (data.upcomingDeadlines && data.upcomingDeadlines.length > 0) {
+                        deadlineHtml = data.upcomingDeadlines.map(d => `
+                            <p style="margin-bottom:4px;"><strong>${d.title}</strong> (${d.assigneeName}) - Due: ${new Date(d.deadlineAt).toLocaleDateString()}</p>
+                        `).join('');
+                    } else {
+                        deadlineHtml = '<p class="text-muted small">No upcoming task deadlines</p>';
+                    }
+
+                    const sections = [
+                        { title: `Team Members (${data.teamMembersCount})`, content: teamHtml },
+                        { title: 'Pending Approvals', content: pendingHtml },
+                        { title: 'Upcoming Deadlines', content: deadlineHtml }
+                    ];
+
+                    sections.forEach((sec, idx) => {
+                        const wrapper = document.createElement('div');
+                        wrapper.className = 'accordion-item-wrapper';
+
+                        const head = document.createElement('div');
+                        head.className = 'accordion-header';
+                        head.id = `acc-head-${idx}`;
+                        head.innerHTML = `<span>${sec.title}</span><span class="acc-icon">⌄</span>`;
+
+                        const cont = document.createElement('div');
+                        cont.className = 'accordion-content';
+                        cont.id = `acc-content-${idx}`;
+                        cont.innerHTML = sec.content;
+
+                        head.addEventListener('click', () => {
+                            const isOpen = cont.style.display === 'block';
+                            document.querySelectorAll('.accordion-content').forEach(c => c.style.display = 'none');
+                            document.querySelectorAll('.acc-icon').forEach(i => i.textContent = '⌄');
+                            if (!isOpen) {
+                                cont.style.display = 'block';
+                                head.querySelector('.acc-icon').textContent = '⌃';
+                            }
+                        });
+
+                        wrapper.appendChild(head);
+                        wrapper.appendChild(cont);
+                        accContainer.appendChild(wrapper);
+                    });
+                }
+            } catch (err) {
+                console.error('Failed to load manager dashboard', err);
+            }
+        }
+        loadManagerDashboard();
 
         // --- 5. Completely Dynamic System Calendar Generation ---
         const today = new Date();
@@ -2002,71 +2113,81 @@
         document.getElementById('cal-next-month').innerText = monthNames[(currentMonth + 1) % 12];
         document.getElementById('big-cal-title').innerText = `${monthNames[currentMonth]} ${currentYear} - Master Schedule`;
 
-        // Generate dynamic dummy events relative to today
-        const calEvents = [
-            { date: Math.min(currentDateNum + 2, 28), title: 'Sprint Review', type: 'dark' },
-            { date: Math.max(currentDateNum - 1, 1), title: 'Leave: Priya', type: 'light' },
-            { date: currentDateNum, title: 'Project Deadline', type: 'dark' }
-        ];
+        async function loadCalendar() {
+            let events = [];
+            try {
+                const pad = n => String(n).padStart(2, '0');
+                const fromStr = `${currentYear}-${pad(currentMonth + 1)}-01`;
+                const lastDay = new Date(currentYear, currentMonth + 1, 0).getDate();
+                const toStr = `${currentYear}-${pad(currentMonth + 1)}-${pad(lastDay)}`;
+                const data = await API.get(`/calendar/events?from=${fromStr}&to=${toStr}`);
+                if (Array.isArray(data)) {
+                    events = data;
+                }
+            } catch (e) {
+                console.error('Failed to fetch calendar events', e);
+            }
 
-        // 1. Mini Timeline Calendar setup (Current Week Context)
-        const miniDaysGrid = document.getElementById('dynamic-mini-calendar');
-        const dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
-        
-        // Find starting Sunday of current week
-        const startOfWeek = new Date(today);
-        startOfWeek.setDate(today.getDate() - today.getDay());
-        
-        let miniHtml = '';
-        for (let i = 0; i < 7; i++) {
-            let loopDate = new Date(startOfWeek);
-            loopDate.setDate(startOfWeek.getDate() + i);
+            // 1. Mini Timeline Calendar setup (Current Week Context)
+            const miniDaysGrid = document.getElementById('dynamic-mini-calendar');
+            const dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
             
-            let dNum = loopDate.getDate();
-            let dName = dayNames[loopDate.getDay()];
-            let isThisMonth = (loopDate.getMonth() === currentMonth);
-            let isToday = (dNum === currentDateNum && isThisMonth);
-            let hasEvent = calEvents.some(e => e.date === dNum && isThisMonth);
-
-            miniHtml += `
-            <div class="day-header">
-                ${dName}
-                <span class="${isToday ? 'today-highlight' : ''}">${dNum}</span>
-                ${hasEvent ? '<div class="event-dot"></div>' : ''}
-            </div>
-            `;
-        }
-        miniDaysGrid.innerHTML = miniHtml;
-
-        // 2. Big Calendar Generation for Modal
-        const bigCalGrid = document.getElementById('dynamic-big-calendar');
-        const firstDayOfMonth = new Date(currentYear, currentMonth, 1).getDay();
-        const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
-        
-        let bigCalHtml = '';
-
-        // Empty cells for alignment
-        for (let i = 0; i < firstDayOfMonth; i++) {
-            bigCalHtml += `<div class="big-cal-day" style="background: rgba(255,255,255,0.05); border: none;"></div>`;
-        }
-
-        // Fill current month days
-        for (let i = 1; i <= daysInMonth; i++) {
-            let isToday = (i === currentDateNum);
-            let matchingEvents = calEvents.filter(e => e.date === i);
+            const startOfWeek = new Date(today);
+            startOfWeek.setDate(today.getDate() - today.getDay());
             
-            let eventCardsHtml = matchingEvents.map(e => `
-                <div class="big-event-card ${e.type === 'dark' ? 'dark-theme' : ''}">${e.title}</div>
-            `).join('');
+            let miniHtml = '';
+            for (let i = 0; i < 7; i++) {
+                let loopDate = new Date(startOfWeek);
+                loopDate.setDate(startOfWeek.getDate() + i);
+                
+                let dNum = loopDate.getDate();
+                let dName = dayNames[loopDate.getDay()];
+                let isThisMonth = (loopDate.getMonth() === currentMonth);
+                let isToday = (dNum === currentDateNum && isThisMonth);
 
-            bigCalHtml += `
-                <div class="big-cal-day ${isToday ? 'is-today' : ''}">
-                    <span class="big-cal-date ${isToday ? 'today-badge' : ''}">${i}</span>
-                    ${eventCardsHtml}
+                const loopDateStr = `${loopDate.getFullYear()}-${String(loopDate.getMonth() + 1).padStart(2, '0')}-${String(dNum).padStart(2, '0')}`;
+                let hasEvent = events.some(e => e.eventDate === loopDateStr);
+
+                miniHtml += `
+                <div class="day-header">
+                    ${dName}
+                    <span class="${isToday ? 'today-highlight' : ''}">${dNum}</span>
+                    ${hasEvent ? '<div class="event-dot"></div>' : ''}
                 </div>
-            `;
+                `;
+            }
+            miniDaysGrid.innerHTML = miniHtml;
+
+            // 2. Big Calendar Generation for Modal
+            const bigCalGrid = document.getElementById('dynamic-big-calendar');
+            const firstDayOfMonth = new Date(currentYear, currentMonth, 1).getDay();
+            const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
+            
+            let bigCalHtml = '';
+
+            for (let i = 0; i < firstDayOfMonth; i++) {
+                bigCalHtml += `<div class="big-cal-day" style="background: rgba(255,255,255,0.05); border: none;"></div>`;
+            }
+
+            for (let i = 1; i <= daysInMonth; i++) {
+                let isToday = (i === currentDateNum);
+                const dayDateStr = `${currentYear}-${String(currentMonth + 1).padStart(2, '0')}-${String(i).padStart(2, '0')}`;
+                let matchingEvents = events.filter(e => e.eventDate === dayDateStr);
+                
+                let eventCardsHtml = matchingEvents.map(e => `
+                    <div class="big-event-card ${e.type === 'HOLIDAY' ? 'dark-theme' : ''}">${e.title}</div>
+                `).join('');
+
+                bigCalHtml += `
+                    <div class="big-cal-day ${isToday ? 'is-today' : ''}">
+                        <span class="big-cal-date ${isToday ? 'today-badge' : ''}">${i}</span>
+                        ${eventCardsHtml}
+                    </div>
+                `;
+            }
+            bigCalGrid.innerHTML = bigCalHtml;
         }
-        bigCalGrid.innerHTML = bigCalHtml;
+        loadCalendar();
 
         // --- 6. UI Theme Switcher Logic ---
         const themeSelectors = document.querySelectorAll('.theme-selector-input');

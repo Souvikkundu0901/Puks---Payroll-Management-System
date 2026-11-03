@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 
 <head>
@@ -8,8 +8,8 @@
 
     <!-- Fonts & Icons -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;900&display=swap" rel="stylesheet">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet" integrity="sha384-4LISF5TTJX/fLmGSxO53rV4miRxdg84mZsxmO8Rx5jGtp/LbrixFETvWa5a6sESd" crossorigin="anonymous">
 
     <style>
         body, html {
@@ -219,6 +219,8 @@
                 </nav>
             </div>
             <div class="sidebar-nav">
+                <a href="reports.html" title="Reports"><i class="bi bi-file-earmark-bar-graph"></i></a>
+                <a href="audit-logs.html" title="Audit Logs"><i class="bi bi-journal-text"></i></a>
                 <a href="settings.html" title="Settings"><i class="bi bi-gear-fill"></i></a>
                 <a href="../index.html" title="Logout"><i class="bi bi-box-arrow-right text-danger"></i></a>
             </div>
@@ -590,7 +592,7 @@
         <!-- Offcanvas Mobile Menu -->
         <div class="offcanvas offcanvas-start" tabindex="-1" id="mobileMenu" style="width: 280px; background: #111;">
             <div class="offcanvas-header border-bottom border-secondary">
-                <h5 class="offcanvas-title text-white fw-bold"><i class="bi bi-layers-fill me-2"></i>Octopyder</h5>
+                <h5 class="offcanvas-title text-white fw-bold"><i class="bi bi-layers-fill me-2"></i>Puk's</h5>
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="offcanvas"></button>
             </div>
             <div class="offcanvas-body d-flex flex-column justify-content-between">
@@ -711,7 +713,8 @@
             <div class="modal-content border-0 shadow text-center p-4">
                 <i class="bi bi-shield-lock text-success display-4 mb-2 d-block"></i>
                 <h5 class="fw-bold mb-1" id="tempPassTitle">Temporary Password</h5>
-                <p class="text-muted small mb-3">Copy this one-time password now. It will not be shown again and expires in 7 days.</p>
+                <p class="text-muted small mb-2">Copy this one-time password now. It will not be shown again and expires in 7 days.</p>
+                <div id="tempPassEmailStatus" class="mb-3 small"></div>
                 <div class="input-group mb-3">
                     <input type="text" class="form-control text-center font-monospace fw-bold" id="tempPassValue" readonly>
                     <button class="btn btn-outline-secondary" type="button" id="btnCopyTempPass" title="Copy"><i class="bi bi-clipboard"></i></button>
@@ -852,7 +855,7 @@
 
 
     <!-- Bootstrap JS Bundle -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL" crossorigin="anonymous"></script>
 
     <!-- UI Logic Script -->
     <script>
@@ -1135,6 +1138,16 @@
 
                 document.getElementById('tempPassTitle').textContent = `Created: ${res.code}`;
                 document.getElementById('tempPassValue').value = res.temporaryPassword;
+                const emailStatusEl = document.getElementById('tempPassEmailStatus');
+                if (emailStatusEl) {
+                    if (res.emailSent) {
+                        emailStatusEl.className = 'mb-3 small badge bg-success-subtle text-success border border-success-subtle py-1 px-2';
+                        emailStatusEl.textContent = 'Email sent';
+                    } else {
+                        emailStatusEl.className = 'mb-3 small badge bg-warning-subtle text-warning border border-warning-subtle py-1 px-2';
+                        emailStatusEl.textContent = 'Email failed, copy the password';
+                    }
+                }
                 new bootstrap.Modal(document.getElementById('tempPasswordModal')).show();
 
                 await loadManagers();
