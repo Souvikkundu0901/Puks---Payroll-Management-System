@@ -1,0 +1,61 @@
+package com.octopyder.payroll.payroll.dto;
+
+import com.octopyder.payroll.payroll.PayrollRecordStatus;
+
+import java.math.BigDecimal;
+import java.time.Instant;
+import java.time.LocalDate;
+import java.util.List;
+import java.util.UUID;
+
+public record PayrollRecordResponse(
+    UUID id,
+    Long version,
+    UUID runId,
+    String month,
+    EmployeeBriefDto employee,
+    BigDecimal gross,
+    int tasksTotal,
+    int tasksApproved,
+    BigDecimal completionPct,
+    int retentionDays,
+    BigDecimal retentionAmount,
+    BigDecimal absentDays,
+    BigDecimal absentDeduction,
+    BigDecimal unpaidLeaveDays,
+    BigDecimal unpaidLeaveDeduction,
+    BigDecimal unpaidDays,
+    BigDecimal unpaidDeduction,
+    BigDecimal tdsDeduction,
+    BigDecimal pfDeduction,
+    BigDecimal ptDeduction,
+    BigDecimal statutoryTotal,
+    BigDecimal retentionReleasedAmount,
+    BigDecimal netPayable,
+    boolean netClamped,
+    BigDecimal presentDays,
+    int workingDays,
+    BigDecimal defaultReleaseAmount,
+    BigDecimal taskLinkedAmount,
+    BigDecimal taskUnlockedAmount,
+    BigDecimal releasedPct,
+    BigDecimal tranche1,
+    BigDecimal tranche2,
+    BigDecimal paidAmount,
+    Instant tranche1PaidAt,
+    String tranche1PaymentRef,
+    String tranche1PaymentMethod,
+    LocalDate tranche1PaymentDate,
+    LocalDate paymentDate,
+    String paymentRef,
+    String paymentMethod,
+    PayrollRecordStatus status,
+    UUID approvedBy,
+    Instant approvedAt,
+    UUID releasedBy,
+    Instant releasedAt,
+    String rejectNote,
+    List<PayrollLineDto> lines,
+    BankBriefDto bankAccount,
+    String snapshot
+) {}
