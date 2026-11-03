@@ -1,0 +1,6 @@
+[allowlist]
+description = "Allowlist for example env file and unit/integration test fixtures"
+paths = [
+    '''^\.env\.example$''',
+    '''^src/test/.*'''
+]

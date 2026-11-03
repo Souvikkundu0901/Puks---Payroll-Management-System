@@ -12,6 +12,21 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Run Gitleaks secret scan
+        uses: gitleaks/gitleaks-action@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Verify zero plain-link or window.open downloads of /api/
+        run: |
+          if grep -rnE 'href\s*=\s*["`'']/api/|window\.open\s*\(\s*["`'']/api/|location(\.href)?\s*=\s*["`'']/api/' frontend/ src/main/resources/static/; then
+            echo "ERROR: Found plain-link or unauthenticated /api navigation in frontend files. Use API.download() instead." >&2
+            exit 1
+          fi
+          echo "PASS: Zero plain-link or window.open /api downloads found."
 
       - name: Set up JDK 25
         uses: actions/setup-java@v4
