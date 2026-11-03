@@ -476,8 +476,12 @@ class AttendanceIntegrationTest extends BaseIntegrationTest {
 
         UUID dept1 = UUID.randomUUID();
         UUID dept2 = UUID.randomUUID();
-        jdbcTemplate.update("INSERT INTO departments (id, name, code) VALUES (?, 'Engineering', 'ENG')", dept1);
-        jdbcTemplate.update("INSERT INTO departments (id, name, code) VALUES (?, 'Human Resources', 'HR')", dept2);
+        String code1 = "ATT_D1_" + UUID.randomUUID().toString().substring(0, 8);
+        String code2 = "ATT_D2_" + UUID.randomUUID().toString().substring(0, 8);
+        String name1 = "Dept1 " + UUID.randomUUID().toString().substring(0, 8);
+        String name2 = "Dept2 " + UUID.randomUUID().toString().substring(0, 8);
+        jdbcTemplate.update("INSERT INTO departments (id, name, code) VALUES (?, ?, ?)", dept1, name1, code1);
+        jdbcTemplate.update("INSERT INTO departments (id, name, code) VALUES (?, ?, ?)", dept2, name2, code2);
 
         User emp1 = createTestUser("EMP_DEPT1", "emp.dept1@octopyder.com", Role.EMPLOYEE, null);
         User emp2 = createTestUser("EMP_DEPT2", "emp.dept2@octopyder.com", Role.EMPLOYEE, null);

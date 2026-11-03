@@ -40,6 +40,32 @@ A production-grade, modular monolith cloud payroll and workforce management plat
 
 ---
 
+## 📸 Visual Showcase & Live Previews
+
+| Authentication Portal | Employee Dashboard |
+| :---: | :---: |
+| ![Login Portal](assets/screenshots/01-login-portal.png) | ![Employee Dashboard](assets/screenshots/02-employee-dashboard.png) |
+
+| GPS Geofenced Attendance | Salary & Payslip Breakdown | Manager Review Portal |
+| :---: | :---: | :---: |
+| ![Attendance](assets/screenshots/03-attendance-geofence.png) | ![Salary](assets/screenshots/04-salary-payslip.png) | ![Manager Portal](assets/screenshots/05-manager-portal.png) |
+
+---
+
+## 🎬 Interactive Walkthrough Video
+
+Experience the full end-to-end user journey across all roles through the interactive walkthrough player:
+- **Interactive Video Player:** [`assets/walkthrough_video.html`](assets/walkthrough_video.html)
+- **How to View:** Open `assets/walkthrough_video.html` in your web browser to view step-by-step scene walkthroughs covering:
+  1. **Dual-Token Authentication & Role-Based Entry:** Short-lived JWTs, rotating HttpOnly refresh cookies, and rate-limiting safeguards.
+  2. **Employee Hub & Real-Time KPI Telemetry:** Dynamic widgets for attendance %, leave balances, pending tasks, and net salary.
+  3. **Geofenced GPS Punch & Haversine Verification:** Live coordinate proximity checks and attendance timeline visualization.
+  4. **Double-Entry Leave Ledger & Automated Accruals:** Append-only balance ledger, medical certificate uploads, and manager approvals.
+  5. **Pure Domain Payroll Engine & Multi-Tier Retentions:** Zero-drift calculations, 2-day/7-day retentions, and PDF payslips.
+  6. **Immutable Audit Trail & Streaming SXSSF Reports:** Append-only logging and memory-safe Excel/CSV data exports.
+
+---
+
 ## 2. Architecture & Design
 
 ### 2.1 Modular Monolith Package Structure
@@ -176,3 +202,9 @@ Run end-to-end smoke test script against the running application:
 ## 7. Security Policy
 
 For vulnerability reporting guidelines, disclosure procedures, and security commitments, see [SECURITY.md](SECURITY.md).
+
+---
+
+## 👥 Acknowledgements & Contributors
+
+Special recognition and credit to **[@Naitik-26](https://github.com/Naitik-26)** for designing and contributing the comprehensive frontend architecture, responsive layouts, 9 dynamic themes, and user interfaces across the administrative, managerial, and employee portals.
