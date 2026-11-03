@@ -121,6 +121,19 @@ public class EmployeeController {
         employeeService.deleteEmployee(id);
     }
 
+    @GetMapping(value = "/{id}/id-card.pdf", produces = MediaType.APPLICATION_PDF_VALUE)
+    @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER', 'EMPLOYEE')")
+    public ResponseEntity<byte[]> getIdCardPdf(
+        @AuthenticationPrincipal CurrentUser currentUser,
+        @PathVariable UUID id
+    ) {
+        byte[] pdfBytes = profileService.getIdCardPdf(currentUser, id);
+        return ResponseEntity.ok()
+            .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"id-card-" + id + ".pdf\"")
+            .header("X-Content-Type-Options", "nosniff")
+            .body(pdfBytes);
+    }
+
     @GetMapping("/{id}/summary/{tab}")
     @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER', 'EMPLOYEE')")
     public Map<String, Object> getSummary(

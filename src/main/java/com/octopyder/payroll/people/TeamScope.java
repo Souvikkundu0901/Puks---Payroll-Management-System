@@ -20,6 +20,9 @@ public class TeamScope {
         if (currentUser == null) {
             throw new AppException(HttpStatus.UNAUTHORIZED, "UNAUTHORIZED", "Authentication required");
         }
+        User target = userRepository.findById(targetUserId)
+            .orElseThrow(() -> new AppException(HttpStatus.NOT_FOUND, "USER_NOT_FOUND", "User not found"));
+
         if (currentUser.isAdmin()) {
             return;
         }
@@ -27,10 +30,7 @@ public class TeamScope {
             return;
         }
         if (currentUser.isManager()) {
-            boolean isTeamMember = userRepository.findById(targetUserId)
-                .map(user -> currentUser.id().equals(user.getManagerId()))
-                .orElse(false);
-            if (isTeamMember) {
+            if (target.getDeletedAt() == null && currentUser.id().equals(target.getManagerId())) {
                 return;
             }
         }

@@ -96,6 +96,10 @@ public class EmployeeProfile {
         return userId;
     }
 
+    public UUID getId() {
+        return userId;
+    }
+
     public void setUserId(UUID userId) {
         this.userId = userId;
     }

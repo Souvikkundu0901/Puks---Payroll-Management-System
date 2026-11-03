@@ -11,6 +11,7 @@ import com.octopyder.payroll.people.dto.UpdateProfileRequest;
 import com.octopyder.payroll.people.dto.UserPreferenceDto;
 import com.octopyder.payroll.people.dto.VerifyDocumentRequest;
 import com.octopyder.payroll.storage.StorageService;
+import com.octopyder.payroll.task.TaskService;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -41,6 +42,8 @@ public class ProfileService {
     private final AuditService auditService;
     private final BusinessClock businessClock;
     private final SettingsService settingsService;
+    private final TaskService taskService;
+    private final IdCardPdfService idCardPdfService;
 
     public ProfileService(
         UserRepository userRepository,
@@ -52,7 +55,9 @@ public class ProfileService {
         TeamScope teamScope,
         AuditService auditService,
         BusinessClock businessClock,
-        SettingsService settingsService
+        SettingsService settingsService,
+        TaskService taskService,
+        IdCardPdfService idCardPdfService
     ) {
         this.userRepository = userRepository;
         this.profileRepository = profileRepository;
@@ -64,6 +69,8 @@ public class ProfileService {
         this.auditService = auditService;
         this.businessClock = businessClock;
         this.settingsService = settingsService;
+        this.taskService = taskService;
+        this.idCardPdfService = idCardPdfService;
     }
 
     public ProfileDto getProfile(CurrentUser currentUser) {
@@ -156,6 +163,21 @@ public class ProfileService {
 
         preferenceRepository.save(pref);
         return dto;
+    }
+
+    public byte[] getIdCardPdf(CurrentUser currentUser, UUID targetUserId) {
+        teamScope.assertCanAccess(currentUser, targetUserId);
+        User user = userRepository.findById(targetUserId)
+            .filter(u -> u.getDeletedAt() == null)
+            .orElseThrow(() -> new AppException(HttpStatus.NOT_FOUND, "NOT_FOUND", "User not found"));
+
+        EmployeeProfile profile = profileRepository.findById(user.getId()).orElse(null);
+        String deptName = "";
+        if (profile != null && profile.getDepartmentId() != null) {
+            deptName = departmentRepository.findById(profile.getDepartmentId()).map(Department::getName).orElse("");
+        }
+        String companyName = settingsService.getString("company.name", "Puk's");
+        return idCardPdfService.generateIdCardPdf(user, profile, deptName, companyName);
     }
 
     public List<DocumentDto> listDocuments(CurrentUser currentUser) {
@@ -262,6 +284,11 @@ public class ProfileService {
         }
 
         if (settingsService.isCompanyLogoKey(storageKey)) {
+            return;
+        }
+
+        if (taskService.isTaskAttachmentKey(storageKey)) {
+            taskService.validateAttachmentAccess(currentUser, storageKey);
             return;
         }
 

@@ -27,6 +27,7 @@ public class DepartmentController {
     }
 
     @GetMapping
+    @PreAuthorize("isAuthenticated()")
     public List<Department> listDepartments() {
         return departmentService.listDepartments();
     }

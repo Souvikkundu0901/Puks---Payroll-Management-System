@@ -8,6 +8,8 @@ import com.octopyder.payroll.people.dto.UserPreferenceDto;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -23,6 +25,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/v1/me")
+@PreAuthorize("isAuthenticated()")
 public class MeController {
 
     private final ProfileService profileService;
@@ -50,6 +53,15 @@ public class MeController {
         @RequestParam("file") MultipartFile file
     ) {
         return profileService.updatePhoto(currentUser, file);
+    }
+
+    @GetMapping(value = "/id-card.pdf", produces = MediaType.APPLICATION_PDF_VALUE)
+    public ResponseEntity<byte[]> getMyIdCardPdf(@AuthenticationPrincipal CurrentUser currentUser) {
+        byte[] pdfBytes = profileService.getIdCardPdf(currentUser, currentUser.id());
+        return ResponseEntity.ok()
+            .header(org.springframework.http.HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"id-card-" + currentUser.code() + ".pdf\"")
+            .header("X-Content-Type-Options", "nosniff")
+            .body(pdfBytes);
     }
 
     @GetMapping("/preferences")

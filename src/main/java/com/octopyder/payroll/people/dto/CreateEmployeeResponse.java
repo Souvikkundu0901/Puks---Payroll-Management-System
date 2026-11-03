@@ -7,6 +7,10 @@ public record CreateEmployeeResponse(
     String code,
     String email,
     String temporaryPassword,
-    boolean mustChangePassword
+    boolean mustChangePassword,
+    boolean emailSent
 ) {
+    public CreateEmployeeResponse(UUID id, String code, String email, String temporaryPassword, boolean mustChangePassword) {
+        this(id, code, email, temporaryPassword, mustChangePassword, false);
+    }
 }

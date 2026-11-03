@@ -1,5 +1,6 @@
 package com.octopyder.payroll.people;
 
+import com.octopyder.payroll.attendance.LeaveQueryService;
 import com.octopyder.payroll.audit.AuditService;
 import com.octopyder.payroll.auth.TokenService;
 import com.octopyder.payroll.common.AppException;
@@ -12,6 +13,7 @@ import com.octopyder.payroll.people.dto.BankAccountRequest;
 import com.octopyder.payroll.people.dto.CreateEmployeeResponse;
 import com.octopyder.payroll.people.dto.DeductionsRequest;
 import com.octopyder.payroll.people.dto.EmployeeDto;
+import com.octopyder.payroll.people.dto.EmployeePayrollDetails;
 import com.octopyder.payroll.people.dto.OffboardRequest;
 import com.octopyder.payroll.people.dto.UpdateEmployeeRequest;
 import jakarta.servlet.http.HttpServletRequest;
@@ -20,6 +22,7 @@ import org.apache.commons.csv.CSVParser;
 import org.apache.commons.csv.CSVPrinter;
 import org.apache.commons.csv.CSVRecord;
 import com.octopyder.payroll.common.CsvUtil;
+import com.octopyder.payroll.mail.MailService;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
@@ -29,7 +32,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.support.TransactionTemplate;
 
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -66,6 +71,9 @@ public class EmployeeService {
     private final TeamScope teamScope;
     private final AuditService auditService;
     private final BusinessClock businessClock;
+    private final LeaveQueryService leaveQueryService;
+    private final MailService mailService;
+    private final TransactionTemplate transactionTemplate;
     private final PasswordEncoder passwordEncoder = new BCryptPasswordEncoder(12);
     private final SecureRandom secureRandom = new SecureRandom();
 
@@ -81,7 +89,10 @@ public class EmployeeService {
         TokenService tokenService,
         TeamScope teamScope,
         AuditService auditService,
-        BusinessClock businessClock
+        BusinessClock businessClock,
+        LeaveQueryService leaveQueryService,
+        MailService mailService,
+        PlatformTransactionManager transactionManager
     ) {
         this.userRepository = userRepository;
         this.profileRepository = profileRepository;
@@ -95,6 +106,9 @@ public class EmployeeService {
         this.teamScope = teamScope;
         this.auditService = auditService;
         this.businessClock = businessClock;
+        this.leaveQueryService = leaveQueryService;
+        this.mailService = mailService;
+        this.transactionTemplate = new TransactionTemplate(transactionManager);
     }
 
     public PageResponse<EmployeeDto> listEmployees(
@@ -155,8 +169,11 @@ public class EmployeeService {
         return new PageResponse<>(pagedList, pageNo, pageSize, (long) total, totalPages);
     }
 
-    @Transactional
     public CreateEmployeeResponse createEmployee(AddEmployeeRequest request, HttpServletRequest httpRequest) {
+        return createEmployee(request, httpRequest, true);
+    }
+
+    public CreateEmployeeResponse createEmployee(AddEmployeeRequest request, HttpServletRequest httpRequest, boolean sendEmail) {
         String email = request.email().trim().toLowerCase();
         if (userRepository.findByEmailIgnoreCase(email).isPresent()) {
             throw new AppException(HttpStatus.CONFLICT, "USER_EXISTS", "User with this email already exists");
@@ -170,55 +187,70 @@ public class EmployeeService {
             ? request.password()
             : generateTemporaryPassword();
 
-        Instant now = businessClock.instant();
-        User user = new User();
-        user.setCode(code);
-        user.setEmail(email);
-        user.setPasswordHash(passwordEncoder.encode(rawPassword));
-        user.setRole(request.role() != null ? request.role() : Role.EMPLOYEE);
-        user.setStatus(UserStatus.ACTIVE);
-        user.setMustChangePassword(true);
-        user.setTemporaryPasswordExpiresAt(now.plus(Duration.ofDays(7)));
-        user.setManagerId(request.managerId());
-        user.setTokenVersion(1);
-        user.setCreatedAt(now);
-        user.setUpdatedAt(now);
+        User savedUser = transactionTemplate.execute(status -> {
+            Instant now = businessClock.instant();
+            User user = new User();
+            user.setCode(code);
+            user.setEmail(email);
+            user.setPasswordHash(passwordEncoder.encode(rawPassword));
+            user.setRole(request.role() != null ? request.role() : Role.EMPLOYEE);
+            user.setStatus(UserStatus.ACTIVE);
+            user.setMustChangePassword(true);
+            user.setTemporaryPasswordExpiresAt(now.plus(Duration.ofDays(7)));
+            user.setManagerId(request.managerId());
+            user.setTokenVersion(1);
+            user.setCreatedAt(now);
+            user.setUpdatedAt(now);
 
-        User savedUser = userRepository.save(user);
+            User persistedUser = userRepository.save(user);
 
-        EmployeeProfile profile = new EmployeeProfile(
-            savedUser.getId(),
-            request.firstName().trim(),
-            request.lastName().trim(),
-            request.designation().trim(),
-            request.baseSalary() != null ? request.baseSalary() : BigDecimal.ZERO
-        );
-        profile.setGender(request.gender());
-        profile.setDateOfBirth(request.dateOfBirth());
-        profile.setPhone(request.phone());
-        profile.setAddress(request.address());
-        profile.setBloodGroup(request.bloodGroup());
-        profile.setEmergencyContact(request.emergencyContact());
-        profile.setMaritalStatus(request.maritalStatus());
-        profile.setDepartmentId(request.departmentId());
-        profile.setEmploymentType(request.employmentType() != null ? request.employmentType() : "FULL_TIME");
-        profile.setJoiningDate(request.joiningDate() != null ? request.joiningDate() : businessClock.today());
-        profile.setExperienceYears(request.experienceYears() != null ? request.experienceYears() : BigDecimal.ZERO);
-        if (request.skills() != null) {
-            profile.setSkills(request.skills());
+            EmployeeProfile profile = new EmployeeProfile(
+                persistedUser.getId(),
+                request.firstName().trim(),
+                request.lastName().trim(),
+                request.designation().trim(),
+                request.baseSalary() != null ? request.baseSalary() : BigDecimal.ZERO
+            );
+            profile.setGender(request.gender());
+            profile.setDateOfBirth(request.dateOfBirth());
+            profile.setPhone(request.phone());
+            profile.setAddress(request.address());
+            profile.setBloodGroup(request.bloodGroup());
+            profile.setEmergencyContact(request.emergencyContact());
+            profile.setMaritalStatus(request.maritalStatus());
+            profile.setDepartmentId(request.departmentId());
+            profile.setEmploymentType(request.employmentType() != null ? request.employmentType() : "FULL_TIME");
+            profile.setJoiningDate(request.joiningDate() != null ? request.joiningDate() : businessClock.today());
+            profile.setExperienceYears(request.experienceYears() != null ? request.experienceYears() : BigDecimal.ZERO);
+            if (request.skills() != null) {
+                profile.setSkills(request.skills());
+            }
+            profile.setUpdatedAt(now);
+
+            profileRepository.save(profile);
+
+            auditService.log("CREATE_EMPLOYEE", "USER", persistedUser.getId().toString(), null, "{\"email\":\"" + email + "\",\"code\":\"" + code + "\"}");
+
+            return persistedUser;
+        });
+
+        boolean emailSent = false;
+        if (sendEmail && savedUser != null) {
+            try {
+                emailSent = mailService.sendLoginCredentials(savedUser.getEmail(), rawPassword);
+            } catch (Exception e) {
+                emailSent = false;
+            }
+            auditService.log("USER_EMAIL_NOTIFICATION", "USER", savedUser.getId().toString(), null, "{\"emailSent\":" + emailSent + "}");
         }
-        profile.setUpdatedAt(now);
-
-        profileRepository.save(profile);
-
-        auditService.log("CREATE_EMPLOYEE", "USER", savedUser.getId().toString(), null, "{\"email\":\"" + email + "\",\"code\":\"" + code + "\"}");
 
         return new CreateEmployeeResponse(
             savedUser.getId(),
             savedUser.getCode(),
             savedUser.getEmail(),
             rawPassword,
-            true
+            true,
+            emailSent
         );
     }
 
@@ -309,24 +341,38 @@ public class EmployeeService {
         return toDto(user, profile);
     }
 
-    @Transactional
     public CreateEmployeeResponse resetPassword(UUID id) {
-        User user = userRepository.findById(id)
-            .filter(u -> u.getDeletedAt() == null)
-            .orElseThrow(() -> new AppException(HttpStatus.NOT_FOUND, "NOT_FOUND", "Employee not found"));
-
         String tempPassword = generateTemporaryPassword();
-        user.setPasswordHash(passwordEncoder.encode(tempPassword));
-        user.setMustChangePassword(true);
-        user.setTemporaryPasswordExpiresAt(businessClock.instant().plus(Duration.ofDays(7)));
-        user.setTokenVersion(user.getTokenVersion() + 1);
-        user.setUpdatedAt(businessClock.instant());
-        userRepository.save(user);
 
-        tokenService.revokeAllForUser(id);
-        auditService.log("RESET_PASSWORD", "USER", id.toString(), null, "Admin reset password");
+        User user = transactionTemplate.execute(status -> {
+            User u = userRepository.findById(id)
+                .filter(usr -> usr.getDeletedAt() == null)
+                .orElseThrow(() -> new AppException(HttpStatus.NOT_FOUND, "NOT_FOUND", "Employee not found"));
 
-        return new CreateEmployeeResponse(user.getId(), user.getCode(), user.getEmail(), tempPassword, true);
+            u.setPasswordHash(passwordEncoder.encode(tempPassword));
+            u.setMustChangePassword(true);
+            u.setTemporaryPasswordExpiresAt(businessClock.instant().plus(Duration.ofDays(7)));
+            u.setTokenVersion(u.getTokenVersion() + 1);
+            u.setUpdatedAt(businessClock.instant());
+            userRepository.save(u);
+
+            tokenService.revokeAllForUser(id);
+            auditService.log("RESET_PASSWORD", "USER", id.toString(), null, "Admin reset password");
+
+            return u;
+        });
+
+        boolean emailSent = false;
+        if (user != null) {
+            try {
+                emailSent = mailService.sendLoginCredentials(user.getEmail(), tempPassword);
+            } catch (Exception e) {
+                emailSent = false;
+            }
+            auditService.log("USER_EMAIL_NOTIFICATION", "USER", user.getId().toString(), null, "{\"emailSent\":" + emailSent + "}");
+        }
+
+        return new CreateEmployeeResponse(user.getId(), user.getCode(), user.getEmail(), tempPassword, true, emailSent);
     }
 
     @Transactional
@@ -394,6 +440,47 @@ public class EmployeeService {
             }
         }
         auditService.log("UPDATE_DEDUCTIONS", "USER", id.toString(), null, "Deductions updated");
+    }
+
+    @Transactional(readOnly = true)
+    public EmployeePayrollDetails getEmployeePayrollDetails(UUID userId, boolean includeAdmins) {
+        User user = userRepository.findById(userId)
+            .orElseThrow(() -> new AppException(HttpStatus.NOT_FOUND, "USER_NOT_FOUND", "User not found: " + userId));
+
+        if (user.getDeletedAt() != null || user.getStatus() != UserStatus.ACTIVE) {
+            throw new AppException(HttpStatus.UNPROCESSABLE_ENTITY, "PAYROLL_USER_NOT_ELIGIBLE", "User is inactive or deleted");
+        }
+
+        if (user.getRole() == Role.ADMIN && !includeAdmins) {
+            throw new AppException(HttpStatus.UNPROCESSABLE_ENTITY, "PAYROLL_USER_NOT_ELIGIBLE", "Admin users are excluded from payroll");
+        }
+
+        EmployeeProfile profile = profileRepository.findById(userId)
+            .orElseThrow(() -> new AppException(HttpStatus.UNPROCESSABLE_ENTITY, "PAYROLL_USER_NOT_ELIGIBLE", "Employee profile not found"));
+
+        if (profile.getBaseSalary() == null || profile.getBaseSalary().compareTo(BigDecimal.ZERO) <= 0) {
+            throw new AppException(HttpStatus.UNPROCESSABLE_ENTITY, "PAYROLL_NO_SALARY", "Employee has no positive base salary configured");
+        }
+
+        BigDecimal tds = BigDecimal.ZERO;
+        BigDecimal pf = BigDecimal.ZERO;
+        BigDecimal pt = BigDecimal.ZERO;
+        List<EmployeeDeduction> deductions = deductionRepository.findByUserId(userId);
+        if (deductions != null) {
+            for (EmployeeDeduction d : deductions) {
+                if (d.getMonthlyAmount() == null) continue;
+                String type = d.getType() != null ? d.getType().trim().toUpperCase() : "";
+                if ("TDS".equals(type)) {
+                    tds = tds.add(d.getMonthlyAmount());
+                } else if ("PF".equals(type)) {
+                    pf = pf.add(d.getMonthlyAmount());
+                } else if ("PT".equals(type)) {
+                    pt = pt.add(d.getMonthlyAmount());
+                }
+            }
+        }
+
+        return new EmployeePayrollDetails(user, profile, tds, pf, pt);
     }
 
     public Map<String, Object> getSummary(CurrentUser currentUser, UUID id, String tab) {
@@ -481,7 +568,7 @@ public class EmployeeService {
                     first, last, email, null, null, null, null, null, null, null,
                     null, desig, "FULL_TIME", LocalDate.now(), null, BigDecimal.valueOf(50000), BigDecimal.ZERO, null, Role.EMPLOYEE, null
                 );
-                createEmployee(req, null);
+                createEmployee(req, null, false);
                 count++;
             }
         } catch (Exception e) {
@@ -505,6 +592,12 @@ public class EmployeeService {
 
         String fullName = profile != null ? profile.getFirstName() + " " + profile.getLastName() : user.getCode();
         String photoUrl = profile != null && profile.getPhotoKey() != null ? "/api/v1/documents/stream/" + profile.getPhotoKey() : null;
+
+        boolean onLeaveToday = false;
+        if (leaveQueryService != null) {
+            LocalDate today = businessClock.instant().atZone(java.time.ZoneId.of("Asia/Kolkata")).toLocalDate();
+            onLeaveToday = leaveQueryService.hasApprovedLeave(user.getId(), today);
+        }
 
         return new EmployeeDto(
             user.getId(),
@@ -533,7 +626,7 @@ public class EmployeeService {
             profile != null ? profile.getSkills() : new String[0],
             user.getRole(),
             user.getStatus(),
-            false, // onLeaveToday
+            onLeaveToday,
             photoUrl
         );
     }

@@ -108,7 +108,6 @@ public class ManagerService {
         );
     }
 
-    @Transactional
     public CreateEmployeeResponse createManager(AddManagerRequest request) {
         AddEmployeeRequest empReq = new AddEmployeeRequest(
             request.firstName(),
