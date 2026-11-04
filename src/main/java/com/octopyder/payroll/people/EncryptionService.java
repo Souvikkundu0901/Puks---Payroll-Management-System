@@ -22,7 +22,10 @@ public class EncryptionService {
     private final SecretKey secretKey;
     private final SecureRandom secureRandom = new SecureRandom();
 
-    public EncryptionService(@Value("${app.encryption-key:MTIzNDU2Nzg5MDEyMzQ1Njc4OTAxMjM0NTY3ODkwMTI=}") String base64Key) {
+    public EncryptionService(@Value("${app.encryption-key:}") String base64Key) {
+        if (base64Key == null || base64Key.isBlank()) {
+            throw new IllegalStateException("APP_ENCRYPTION_KEY is not set. Generate one with: openssl rand -base64 32");
+        }
         byte[] keyBytes = Base64.getDecoder().decode(base64Key);
         this.secretKey = new SecretKeySpec(keyBytes, "AES");
     }
