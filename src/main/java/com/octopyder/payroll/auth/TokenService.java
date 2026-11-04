@@ -42,11 +42,14 @@ public class TokenService {
     private SettingsService settingsService;
 
     public TokenService(
-        @Value("${jwt.secret:4b0c79d38c645b23d9a19c4b5f8e21a73d9e8b7c6a5d4e3f2a1b0c9d8e7f6a5b}") String jwtSecret,
+        @Value("${jwt.secret:}") String jwtSecret,
         RefreshTokenRepository refreshTokenRepository,
         BusinessClock businessClock,
         AuditService auditService
     ) {
+        if (jwtSecret == null || jwtSecret.isBlank() || jwtSecret.length() < 32 || jwtSecret.startsWith("REPLACE_ME")) {
+            throw new IllegalStateException("JWT_SECRET is not set (min 32 chars). Generate one with: openssl rand -hex 32");
+        }
         this.jwtSecret = jwtSecret;
         this.refreshTokenRepository = refreshTokenRepository;
         this.businessClock = businessClock;
